@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A1;
+package com.s44801165.CPEN431.A2;
 
 public class ExponentialTimeoutStrategy implements TimeoutStrategy {
     private static final int INITIAL_TIMEOUT = 100; // in milliseconds.

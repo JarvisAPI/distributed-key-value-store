@@ -1,14 +1,18 @@
-package com.s44801165.CPEN431.A1;
+package com.s44801165.CPEN431.A2;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.util.Arrays;
 
-import com.s44801165.CPEN431.A1.protocol.NetworkMessage;
-import com.s44801165.CPEN431.A1.protocol.Util;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A2.protocol.Util;
+
+import ca.NetSysLab.ProtocolBuffers.RequestPayload;
+import ca.NetSysLab.ProtocolBuffers.ResponsePayload;
 
 public class Client implements MessageObserver {
     private static final int MAX_RETRY_COUNT = 3;
@@ -31,11 +35,11 @@ public class Client implements MessageObserver {
             
             InetAddress clientAddress = InetAddress.getLocalHost();
             NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) clientAddress, serverPort));
-            byte[] payload = new byte[4];
-            payload[0] = (byte) studentId;
-            payload[1] = (byte) (studentId >> 8);
-            payload[2] = (byte) (studentId >> 16);
-            payload[3] = (byte) (studentId >> 24);
+            
+            byte[] payload = RequestPayload.ReqPayload.newBuilder()
+                    .setStudentID(studentId)
+                    .build()
+                    .toByteArray();
             msg.setPayload(payload);
             
             byte[] dataBytes = msg.getDataBytes();
@@ -87,23 +91,25 @@ public class Client implements MessageObserver {
             printNetworkMessage(msg);
             stopMessageReceiveThread();
             break;
+        default:
+            break;
         }
     }
     
     private void printNetworkMessage(NetworkMessage msg) {
-        byte[] payload = msg.getPayload();
-        int len = 0;
-        for (int i=0; i < 4; i++) {
-            len |= ((int) payload[i]) << (24 - i*8);
+        ResponsePayload.ResPayload resPayload;
+        try {
+            resPayload = ResponsePayload.ResPayload.newBuilder()
+                    .mergeFrom(msg.getPayload())
+                    .build();
+            
+            ByteString secretKey = resPayload.getSecretKey();
+            System.out.println("Secret code length: " + secretKey.size());
+            System.out.print("Secret: ");
+            Util.printHexString(secretKey.toByteArray());
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
         }
-        byte[] secretCode = Arrays.copyOfRange(payload, 4, len + 4);
-        System.out.println("Secret code length: " + len);
-        System.out.print("Secret: ");
-        for (byte b : secretCode) {
-            String bb = String.format("%02X", b);
-            System.out.print(bb);
-        }
-        System.out.println();
     }
     
     public static void main(String[] args) {

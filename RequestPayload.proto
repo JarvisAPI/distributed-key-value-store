@@ -1,0 +1,6 @@
+option java_package = "ca.NetSysLab.ProtocolBuffers";
+option java_outer_classname = "RequestPayload";
+
+message ReqPayload {
+    required fixed32 studentID = 1;
+}

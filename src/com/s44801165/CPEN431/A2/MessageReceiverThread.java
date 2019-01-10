@@ -1,13 +1,14 @@
-package com.s44801165.CPEN431.A1;
+package com.s44801165.CPEN431.A2;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import com.s44801165.CPEN431.A1.MessageObserver.MessageType;
-import com.s44801165.CPEN431.A1.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A2.MessageObserver.MessageType;
+import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;
@@ -50,13 +51,16 @@ public class MessageReceiverThread extends Thread {
                 }
                 mSocket.receive(replyPacket);
                 type = MessageType.MSG_RECEIVED;
-                replyMessage = NetworkMessage.contructReplyMessage(replyPacket.getData());
+                replyMessage = NetworkMessage.contructReplyMessage(
+                        Arrays.copyOf(replyPacket.getData(), replyPacket.getLength()));
                 
                 if (mTimeoutStrategy != null) {
                     mTimeoutStrategy.reset();
                 }
             } catch (IOException e) {
-                mTimeoutStrategy.onTimedOut();
+                if (mTimeoutStrategy != null) {
+                    mTimeoutStrategy.onTimedOut();
+                }
                 type = MessageType.TIMEOUT;
             } catch (Exception e) {
                 type = MessageType.ERROR;

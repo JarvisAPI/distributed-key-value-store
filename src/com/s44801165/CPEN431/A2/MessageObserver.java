@@ -1,10 +1,10 @@
-package com.s44801165.CPEN431.A1;
+package com.s44801165.CPEN431.A2;
 
-import com.s44801165.CPEN431.A1.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
 
 public interface MessageObserver {
     public enum MessageType {
-        ERROR, TIMEOUT, MSG_RECEIVED
+        ERROR, CHECKSUM_ERROR, TIMEOUT, MSG_RECEIVED
     };
     
     /**

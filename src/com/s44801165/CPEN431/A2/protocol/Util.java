@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A1.protocol;
+package com.s44801165.CPEN431.A2.protocol;
 
 import java.net.Inet4Address;
 
@@ -34,5 +34,12 @@ public class Util {
         uniqueId[idx++] = (byte) (nanoTime);
         
         return uniqueId;
+    }
+    
+    public static void printHexString(byte[] dataBytes) {
+        for (byte b : dataBytes) {
+            System.out.print(String.format("%02X", b));
+        }
+        System.out.println();
     }
 }
