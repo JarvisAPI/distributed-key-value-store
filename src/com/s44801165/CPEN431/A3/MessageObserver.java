@@ -1,6 +1,6 @@
-package com.s44801165.CPEN431.A2;
+package com.s44801165.CPEN431.A3;
 
-import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 
 public interface MessageObserver {
     public enum MessageType {

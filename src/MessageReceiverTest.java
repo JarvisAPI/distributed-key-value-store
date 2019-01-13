@@ -9,10 +9,10 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.s44801165.CPEN431.A2.MessageObserver;
-import com.s44801165.CPEN431.A2.MessageObserver.MessageType;
-import com.s44801165.CPEN431.A2.MessageReceiverThread;
-import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A3.MessageObserver;
+import com.s44801165.CPEN431.A3.MessageReceiverThread;
+import com.s44801165.CPEN431.A3.MessageObserver.MessageType;
+import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 
 import static org.mockito.Matchers.*;
 

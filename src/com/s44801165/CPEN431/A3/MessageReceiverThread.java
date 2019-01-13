@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A2;
+package com.s44801165.CPEN431.A3;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.s44801165.CPEN431.A2.MessageObserver.MessageType;
-import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A3.MessageObserver.MessageType;
+import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;
@@ -51,7 +51,7 @@ public class MessageReceiverThread extends Thread {
                 }
                 mSocket.receive(replyPacket);
                 type = MessageType.MSG_RECEIVED;
-                replyMessage = NetworkMessage.contructReplyMessage(
+                replyMessage = NetworkMessage.contructMessage(
                         Arrays.copyOf(replyPacket.getData(), replyPacket.getLength()));
                 
                 if (mTimeoutStrategy != null) {

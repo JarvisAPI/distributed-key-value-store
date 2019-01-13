@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A2;
+package com.s44801165.CPEN431.A3.client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,13 +6,11 @@ import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.s44801165.CPEN431.A2.protocol.NetworkMessage;
-import com.s44801165.CPEN431.A2.protocol.Util;
-
-import ca.NetSysLab.ProtocolBuffers.RequestPayload;
-import ca.NetSysLab.ProtocolBuffers.ResponsePayload;
+import com.s44801165.CPEN431.A3.ExponentialTimeoutStrategy;
+import com.s44801165.CPEN431.A3.MessageObserver;
+import com.s44801165.CPEN431.A3.MessageReceiverThread;
+import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A3.protocol.Util;
 
 public class Client implements MessageObserver {
     private static final int MAX_RETRY_COUNT = 3;
@@ -36,11 +34,7 @@ public class Client implements MessageObserver {
             InetAddress clientAddress = InetAddress.getLocalHost();
             NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) clientAddress, serverPort));
             
-            byte[] payload = RequestPayload.ReqPayload.newBuilder()
-                    .setStudentID(studentId)
-                    .build()
-                    .toByteArray();
-            msg.setPayload(payload);
+            
             
             byte[] dataBytes = msg.getDataBytes();
             mSendPacket = new DatagramPacket(dataBytes, dataBytes.length, serverAddress, serverPort);
@@ -88,27 +82,10 @@ public class Client implements MessageObserver {
             }
             break;
         case MSG_RECEIVED:
-            printNetworkMessage(msg);
             stopMessageReceiveThread();
             break;
         default:
             break;
-        }
-    }
-    
-    private void printNetworkMessage(NetworkMessage msg) {
-        ResponsePayload.ResPayload resPayload;
-        try {
-            resPayload = ResponsePayload.ResPayload.newBuilder()
-                    .mergeFrom(msg.getPayload())
-                    .build();
-            
-            ByteString secretKey = resPayload.getSecretKey();
-            System.out.println("Secret code length: " + secretKey.size());
-            System.out.print("Secret: ");
-            Util.printHexString(secretKey.toByteArray());
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
         }
     }
     

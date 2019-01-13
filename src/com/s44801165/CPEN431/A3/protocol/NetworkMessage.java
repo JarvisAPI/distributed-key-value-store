@@ -1,6 +1,7 @@
-package com.s44801165.CPEN431.A2.protocol;
+package com.s44801165.CPEN431.A3.protocol;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.zip.CRC32;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -12,6 +13,8 @@ public class NetworkMessage {
     private static final int MAX_PAYLOAD_SIZE = 16 * 1024; // in bytes
     private byte[] mUniqueId;
     private byte[] mPayload;
+    private InetAddress mAddress;
+    private int mPort;
 
     public NetworkMessage(byte[] uniqueId) {
         mUniqueId = uniqueId;
@@ -52,7 +55,7 @@ public class NetworkMessage {
         return new byte[ID_SIZE + MAX_PAYLOAD_SIZE];
     }
     
-    public static NetworkMessage contructReplyMessage(byte[] data) throws IOException {
+    public static NetworkMessage contructMessage(byte[] data) throws IOException {
         try {
             Message.Msg transportMsg = Message.Msg.newBuilder()
                     .mergeFrom(data)
@@ -80,6 +83,7 @@ public class NetworkMessage {
         CRC32 crc = new CRC32();
         crc.update(id);
         crc.update(payload);
+
         return crc.getValue() == checksum;
     }
 
@@ -89,5 +93,18 @@ public class NetworkMessage {
 
     public byte[] getPayload() {
         return mPayload;
+    }
+    
+    public void setAddressAndPort(InetAddress addr, int port) {
+        mAddress = addr;
+        mPort = port;
+    }
+    
+    public InetAddress getAddress() {
+        return mAddress;
+    }
+    
+    public int getPort() {
+        return mPort;
     }
 }
