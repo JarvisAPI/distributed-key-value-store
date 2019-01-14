@@ -34,8 +34,6 @@ public class Client implements MessageObserver {
             InetAddress clientAddress = InetAddress.getLocalHost();
             NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) clientAddress, serverPort));
             
-            
-            
             byte[] dataBytes = msg.getDataBytes();
             mSendPacket = new DatagramPacket(dataBytes, dataBytes.length, serverAddress, serverPort);
             

@@ -4,18 +4,22 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.zip.CRC32;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.NetSysLab.ProtocolBuffers.Message;
 
 public class NetworkMessage {
     public static final int ID_SIZE = 16; // in bytes
     private static final int MAX_PAYLOAD_SIZE = 16 * 1024; // in bytes
+    private static CRC32 mCrc = new CRC32();
     private byte[] mUniqueId;
     private byte[] mPayload;
     private InetAddress mAddress;
     private int mPort;
 
+    public NetworkMessage() {
+
+    }
+    
     public NetworkMessage(byte[] uniqueId) {
         mUniqueId = uniqueId;
     }
@@ -56,35 +60,42 @@ public class NetworkMessage {
     }
     
     public static NetworkMessage contructMessage(byte[] data) throws IOException {
-        try {
-            Message.Msg transportMsg = Message.Msg.newBuilder()
-                    .mergeFrom(data)
-                    .build();
-            byte[] id = transportMsg.getMessageID().toByteArray();
-            byte[] payload = transportMsg.getPayload().toByteArray();
-            long checksum = transportMsg.getCheckSum();
-            if (!validateChecksum(id, payload, checksum)) {
-                throw new IOException("Checksum doesn't match");
-            }
-            NetworkMessage msg = new NetworkMessage(id);
-            msg.mPayload = payload;
-            
-            return msg;
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
+        Message.Msg transportMsg = Message.Msg.newBuilder()
+                .mergeFrom(data)
+                .build();
+        byte[] id = transportMsg.getMessageID().toByteArray();
+        byte[] payload = transportMsg.getPayload().toByteArray();
+        long checksum = transportMsg.getCheckSum();
+        if (!validateChecksum(id, payload, checksum)) {
+            throw new IOException("Checksum doesn't match");
         }
-        System.out.println("Invalid message!");
-        NetworkMessage emptyMsg = new NetworkMessage(new byte[ID_SIZE]);
-        emptyMsg.mPayload = new byte[0];
-        return emptyMsg;
+        NetworkMessage msg = new NetworkMessage(id);
+        msg.mPayload = payload;
+        
+        return msg;
     }
     
-    private static boolean validateChecksum(byte[] id, byte[] payload, long checksum) {
-        CRC32 crc = new CRC32();
-        crc.update(id);
-        crc.update(payload);
+    public static void setMessage(NetworkMessage msg, byte[] data) throws IOException {
+        Message.Msg transportMsg = Message.Msg.newBuilder()
+                .mergeFrom(data)
+                .build();
+        byte[] id = transportMsg.getMessageID().toByteArray();
+        byte[] payload = transportMsg.getPayload().toByteArray();
+        long checksum = transportMsg.getCheckSum();
+        if (!validateChecksum(id, payload, checksum)) {
+            throw new IOException("Checksum doesn't match");
+        }
+        msg.mUniqueId = id;
+        msg.mPayload = payload;
+    }
+    
+    private static boolean validateChecksum(byte[] id,
+            byte[] payload, long checksum) {
+        mCrc.reset();
+        mCrc.update(id);
+        mCrc.update(payload);
 
-        return crc.getValue() == checksum;
+        return mCrc.getValue() == checksum;
     }
 
     public byte[] getId() {
