@@ -3,17 +3,16 @@ package com.s44801165.CPEN431.A3;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
-import com.s44801165.CPEN431.A3.MessageObserver.MessageType;
+import com.s44801165.CPEN431.A3.MessageTuple.MessageType;
 import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;
     private TimeoutStrategy mTimeoutStrategy;
-    private List<MessageObserver> mMessageObservers;
+    private BlockingQueue<MessageTuple> mQueue;
     private volatile boolean mShouldStop = false;
 
     /**
@@ -21,13 +20,10 @@ public class MessageReceiverThread extends Thread {
      * @param socket
      *            the socket to listen on.
      */
-    public MessageReceiverThread(DatagramSocket socket) {
-        mMessageObservers = new ArrayList<>();
+    public MessageReceiverThread(DatagramSocket socket,
+            BlockingQueue<MessageTuple> queue) {
+        mQueue = queue;
         mSocket = socket;
-    }
-
-    public void attachMessageObserver(MessageObserver observer) {
-        mMessageObservers.add(observer);
     }
 
     public void setTimeoutStrategy(TimeoutStrategy timeoutStrategy) {
@@ -65,10 +61,8 @@ public class MessageReceiverThread extends Thread {
             } catch (Exception e) {
                 type = MessageType.ERROR;
             }
-
-            for (MessageObserver observer : mMessageObservers) {
-                observer.update(type, replyMessage);
-            }
+            
+            mQueue.add(new MessageTuple(type, replyMessage));
         }
     }
     

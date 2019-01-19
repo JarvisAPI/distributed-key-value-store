@@ -19,9 +19,7 @@ public class Server {
     private void runServer() {
         mQueue = new LinkedBlockingQueue<>(SIZE_MAX_QUEUE);
         createMessageProducer();
-        createMessageProducer();
         
-        createMessageConsumer();
         createMessageConsumer();
     }
     

@@ -16,11 +16,13 @@ public class MessageConsumer extends Thread {
     private DatagramSocket mSocket;
     private BlockingQueue<NetworkMessage> mQueue;
     private KeyValueStore mKeyValStore;
+    private MessageCache mMessageCache;
     
     public MessageConsumer(DatagramSocket socket, BlockingQueue<NetworkMessage> queue) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
+        mMessageCache = MessageCache.getInstance();
     }
 
     @Override
@@ -45,6 +47,35 @@ public class MessageConsumer extends Thread {
                 message = mQueue.take();
                 
                 try {
+                    ByteString cachedMessageVal = mMessageCache.get(message.getIdString());
+                    if (cachedMessageVal != null) {
+                        if (cachedMessageVal != MessageCache.ENTRY_BEING_PROCESSED) {
+                            dataBytes = cachedMessageVal.toByteArray();
+                            DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length,
+                                    message.getAddress(), message.getPort());
+                            mSocket.send(packet);
+                        }
+                        // Message is being processed by other thread.
+                        continue;
+                    } else {
+                        try {
+                            if (!mMessageCache.putIfNotExist(message.getIdString(),
+                                    MessageCache.ENTRY_BEING_PROCESSED)) {
+                                // Message is being processed by other thread so move on.
+                                continue;
+                            }
+                        } catch(OutOfMemoryError e) {
+                            System.out.println("Out of cache space, signaling overload");
+                            message.setPayload(KeyValueResponse.KVResponse.newBuilder()
+                                    .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
+                                    .build()
+                                    .toByteArray());
+                            dataBytes = message.getDataBytes();
+                            mSocket.send(new DatagramPacket(dataBytes, dataBytes.length,
+                                    message.getAddress(), message.getPort()));
+                            continue;
+                        }
+                    }
     
                     KeyValueRequest.KVRequest kvReq = KeyValueRequest.KVRequest.newBuilder()
                             .mergeFrom(message.getPayload()).build();
@@ -112,7 +143,7 @@ public class MessageConsumer extends Thread {
                         .toByteArray();
                         break;
                     case Protocol.GET_PID:
-                        // get pid somehow.
+                        // TODO: get pid somehow.
                         break;
                     case Protocol.GET_MEMBERSHIP_COUNT:
                         dataBytes = KeyValueResponse.KVResponse.newBuilder()
@@ -143,6 +174,8 @@ public class MessageConsumer extends Thread {
                 
                 DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length,
                         message.getAddress(), message.getPort());
+                
+                mMessageCache.put(message.getIdString(), ByteString.copyFrom(dataBytes));
                 mSocket.send(packet);
 
             } catch (Exception e) {

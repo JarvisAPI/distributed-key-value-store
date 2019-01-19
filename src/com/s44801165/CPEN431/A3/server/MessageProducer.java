@@ -32,7 +32,7 @@ public class MessageProducer extends Thread {
                 message = NetworkMessage
                         .contructMessage(Arrays.copyOf(packet.getData(), packet.getLength()));
                 message.setAddressAndPort(packet.getAddress(), packet.getPort());
-    
+                
                 try {
                     mBlockingQueue.add(message);
                 } catch (IllegalStateException e) {

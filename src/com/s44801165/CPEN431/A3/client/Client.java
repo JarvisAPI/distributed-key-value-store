@@ -5,19 +5,24 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.s44801165.CPEN431.A3.ExponentialTimeoutStrategy;
-import com.s44801165.CPEN431.A3.MessageObserver;
 import com.s44801165.CPEN431.A3.MessageReceiverThread;
+import com.s44801165.CPEN431.A3.MessageTuple;
+import com.s44801165.CPEN431.A3.MessageTuple.MessageType;
 import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 import com.s44801165.CPEN431.A3.protocol.Util;
 
-public class Client implements MessageObserver {
+public class Client {
     private static final int MAX_RETRY_COUNT = 3;
     private DatagramSocket mSocket;
     private DatagramPacket mSendPacket;
     private MessageReceiverThread mMsgReceiverThread;
     private int mRetryCount = 0;
+    
+    private BlockingQueue<MessageTuple> mQueue = new LinkedBlockingQueue<>();
     
     private void runClient(String[] args) {
         if (args.length < 3) {
@@ -40,15 +45,13 @@ public class Client implements MessageObserver {
             mSocket = new DatagramSocket();
             mSocket.send(mSendPacket);
             
-            mMsgReceiverThread = new MessageReceiverThread(mSocket);
-            mMsgReceiverThread.attachMessageObserver(this);
+            mMsgReceiverThread = new MessageReceiverThread(mSocket, mQueue);
             mMsgReceiverThread.setTimeoutStrategy(new ExponentialTimeoutStrategy());
             mMsgReceiverThread.start();
             
-            try {
-                mMsgReceiverThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while(true) {
+               MessageTuple tuple = mQueue.take(); 
+               processMessage(tuple.type, tuple.message);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,8 +63,7 @@ public class Client implements MessageObserver {
         mMsgReceiverThread.signalStop();
     }
     
-    @Override
-    public void update(MessageType type, NetworkMessage msg) {
+    private void processMessage(MessageType type, NetworkMessage msg) {
         switch (type) {
         case ERROR:
             stopMessageReceiveThread();

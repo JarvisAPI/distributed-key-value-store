@@ -10,18 +10,17 @@ import ca.NetSysLab.ProtocolBuffers.Message;
 public class NetworkMessage {
     public static final int ID_SIZE = 16; // in bytes
     private static final int MAX_PAYLOAD_SIZE = 16 * 1024; // in bytes
-    private static CRC32 mCrc = new CRC32();
-    private byte[] mUniqueId;
-    private byte[] mPayload;
+
+    private ByteString mUniqueId;
+    private ByteString mPayload;
     private InetAddress mAddress;
     private int mPort;
 
     public NetworkMessage() {
-
     }
-    
+
     public NetworkMessage(byte[] uniqueId) {
-        mUniqueId = uniqueId;
+        mUniqueId = ByteString.copyFrom(uniqueId);
     }
 
     public void setPayload(byte[] payload) {
@@ -30,8 +29,7 @@ public class NetworkMessage {
             System.out.println("Payload in request message is too long, truncating...");
             payloadSize = MAX_PAYLOAD_SIZE;
         }
-        mPayload = new byte[payloadSize];
-        System.arraycopy(payload, 0, mPayload, 0, payloadSize);
+        mPayload = ByteString.copyFrom(payload, 0, payloadSize);
     }
 
     /**
@@ -40,13 +38,13 @@ public class NetworkMessage {
      * @return all bytes that describes the message.
      */
     public byte[] getDataBytes() {
-        CRC32 checksum = new CRC32();
-        checksum.update(mUniqueId);
-        checksum.update(mPayload);
+        CRC32 crc = new CRC32();
+        crc.update(mUniqueId.toByteArray());
+        crc.update(mPayload.toByteArray());
         Message.Msg msg = Message.Msg.newBuilder()
-                .setMessageID(ByteString.copyFrom(mUniqueId))
-                .setPayload(ByteString.copyFrom(mPayload))
-                .setCheckSum(checksum.getValue())
+                .setMessageID(mUniqueId)
+                .setPayload(mPayload)
+                .setCheckSum(crc.getValue())
                 .build();
         return msg.toByteArray();
     }
@@ -58,11 +56,9 @@ public class NetworkMessage {
     public static byte[] getMaxDataBuffer() {
         return new byte[ID_SIZE + MAX_PAYLOAD_SIZE];
     }
-    
+
     public static NetworkMessage contructMessage(byte[] data) throws IOException {
-        Message.Msg transportMsg = Message.Msg.newBuilder()
-                .mergeFrom(data)
-                .build();
+        Message.Msg transportMsg = Message.Msg.newBuilder().mergeFrom(data).build();
         byte[] id = transportMsg.getMessageID().toByteArray();
         byte[] payload = transportMsg.getPayload().toByteArray();
         long checksum = transportMsg.getCheckSum();
@@ -70,51 +66,56 @@ public class NetworkMessage {
             throw new IOException("Checksum doesn't match");
         }
         NetworkMessage msg = new NetworkMessage(id);
-        msg.mPayload = payload;
-        
+        msg.mPayload = ByteString.copyFrom(payload);
         return msg;
     }
-    
+
     public static void setMessage(NetworkMessage msg, byte[] data) throws IOException {
-        Message.Msg transportMsg = Message.Msg.newBuilder()
-                .mergeFrom(data)
-                .build();
-        byte[] id = transportMsg.getMessageID().toByteArray();
-        byte[] payload = transportMsg.getPayload().toByteArray();
+        Message.Msg transportMsg = Message.Msg.newBuilder().mergeFrom(data).build();
+        ByteString id = transportMsg.getMessageID();
+        ByteString payload = transportMsg.getPayload();
         long checksum = transportMsg.getCheckSum();
-        if (!validateChecksum(id, payload, checksum)) {
+        if (!validateChecksum(id.toByteArray(), payload.toByteArray(), checksum)) {
             throw new IOException("Checksum doesn't match");
         }
         msg.mUniqueId = id;
         msg.mPayload = payload;
     }
-    
-    private static boolean validateChecksum(byte[] id,
-            byte[] payload, long checksum) {
-        mCrc.reset();
-        mCrc.update(id);
-        mCrc.update(payload);
 
-        return mCrc.getValue() == checksum;
+    private static boolean validateChecksum(byte[] id, byte[] payload, long checksum) {
+        CRC32 crc = new CRC32();
+        crc.reset();
+        crc.update(id);
+        crc.update(payload);
+
+        return crc.getValue() == checksum;
     }
 
     public byte[] getId() {
+        return mUniqueId.toByteArray();
+    }
+
+    public ByteString getIdString() {
         return mUniqueId;
     }
 
     public byte[] getPayload() {
+        return mPayload.toByteArray();
+    }
+
+    public ByteString getPayloadString() {
         return mPayload;
     }
-    
+
     public void setAddressAndPort(InetAddress addr, int port) {
         mAddress = addr;
         mPort = port;
     }
-    
+
     public InetAddress getAddress() {
         return mAddress;
     }
-    
+
     public int getPort() {
         return mPort;
     }

@@ -1,7 +1,7 @@
 package com.s44801165.CPEN431.A3.server;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.protobuf.ByteString;
 
@@ -20,7 +20,7 @@ public class KeyValueStore {
     private Map<ByteString, ValuePair> mKeyValMap;
     
     private KeyValueStore() {
-        mKeyValMap = new HashMap<>();
+        mKeyValMap = new ConcurrentHashMap<>();
     }
     
     public void put(ByteString key, ByteString value, int version) {
@@ -51,10 +51,10 @@ public class KeyValueStore {
      * Remove all keys currently in the keystore.
      */
     public void removeAll() {
-        mKeyValMap = new HashMap<>();
+        mKeyValMap.clear();
     }
     
-    public static KeyValueStore getInstance() {
+    public static synchronized KeyValueStore getInstance() {
         if (mKeyValueStore == null) {
             mKeyValueStore = new KeyValueStore();
         }
