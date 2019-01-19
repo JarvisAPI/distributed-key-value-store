@@ -7,11 +7,8 @@ public class MessageTuple {
         ERROR, CHECKSUM_ERROR, TIMEOUT, MSG_RECEIVED
     };
     
-    public final MessageType type;
-    public final NetworkMessage message;
-    
-    public MessageTuple(MessageType type, NetworkMessage message) {
-        this.type = type;
-        this.message = message;
-    }
+    public MessageType type;
+    public NetworkMessage message;
+    // The timeout amount in milliseconds if message type is TIMEOUT.
+    public int timeout;
 }

@@ -157,6 +157,9 @@ public class MessageConsumer extends Thread {
                         break;
                     }
                     
+                } catch (OutOfMemoryError e) {
+                    System.out.println("Key value store out of memory");
+                    errCode = Protocol.ERR_OUT_OF_SPACE;
                 } catch (Exception e) {
                     e.printStackTrace();
                     errCode = Protocol.ERR_INTERNAL_KVSTORE_FAILURE;

@@ -16,15 +16,34 @@ public class KeyValueStore {
         }
     }
     
+    // Maximum number of bytes that is allowed in the key value store.
+    private static final int MAX_SIZE_BYTES = 44 * 1024 * 1024;
+    private volatile int mSize;
     private static KeyValueStore mKeyValueStore;
     private Map<ByteString, ValuePair> mKeyValMap;
     
     private KeyValueStore() {
         mKeyValMap = new ConcurrentHashMap<>();
+        mSize = 0;
     }
     
-    public void put(ByteString key, ByteString value, int version) {
-        mKeyValMap.put(key, new ValuePair(value, version));
+    /**
+     * 
+     * @param key
+     * @param value
+     * @param version
+     * @throws OutOfMemoryError if there is no more space to put values into
+     *  the key value store.
+     */
+    public synchronized void put(ByteString key, ByteString value, int version) {
+        if (mSize + value.size() > MAX_SIZE_BYTES) {
+            throw new OutOfMemoryError();
+        }
+        ValuePair prevPair = mKeyValMap.put(key, new ValuePair(value, version));
+        if (prevPair != null) {
+            mSize -= prevPair.value.size();
+        }
+        mSize += value.size();
     }
     
     /**
@@ -43,14 +62,20 @@ public class KeyValueStore {
      * @return true if key was mapped to a value pair and that value pair
      *  was removed, false if key was not mapped to any value pair.
      */
-    public boolean remove(ByteString key) {
-        return mKeyValMap.remove(key) != null;
+    public synchronized boolean remove(ByteString key) {
+        ValuePair prevVal = mKeyValMap.remove(key);
+        if (prevVal != null) {
+            mSize -= prevVal.value.size();
+            return true;
+        }
+        return false;
     }
     
     /**
      * Remove all keys currently in the keystore.
      */
-    public void removeAll() {
+    public synchronized void removeAll() {
+        mSize = 0;
         mKeyValMap.clear();
     }
     

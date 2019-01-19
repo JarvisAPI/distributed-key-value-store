@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A3;
+package com.s44801165.CPEN431.A3.client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
+import com.s44801165.CPEN431.A3.MessageTuple;
+import com.s44801165.CPEN431.A3.TimeoutStrategy;
 import com.s44801165.CPEN431.A3.MessageTuple.MessageType;
 import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
 
@@ -39,15 +41,14 @@ public class MessageReceiverThread extends Thread {
         }
         
         while (!mShouldStop) {
-            MessageType type = null;
-            NetworkMessage replyMessage = null;
+            MessageTuple msgTuple = new MessageTuple();
             try {
                 if (mTimeoutStrategy != null) {
                     mSocket.setSoTimeout(mTimeoutStrategy.getTimeout());
                 }
                 mSocket.receive(replyPacket);
-                type = MessageType.MSG_RECEIVED;
-                replyMessage = NetworkMessage.contructMessage(
+                msgTuple.type = MessageType.MSG_RECEIVED;
+                msgTuple.message = NetworkMessage.contructMessage(
                         Arrays.copyOf(replyPacket.getData(), replyPacket.getLength()));
                 
                 if (mTimeoutStrategy != null) {
@@ -55,14 +56,15 @@ public class MessageReceiverThread extends Thread {
                 }
             } catch (IOException e) {
                 if (mTimeoutStrategy != null) {
+                    msgTuple.timeout = mTimeoutStrategy.getTimeout();
                     mTimeoutStrategy.onTimedOut();
                 }
-                type = MessageType.TIMEOUT;
+                msgTuple.type = MessageType.TIMEOUT;
             } catch (Exception e) {
-                type = MessageType.ERROR;
+                msgTuple.type = MessageType.ERROR;
             }
             
-            mQueue.add(new MessageTuple(type, replyMessage));
+            mQueue.add(msgTuple);
         }
     }
     
