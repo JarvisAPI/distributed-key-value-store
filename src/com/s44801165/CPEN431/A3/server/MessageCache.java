@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.google.protobuf.ByteString;
+import com.s44801165.CPEN431.A3.protocol.Protocol;
 
 /**
  * Caches the messages to ensure at-most-once semantics.
@@ -17,12 +18,13 @@ import com.google.protobuf.ByteString;
  */
 public class MessageCache {
     private static MessageCache mMessageCache = null;
-    private static final int SIZE_MAX_CACHE = 256;
+    private static final int SIZE_MAX_CACHE = 10 * 1024 * 1024; // Bytes
     private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds
     
-    public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[0]);
+    public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
     
     private static final class CacheEntry {
+        public static final int SIZE_META_INFO = 4;
         ByteString value;
         int timeout; // In milliseconds
         
@@ -33,10 +35,11 @@ public class MessageCache {
     }
     
     private Map<ByteString, CacheEntry> mCache;
+    private volatile int mSize;
     
     
     private MessageCache() {
-        mCache = new ConcurrentHashMap<>(SIZE_MAX_CACHE);
+        mCache = new ConcurrentHashMap<>();
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new CacheCleaner(), 0, TIMEOUT / 2);
     }
@@ -47,8 +50,15 @@ public class MessageCache {
      * @param message
      * @throws OutOfMemoryError if cache limit is reached.
      */
-    public void put(ByteString key, ByteString message) {
-        if (mCache.size() < SIZE_MAX_CACHE || mCache.containsKey(key)) {
+    public synchronized void put(ByteString key, ByteString message) {
+        CacheEntry entry = mCache.get(key);
+        int entrySize = 0;
+        if (entry != null) {
+            entrySize = key.size() + entry.value.size() + CacheEntry.SIZE_META_INFO;
+        }
+        int update = -entrySize + key.size() + message.size() + CacheEntry.SIZE_META_INFO;
+        if (mSize + update < SIZE_MAX_CACHE) {
+            updateSize(update);
             mCache.put(key,  new CacheEntry(message, TIMEOUT));
             return;
         }
@@ -65,8 +75,7 @@ public class MessageCache {
      * @throws OutOfMemoryError if cache limit is reached.
      */
     public synchronized boolean putIfNotExist(ByteString key, ByteString message) {
-        CacheEntry entry = mCache.get(key);
-        if (entry == null) {
+        if (!mCache.containsKey(key)) {
             put(key, message);
             return true;
         }
@@ -85,6 +94,9 @@ public class MessageCache {
         return mMessageCache;
     }
     
+    private synchronized void updateSize(int update) {
+        mSize += update;
+    }
     
     private class CacheCleaner extends TimerTask {
         private long elapsedTime = System.nanoTime();
@@ -93,17 +105,24 @@ public class MessageCache {
         public void run() {
             Iterator<Entry<ByteString, CacheEntry>> it = 
                     mCache.entrySet().iterator();
+            Entry<ByteString, CacheEntry> tuple;
             CacheEntry entry;
             long time = System.nanoTime();
             long elapsedTimeNano = time - elapsedTime;
             int elapsedTimeMillis = (int) TimeUnit.NANOSECONDS.toMillis(elapsedTimeNano);
 
+            int update = 0;
             while (it.hasNext()) {
-                entry = it.next().getValue();
+                tuple = it.next();
+                entry = tuple.getValue();
                 entry.timeout -= elapsedTimeMillis;
                 if (entry.timeout <= 0) {
+                    update += -(tuple.getKey().size() + entry.value.size() + CacheEntry.SIZE_META_INFO);
                     it.remove();
                 }
+            }
+            if (update != 0) {
+                updateSize(update);
             }
             elapsedTime = time;
         }

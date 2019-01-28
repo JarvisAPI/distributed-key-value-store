@@ -66,7 +66,7 @@ public class NetworkMessage {
             throw new IOException("Checksum doesn't match");
         }
         NetworkMessage msg = new NetworkMessage(id);
-        msg.mPayload = ByteString.copyFrom(payload);
+        msg.mPayload = transportMsg.getPayload();
         return msg;
     }
 

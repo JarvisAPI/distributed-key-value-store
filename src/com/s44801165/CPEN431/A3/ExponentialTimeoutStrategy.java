@@ -1,8 +1,13 @@
 package com.s44801165.CPEN431.A3;
 
 public class ExponentialTimeoutStrategy implements TimeoutStrategy {
-    public static final int INITIAL_TIMEOUT = 100; // in milliseconds.
-    private int mTimeout = INITIAL_TIMEOUT;
+    private final int INITIAL_TIMEOUT;
+    private int mTimeout;
+    
+    public ExponentialTimeoutStrategy(int initialTimeout) {
+        INITIAL_TIMEOUT = initialTimeout;
+        mTimeout = initialTimeout;
+    }
     
     @Override
     public int getTimeout() {

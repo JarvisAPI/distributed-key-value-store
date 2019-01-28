@@ -7,6 +7,8 @@ import com.google.protobuf.ByteString;
 
 public class KeyValueStore {
     public static final class ValuePair {
+        public static final int SIZE_META_INFO = 4;
+        
         public final ByteString value;
         public final int version;
         
@@ -17,7 +19,7 @@ public class KeyValueStore {
     }
     
     // Maximum number of bytes that is allowed in the key value store.
-    private static final int MAX_SIZE_BYTES = 44 * 1024 * 1024;
+    private static final int MAX_SIZE_BYTES = 40 * 1024 * 1024;
     private volatile int mSize;
     private static KeyValueStore mKeyValueStore;
     private Map<ByteString, ValuePair> mKeyValMap;
@@ -36,14 +38,14 @@ public class KeyValueStore {
      *  the key value store.
      */
     public synchronized void put(ByteString key, ByteString value, int version) {
-        if (mSize + value.size() > MAX_SIZE_BYTES) {
+        if (mSize + key.size() + value.size() + ValuePair.SIZE_META_INFO > MAX_SIZE_BYTES) {
             throw new OutOfMemoryError();
         }
         ValuePair prevPair = mKeyValMap.put(key, new ValuePair(value, version));
         if (prevPair != null) {
-            mSize -= prevPair.value.size();
+            mSize -= (key.size() + prevPair.value.size() + ValuePair.SIZE_META_INFO);
         }
-        mSize += value.size();
+        mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
     }
     
     /**
@@ -65,7 +67,7 @@ public class KeyValueStore {
     public synchronized boolean remove(ByteString key) {
         ValuePair prevVal = mKeyValMap.remove(key);
         if (prevVal != null) {
-            mSize -= prevVal.value.size();
+            mSize -= (key.size() + prevVal.value.size() + ValuePair.SIZE_META_INFO);
             return true;
         }
         return false;

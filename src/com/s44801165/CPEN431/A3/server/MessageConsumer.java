@@ -1,5 +1,6 @@
 package com.s44801165.CPEN431.A3.server;
 
+import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.concurrent.BlockingQueue;
@@ -32,8 +33,6 @@ public class MessageConsumer extends Thread {
                 .toByteArray();
         NetworkMessage message;
         ValuePair vPair;
-        KeyValueResponse.KVResponse.Builder successResBuilder = KeyValueResponse.KVResponse.newBuilder()
-                .setErrCode(Protocol.ERR_SUCCESS);
 
         byte[] dataBytes;
         int errCode;
@@ -64,10 +63,10 @@ public class MessageConsumer extends Thread {
                                 // Message is being processed by other thread so move on.
                                 continue;
                             }
-                        } catch(OutOfMemoryError e) {
-                            System.out.println("Out of cache space, signaling overload");
+                        } catch (OutOfMemoryError e) {
                             message.setPayload(KeyValueResponse.KVResponse.newBuilder()
                                     .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
+                                    .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
                                     .build()
                                     .toByteArray());
                             dataBytes = message.getDataBytes();
@@ -103,7 +102,8 @@ public class MessageConsumer extends Thread {
                         } else {
                             vPair = mKeyValStore.get(key);
                             if (vPair != null) {
-                                dataBytes = successResBuilder
+                                dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                                        .setErrCode(Protocol.ERR_SUCCESS)
                                         .setValue(vPair.value)
                                         .setVersion(vPair.version)
                                         .build()
@@ -142,9 +142,17 @@ public class MessageConsumer extends Thread {
                         .build()
                         .toByteArray();
                         break;
-                    case Protocol.GET_PID:
-                        // TODO: get pid somehow.
+                    case Protocol.GET_PID: {
+                        String vmName = ManagementFactory.getRuntimeMXBean().getName();
+                        int p = vmName.indexOf("@");
+                        int pid = Integer.valueOf(vmName.substring(0, p));
+                        dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                                .setErrCode(Protocol.ERR_SUCCESS)
+                                .setPid(pid)
+                                .build()
+                                .toByteArray();
                         break;
+                    }
                     case Protocol.GET_MEMBERSHIP_COUNT:
                         dataBytes = KeyValueResponse.KVResponse.newBuilder()
                         .setErrCode(Protocol.ERR_SUCCESS)
@@ -158,7 +166,6 @@ public class MessageConsumer extends Thread {
                     }
                     
                 } catch (OutOfMemoryError e) {
-                    System.out.println("Key value store out of memory");
                     errCode = Protocol.ERR_OUT_OF_SPACE;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -182,7 +189,7 @@ public class MessageConsumer extends Thread {
                 mSocket.send(packet);
 
             } catch (Exception e) {
-               e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }

@@ -21,4 +21,6 @@ public class Protocol {
     public static final int ERR_UNRECOGNIZED_COMMAND = 0x05;
     public static final int ERR_INVALID_KEY = 0x06;
     public static final int ERR_INVALID_VAL = 0x07;
+    
+    public static final int OVERLOAD_WAITTIME = 5000;
 }

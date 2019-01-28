@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import com.s44801165.CPEN431.A3.ExponentialTimeoutStrategy;
 import com.s44801165.CPEN431.A3.MessageTuple;
@@ -23,6 +24,7 @@ public abstract class BaseClient {
     private DatagramSocket mSocket;
     private MessageReceiverThread mMsgReceiverThread;
     private boolean mShouldStop = false;
+    private static final int INITIAL_TIMEOUT = 100;
     
     private BlockingQueue<MessageTuple> mReceiveQueue = new LinkedBlockingQueue<>();
     private Map<ByteString, SendPackage> mSendPackageMap = new HashMap<>();
@@ -31,8 +33,8 @@ public abstract class BaseClient {
         public final NetworkMessage message;
         public final DatagramPacket packet;
         public int retryCount = 0;
-        public int currentTimeoutLimit = ExponentialTimeoutStrategy.INITIAL_TIMEOUT;
-        public int timeout = currentTimeoutLimit;
+        public int currentTimeoutLimit = INITIAL_TIMEOUT;
+        public int timeout = INITIAL_TIMEOUT;
         
         public SendPackage(NetworkMessage message, DatagramPacket packet) {
             this.message = message;
@@ -51,8 +53,7 @@ public abstract class BaseClient {
     public void runClient() throws SocketException {
         mSocket = new DatagramSocket();
         mMsgReceiverThread = new MessageReceiverThread(mSocket, mReceiveQueue);
-        mMsgReceiverThread.setTimeoutStrategy(new ExponentialTimeoutStrategy());
-        mMsgReceiverThread.start();
+        mMsgReceiverThread.setTimeoutStrategy(new ExponentialTimeoutStrategy(INITIAL_TIMEOUT));
     }
     
     private void stopMessageReceiveThread() {
@@ -64,7 +65,11 @@ public abstract class BaseClient {
      * Wait for response messages from the server.
      */
     protected final void waitForMessages() {
+        mShouldStop = false;
         try {
+            if (!mMsgReceiverThread.isAlive()) {
+                mMsgReceiverThread.start();
+            }
             while (!mShouldStop) {
                     processMessage(mReceiveQueue.take());
             }
@@ -89,26 +94,45 @@ public abstract class BaseClient {
         }
     }
     
+    protected final void stopWaiting() {
+        mShouldStop = true;
+    }
+    
+    private long elapsedTime = System.nanoTime();
     private final void processMessage(MessageTuple msgTuple) {
         switch (msgTuple.type) {
         case ERROR:
+            System.out.println("Socket error! terminating");
             stopMessageReceiveThread();
             break;
         case TIMEOUT: {
             try {
+                // TODO: Change timeout to adhere to at-most-once semantics
+                System.out.println("Timeout Called: " + msgTuple.timeout);
+                long time = System.nanoTime();
+                long elapsedTimeNano = time - elapsedTime;
+                int elapsedTimeMillis = (int) TimeUnit.NANOSECONDS.toMillis(elapsedTimeNano);
+                System.out.println("Elapsed time: " + elapsedTimeMillis);
+                elapsedTime = time;
+                
                 Iterator<Entry<ByteString, SendPackage>> it = mSendPackageMap.entrySet().iterator();
                 while (it.hasNext()) {
                     SendPackage pack = it.next().getValue();
                     pack.timeout -= msgTuple.timeout;
                     if (pack.timeout <= 0) {
                         pack.retryCount++;
-                        if (pack.retryCount >= MAX_RETRY_COUNT) {
+                        if (pack.retryCount > MAX_RETRY_COUNT) {
                             System.out.println("Retry limit reached, dropping message with ID: ");
                             Util.printHexString(pack.message.getId());
                             it.remove();
                             continue;
                         }
                         pack.currentTimeoutLimit *= 2;
+                        pack.timeout = pack.currentTimeoutLimit;
+                        
+                        System.out.println("Timeout: " + pack.timeout + " message with ID: ");
+                        Util.printHexString(pack.message.getId());
+                        
                         mSocket.send(pack.packet);
                     }
                 }
@@ -121,7 +145,12 @@ public abstract class BaseClient {
         case MSG_RECEIVED:
             ByteString msgId = msgTuple.message.getIdString();
             if (mSendPackageMap.remove(msgId) != null) {
+                System.out.println("Received: Message ID: ");
+                Util.printHexString(msgId.toByteArray());
                 onMessageReceived(msgTuple.message);
+            } else {
+                System.out.println("Message not in sendPackageMap: Message ID: ");
+                Util.printHexString(msgId.toByteArray());
             }
             break;
         default:

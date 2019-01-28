@@ -1,8 +1,8 @@
 package com.s44801165.CPEN431.A3.client;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
@@ -54,7 +54,7 @@ public class MessageReceiverThread extends Thread {
                 if (mTimeoutStrategy != null) {
                     mTimeoutStrategy.reset();
                 }
-            } catch (IOException e) {
+            } catch (SocketTimeoutException e) {
                 if (mTimeoutStrategy != null) {
                     msgTuple.timeout = mTimeoutStrategy.getTimeout();
                     mTimeoutStrategy.onTimedOut();

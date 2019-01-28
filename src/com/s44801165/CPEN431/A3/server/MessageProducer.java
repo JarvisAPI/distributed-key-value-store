@@ -38,6 +38,7 @@ public class MessageProducer extends Thread {
                 } catch (IllegalStateException e) {
                     message.setPayload(KeyValueResponse.KVResponse.newBuilder()
                             .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
+                            .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
                             .build()
                             .toByteArray());
                     byte[] dataBytes = message.getDataBytes();
