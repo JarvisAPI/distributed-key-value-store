@@ -35,8 +35,17 @@ public class Server {
 
     public static void main(String[] args) {
         try {
+            int port = 8082;
+            if (args.length > 0) {
+                try {
+                    int p = Integer.parseInt(args[0]);
+                    port = p;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
             System.out.println("Starting server!");
-            Server server = new Server(8082);
+            Server server = new Server(port);
             server.runServer();
         } catch (SocketException e) {
             e.printStackTrace();
