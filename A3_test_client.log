@@ -1,0 +1,48 @@
+CPEN 431 BASIC Test Client
+Time: Sun Jan 27 19:22:38 PST 2019
+Build Date: Wed Dec 31 16:00:00 PST 1969
+Java process ID: 42818
+[A3 BASIC TESTS - THIS IS A BASIC TEST CLIENT NOT THE FINAL EVALUATION CLIENT]
+
+[Info] Created server list successfully.
+
+[Test isAlive]
+TEST PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+[ TEST Basic REMOVE (PUT -> GET -> REM -> GET). Value Length = 32 Bytes. ]
+TEST_PASSED
+
+[ TEST Back-to-back put requests (PUT -> PUT -> GET). Value Length = 32 Bytes. ]
+TEST_PASSED
+
+[ TEST Double remove (PUT -> REM -> REM). Value Length = 32 Bytes. ]
+TEST_PASSED
+
+[ TEST Invalid Command. ]
+TEST_PASSED
+
+[ TEST Multi Client Performance (1 clients, 100 closed loops per client): PUT -> GET (closed loop) ]
+[Test] Checking if server is up ...
+Test Passed. Server is ok.
+Test Status: TEST_PASSED
+Clients: 1
+Total Requests (without replies): 200
+Total Requests (including replies): 200
+Successful Responses: 200
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 2ms, [min] 0ms
+[avg] 0.185 ms, [stdev] 0.40096757973681546ms
+Throughput: 2325.5813953488373 requests per second
+Goodput: 2325.5813953488373 requests per second
+Retry Rate (Successful requests): 1.0
+
+Completed A3 BASIC Tests.
+Testing completed in 5.211s
