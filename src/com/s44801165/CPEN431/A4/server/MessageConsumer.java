@@ -33,11 +33,12 @@ public class MessageConsumer extends Thread {
 
     @Override
     public void run() {
-        byte[] SUCCESS_BYTES = KeyValueResponse.KVResponse.newBuilder()
+        KeyValueResponse.KVResponse.Builder kvResBuilder = KeyValueResponse.KVResponse.newBuilder();
+        byte[] SUCCESS_BYTES = kvResBuilder
                 .setErrCode(Protocol.ERR_SUCCESS)
                 .build()
                 .toByteArray();
-        KeyValueResponse.KVResponse.Builder kvResBuilder = KeyValueResponse.KVResponse.newBuilder();
+
         NetworkMessage message;
         ValuePair vPair;
 
@@ -100,7 +101,6 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                         } catch (OutOfMemoryError e) {
-                            System.out.println("Other overload");
                             message.setPayload(kvResBuilder
                                     .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                                     .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
