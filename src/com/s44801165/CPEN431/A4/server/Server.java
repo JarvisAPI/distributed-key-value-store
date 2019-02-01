@@ -10,7 +10,7 @@ import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
 public class Server {
     private DatagramSocket mSocket;
     private BlockingQueue<NetworkMessage> mQueue;
-    private static final int SIZE_MAX_QUEUE = 1024;
+    private static final int SIZE_MAX_QUEUE = 256;
 
     private Server(int port) throws SocketException {
         mSocket = new DatagramSocket(port);
@@ -19,10 +19,10 @@ public class Server {
     private void runServer() {
         mQueue = new LinkedBlockingQueue<>(SIZE_MAX_QUEUE);
         createMessageProducer();
-        createMessageProducer();
+        //createMessageProducer();
         
         createMessageConsumer();
-        createMessageConsumer();
+        //createMessageConsumer();
     }
     
     private void createMessageProducer() {

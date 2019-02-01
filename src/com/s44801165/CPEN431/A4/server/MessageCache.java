@@ -18,25 +18,31 @@ import com.s44801165.CPEN431.A4.protocol.Protocol;
  */
 public class MessageCache {
     private static MessageCache mMessageCache = null;
-    private static final int SIZE_MAX_CACHE = 10 * 1024 * 1024; // Bytes
+    private static final int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
     private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds
     
     public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
     
-    private static final class CacheEntry {
-        public static final int SIZE_META_INFO = 4;
-        ByteString value;
+    public static final class CacheEntry {
+        public static final int SIZE_META_INFO = 12;
+        public static final int SIZE_REFERENCE = 4;
+        public final int metaInfo;
+        public final ByteString value;
+        public final int intField0;
         int timeout; // In milliseconds
         
-        CacheEntry(ByteString value, int timeout) {
+        CacheEntry(ByteString value, int timeout, int metaInfo, int intField0) {
             this.value = value;
             this.timeout = timeout;
+            this.metaInfo = metaInfo;
+            this.intField0 = intField0;
         }
     }
     
     private Map<ByteString, CacheEntry> mCache;
     private volatile int mSize;
     
+    public static final int META_MASK_CACHE_REFERENCE = (1 << 31);
     
     private MessageCache() {
         mCache = new ConcurrentHashMap<>();
@@ -48,18 +54,30 @@ public class MessageCache {
      * 
      * @param key
      * @param message
+     * @param metaInfo
      * @throws OutOfMemoryError if cache limit is reached.
      */
-    public synchronized void put(ByteString key, ByteString message) {
+    public synchronized void put(ByteString key, ByteString message, int metaInfo, int intField0) {
         CacheEntry entry = mCache.get(key);
         int entrySize = 0;
         if (entry != null) {
-            entrySize = key.size() + entry.value.size() + CacheEntry.SIZE_META_INFO;
+            if ((entry.metaInfo & META_MASK_CACHE_REFERENCE) != 0) {
+                entrySize = key.size() + CacheEntry.SIZE_REFERENCE + CacheEntry.SIZE_META_INFO;
+            }
+            else {
+                entrySize = key.size() + entry.value.size() + CacheEntry.SIZE_META_INFO;
+            }
         }
-        int update = -entrySize + key.size() + message.size() + CacheEntry.SIZE_META_INFO;
+        int update = -entrySize + key.size() + CacheEntry.SIZE_META_INFO;
+        if ((metaInfo & META_MASK_CACHE_REFERENCE) != 0) {
+            update += CacheEntry.SIZE_REFERENCE;
+        }
+        else {
+            update += message.size();
+        }
         if (mSize + update < SIZE_MAX_CACHE) {
             updateSize(update);
-            mCache.put(key,  new CacheEntry(message, TIMEOUT));
+            mCache.put(key,  new CacheEntry(message, TIMEOUT, metaInfo, intField0));
             return;
         }
         throw new OutOfMemoryError();
@@ -71,20 +89,21 @@ public class MessageCache {
      *  then only on of the puts will succeed.
      * @param key
      * @param message
+     * @param metaInfo meta data used for cross layer optimization, least-significant 16 bits can be used by application
+     *  to store additional meta info, while the other 16 bits are used to tweak caching policy for entry.
      * @return true if put was successul, false otherwise.
      * @throws OutOfMemoryError if cache limit is reached.
      */
-    public synchronized boolean putIfNotExist(ByteString key, ByteString message) {
+    public synchronized boolean putIfNotExist(ByteString key, ByteString message, int metaInfo, int intField0) {
         if (!mCache.containsKey(key)) {
-            put(key, message);
+            put(key, message, metaInfo, intField0);
             return true;
         }
         return false;
     }
     
-    public ByteString get(ByteString key) {
-        CacheEntry entry = mCache.get(key);
-        return entry != null ? entry.value : null;
+    public CacheEntry get(ByteString key) {
+        return mCache.get(key);
     }
     
     public static synchronized MessageCache getInstance() {
@@ -117,7 +136,12 @@ public class MessageCache {
                 entry = tuple.getValue();
                 entry.timeout -= elapsedTimeMillis;
                 if (entry.timeout <= 0) {
-                    update += -(tuple.getKey().size() + entry.value.size() + CacheEntry.SIZE_META_INFO);
+                    update += -(tuple.getKey().size() + CacheEntry.SIZE_META_INFO);
+                    if ((entry.metaInfo & META_MASK_CACHE_REFERENCE) != 0) {
+                        update -= CacheEntry.SIZE_REFERENCE;
+                    } else {
+                        update -= entry.value.size();
+                    }
                     it.remove();
                 }
             }

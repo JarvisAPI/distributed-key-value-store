@@ -38,7 +38,7 @@ public class MessageProducer extends Thread {
                 try {
                     mBlockingQueue.add(message);
                 } catch (IllegalStateException e) {
-                    
+                    System.out.println("Queue overload");
                     kvResBuilder.clear();
                     message.setPayload(kvResBuilder
                             .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)

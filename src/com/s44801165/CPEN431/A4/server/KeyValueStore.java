@@ -19,7 +19,7 @@ public class KeyValueStore {
     }
     
     // Maximum number of bytes that is allowed in the key value store.
-    private static final int MAX_SIZE_BYTES = 40 * 1024 * 1024;
+    private static final int MAX_SIZE_BYTES = 45 * 1024 * 1024;
     private volatile int mSize;
     private static KeyValueStore mKeyValueStore;
     private Map<ByteString, ValuePair> mKeyValMap;

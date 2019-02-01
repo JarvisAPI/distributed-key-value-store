@@ -9,6 +9,7 @@ import com.google.protobuf.ByteString;
 import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
 import com.s44801165.CPEN431.A4.protocol.Protocol;
 import com.s44801165.CPEN431.A4.server.KeyValueStore.ValuePair;
+import com.s44801165.CPEN431.A4.server.MessageCache.CacheEntry;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
@@ -18,6 +19,10 @@ public class MessageConsumer extends Thread {
     private BlockingQueue<NetworkMessage> mQueue;
     private KeyValueStore mKeyValStore;
     private MessageCache mMessageCache;
+    
+    private static final int CACHE_META_COMPLETE_RESPONSE = 0;
+    private static final int CACHE_META_SUCCESS_BYTES = 1;
+    private static final int CACHE_META_SUCCESS_GET = 2;
     
     public MessageConsumer(DatagramSocket socket, BlockingQueue<NetworkMessage> queue) {
         mSocket = socket;
@@ -40,6 +45,8 @@ public class MessageConsumer extends Thread {
         int errCode;
         ByteString key;
         ByteString value;
+        int cacheMetaInfo;
+        int metaInfo;
         
         DatagramPacket packet = new DatagramPacket(new byte[0], 0, null, 0);
         
@@ -50,26 +57,50 @@ public class MessageConsumer extends Thread {
                 message = mQueue.take();
                 
                 kvResBuilder.clear();
+                cacheMetaInfo = 0;
                 try {
-                    ByteString cachedMessageVal = mMessageCache.get(message.getIdString());
-                    if (cachedMessageVal != null) {
-                        if (cachedMessageVal != MessageCache.ENTRY_BEING_PROCESSED) {
-                            dataBytes = cachedMessageVal.toByteArray();
-                            packet.setData(dataBytes);
-                            packet.setAddress(message.getAddress());
-                            packet.setPort(message.getPort());
-                            mSocket.send(packet);
+                    CacheEntry entry = mMessageCache.get(message.getIdString());
+                    if (entry != null) {
+                        ByteString cachedMessageVal = entry.value;
+                        if (cachedMessageVal == MessageCache.ENTRY_BEING_PROCESSED) {
+                            // Message is being processed by other thread.
+                            continue;
                         }
-                        // Message is being processed by other thread.
+                        metaInfo = (entry.metaInfo & 0x0000ffff);
+                        switch(metaInfo) {
+                        case CACHE_META_SUCCESS_GET: {
+                            dataBytes = kvResBuilder
+                                    .setErrCode(Protocol.ERR_SUCCESS)
+                                    .setValue(cachedMessageVal)
+                                    .setVersion(entry.intField0)
+                                    .build()
+                                    .toByteArray();
+                            message.setPayload(dataBytes);
+                            dataBytes = message.getDataBytes();
+                            break;
+                        }
+                        case CACHE_META_SUCCESS_BYTES: {
+                            message.setPayload(SUCCESS_BYTES);
+                            dataBytes = message.getDataBytes();
+                            break;
+                        }
+                        default:
+                            dataBytes = cachedMessageVal.toByteArray();
+                        }
+                        packet.setData(dataBytes);
+                        packet.setAddress(message.getAddress());
+                        packet.setPort(message.getPort());
+                        mSocket.send(packet);
                         continue;
                     } else {
                         try {
                             if (!mMessageCache.putIfNotExist(message.getIdString(),
-                                    MessageCache.ENTRY_BEING_PROCESSED)) {
+                                    MessageCache.ENTRY_BEING_PROCESSED, CACHE_META_COMPLETE_RESPONSE, 0)) {
                                 // Message is being processed by other thread so move on.
                                 continue;
                             }
                         } catch (OutOfMemoryError e) {
+                            System.out.println("Other overload");
                             message.setPayload(kvResBuilder
                                     .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                                     .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
@@ -99,6 +130,7 @@ public class MessageConsumer extends Thread {
                         } else {
                             mKeyValStore.put(key, value, kvReq.getVersion());
                             dataBytes = SUCCESS_BYTES;
+                            cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         }
                         break;
                     }
@@ -116,7 +148,8 @@ public class MessageConsumer extends Thread {
                                         .setVersion(vPair.version)
                                         .build()
                                         .toByteArray();
-                            }   else {
+                                cacheMetaInfo = CACHE_META_SUCCESS_GET | MessageCache.META_MASK_CACHE_REFERENCE;
+                            } else {
                                 errCode = Protocol.ERR_NON_EXISTENT_KEY;
                             }
                         }
@@ -129,6 +162,7 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_VAL;
                         } else if (mKeyValStore.remove(key)) {
                             dataBytes = SUCCESS_BYTES;
+                            cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else {
                             errCode = Protocol.ERR_NON_EXISTENT_KEY;
                         }
@@ -140,9 +174,11 @@ public class MessageConsumer extends Thread {
                     case Protocol.WIPEOUT:
                         mKeyValStore.removeAll();
                         dataBytes = SUCCESS_BYTES;
+                        cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         break;
                     case Protocol.IS_ALIVE:
                         dataBytes = SUCCESS_BYTES;
+                        cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         break;
                     case Protocol.GET_PID: {
                         String vmName = ManagementFactory.getRuntimeMXBean().getName();
@@ -188,7 +224,18 @@ public class MessageConsumer extends Thread {
                 packet.setAddress(message.getAddress());
                 packet.setPort(message.getPort());
                 
-                mMessageCache.put(message.getIdString(), ByteString.copyFrom(dataBytes));
+                metaInfo = cacheMetaInfo & 0x0000ffff;
+                switch(metaInfo) {
+                case CACHE_META_SUCCESS_GET:
+                    mMessageCache.put(message.getIdString(), kvResBuilder.getValue(), cacheMetaInfo, kvResBuilder.getVersion());
+                    break;
+                case CACHE_META_SUCCESS_BYTES:
+                    mMessageCache.put(message.getIdString(), null, cacheMetaInfo, 0);
+                    break;
+                default:
+                    mMessageCache.put(message.getIdString(), ByteString.copyFrom(dataBytes), cacheMetaInfo, 0);
+                }
+                
                 mSocket.send(packet);
 
             } catch (Exception e) {
