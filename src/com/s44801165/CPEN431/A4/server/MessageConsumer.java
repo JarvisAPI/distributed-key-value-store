@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A3.server;
+package com.s44801165.CPEN431.A4.server;
 
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
@@ -6,9 +6,9 @@ import java.net.DatagramSocket;
 import java.util.concurrent.BlockingQueue;
 
 import com.google.protobuf.ByteString;
-import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
-import com.s44801165.CPEN431.A3.protocol.Protocol;
-import com.s44801165.CPEN431.A3.server.KeyValueStore.ValuePair;
+import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A4.protocol.Protocol;
+import com.s44801165.CPEN431.A4.server.KeyValueStore.ValuePair;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
@@ -29,8 +29,10 @@ public class MessageConsumer extends Thread {
     @Override
     public void run() {
         byte[] SUCCESS_BYTES = KeyValueResponse.KVResponse.newBuilder()
-                .setErrCode(Protocol.ERR_SUCCESS).build()
+                .setErrCode(Protocol.ERR_SUCCESS)
+                .build()
                 .toByteArray();
+        KeyValueResponse.KVResponse.Builder kvResBuilder = KeyValueResponse.KVResponse.newBuilder();
         NetworkMessage message;
         ValuePair vPair;
 
@@ -39,19 +41,23 @@ public class MessageConsumer extends Thread {
         ByteString key;
         ByteString value;
         
+        DatagramPacket packet = new DatagramPacket(new byte[0], 0, null, 0);
+        
         while (true) {
             try {       
                 dataBytes = null; 
                 errCode = Protocol.ERR_SUCCESS;
                 message = mQueue.take();
                 
+                kvResBuilder.clear();
                 try {
                     ByteString cachedMessageVal = mMessageCache.get(message.getIdString());
                     if (cachedMessageVal != null) {
                         if (cachedMessageVal != MessageCache.ENTRY_BEING_PROCESSED) {
                             dataBytes = cachedMessageVal.toByteArray();
-                            DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length,
-                                    message.getAddress(), message.getPort());
+                            packet.setData(dataBytes);
+                            packet.setAddress(message.getAddress());
+                            packet.setPort(message.getPort());
                             mSocket.send(packet);
                         }
                         // Message is being processed by other thread.
@@ -64,20 +70,22 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                         } catch (OutOfMemoryError e) {
-                            message.setPayload(KeyValueResponse.KVResponse.newBuilder()
+                            message.setPayload(kvResBuilder
                                     .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                                     .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
                                     .build()
                                     .toByteArray());
                             dataBytes = message.getDataBytes();
-                            mSocket.send(new DatagramPacket(dataBytes, dataBytes.length,
-                                    message.getAddress(), message.getPort()));
+                            packet.setData(dataBytes);
+                            packet.setAddress(message.getAddress());
+                            packet.setPort(message.getPort());
+                            mSocket.send(packet);
                             continue;
                         }
                     }
     
-                    KeyValueRequest.KVRequest kvReq = KeyValueRequest.KVRequest.newBuilder()
-                            .mergeFrom(message.getPayload()).build();
+                    KeyValueRequest.KVRequest kvReq = KeyValueRequest.KVRequest
+                            .parseFrom(message.getPayload());
     
                     key = kvReq.getKey();
                     value = kvReq.getValue();
@@ -102,7 +110,7 @@ public class MessageConsumer extends Thread {
                         } else {
                             vPair = mKeyValStore.get(key);
                             if (vPair != null) {
-                                dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                                dataBytes = kvResBuilder
                                         .setErrCode(Protocol.ERR_SUCCESS)
                                         .setValue(vPair.value)
                                         .setVersion(vPair.version)
@@ -131,22 +139,16 @@ public class MessageConsumer extends Thread {
                         break;
                     case Protocol.WIPEOUT:
                         mKeyValStore.removeAll();
-                        dataBytes = KeyValueResponse.KVResponse.newBuilder()
-                        .setErrCode(Protocol.ERR_SUCCESS)
-                        .build()
-                        .toByteArray();
+                        dataBytes = SUCCESS_BYTES;
                         break;
                     case Protocol.IS_ALIVE:
-                        dataBytes = KeyValueResponse.KVResponse.newBuilder()
-                        .setErrCode(Protocol.ERR_SUCCESS)
-                        .build()
-                        .toByteArray();
+                        dataBytes = SUCCESS_BYTES;
                         break;
                     case Protocol.GET_PID: {
                         String vmName = ManagementFactory.getRuntimeMXBean().getName();
                         int p = vmName.indexOf("@");
                         int pid = Integer.valueOf(vmName.substring(0, p));
-                        dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                        dataBytes = kvResBuilder
                                 .setErrCode(Protocol.ERR_SUCCESS)
                                 .setPid(pid)
                                 .build()
@@ -154,7 +156,7 @@ public class MessageConsumer extends Thread {
                         break;
                     }
                     case Protocol.GET_MEMBERSHIP_COUNT:
-                        dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                        dataBytes = kvResBuilder
                         .setErrCode(Protocol.ERR_SUCCESS)
                         .setMembershipCount(1)
                         .build()
@@ -173,7 +175,7 @@ public class MessageConsumer extends Thread {
                 }
                 
                 if (errCode != Protocol.ERR_SUCCESS) {
-                    dataBytes = KeyValueResponse.KVResponse.newBuilder()
+                    dataBytes = kvResBuilder
                             .setErrCode(errCode)
                             .build()
                             .toByteArray();
@@ -182,8 +184,9 @@ public class MessageConsumer extends Thread {
                 message.setPayload(dataBytes);
                 dataBytes = message.getDataBytes();
                 
-                DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length,
-                        message.getAddress(), message.getPort());
+                packet.setData(dataBytes);
+                packet.setAddress(message.getAddress());
+                packet.setPort(message.getPort());
                 
                 mMessageCache.put(message.getIdString(), ByteString.copyFrom(dataBytes));
                 mSocket.send(packet);

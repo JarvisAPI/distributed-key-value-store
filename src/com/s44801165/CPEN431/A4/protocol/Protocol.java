@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A3.protocol;
+package com.s44801165.CPEN431.A4.protocol;
 
 public class Protocol {
     public static final int SIZE_MAX_KEY_LENGTH = 32;
@@ -22,5 +22,5 @@ public class Protocol {
     public static final int ERR_INVALID_KEY = 0x06;
     public static final int ERR_INVALID_VAL = 0x07;
     
-    public static final int OVERLOAD_WAITTIME = 5000;
+    public static final int OVERLOAD_WAITTIME = 100;
 }

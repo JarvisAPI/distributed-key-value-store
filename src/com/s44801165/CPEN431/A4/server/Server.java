@@ -1,11 +1,11 @@
-package com.s44801165.CPEN431.A3.server;
+package com.s44801165.CPEN431.A4.server;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
 
 public class Server {
     private DatagramSocket mSocket;
@@ -19,7 +19,9 @@ public class Server {
     private void runServer() {
         mQueue = new LinkedBlockingQueue<>(SIZE_MAX_QUEUE);
         createMessageProducer();
+        createMessageProducer();
         
+        createMessageConsumer();
         createMessageConsumer();
     }
     

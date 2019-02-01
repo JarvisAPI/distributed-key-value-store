@@ -1,8 +1,8 @@
-# CPEN 431 Assignment 3
+# CPEN 431 Assignment 4
 ---
 ## How to Run
 `
-java -Xmx64m -jar A3.jar 8082
+java -Xmx64m -jar A4.jar 8082
 `
 
 This starts the server on port 8082, if no port is supplied the server defaults to listen on 8082

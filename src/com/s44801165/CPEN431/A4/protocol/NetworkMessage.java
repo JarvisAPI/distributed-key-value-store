@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A3.protocol;
+package com.s44801165.CPEN431.A4.protocol;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -58,7 +58,7 @@ public class NetworkMessage {
     }
 
     public static NetworkMessage contructMessage(byte[] data) throws IOException {
-        Message.Msg transportMsg = Message.Msg.newBuilder().mergeFrom(data).build();
+        Message.Msg transportMsg = Message.Msg.parseFrom(data);
         byte[] id = transportMsg.getMessageID().toByteArray();
         byte[] payload = transportMsg.getPayload().toByteArray();
         long checksum = transportMsg.getCheckSum();

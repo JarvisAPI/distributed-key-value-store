@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A3.client;
+package com.s44801165.CPEN431.A4.client;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,10 +6,10 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
-import com.s44801165.CPEN431.A3.MessageTuple;
-import com.s44801165.CPEN431.A3.TimeoutStrategy;
-import com.s44801165.CPEN431.A3.MessageTuple.MessageType;
-import com.s44801165.CPEN431.A3.protocol.NetworkMessage;
+import com.s44801165.CPEN431.A4.MessageTuple;
+import com.s44801165.CPEN431.A4.TimeoutStrategy;
+import com.s44801165.CPEN431.A4.MessageTuple.MessageType;
+import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;
