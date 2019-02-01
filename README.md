@@ -2,10 +2,11 @@
 ---
 ## How to Run
 `
-java -Xmx64m -jar A4.jar 8082
+java -Xmx64m -jar A4.jar --port 8082 --num-producers 1 --num-consumers 1
 `
 
-This starts the server on port 8082, if no port is supplied the server defaults to listen on 8082
+This starts the server on port 8082, if no port is supplied the server defaults to listen on 8082.
+All command line options are optional, the server defauls to using the values listed in this example command.
 
 ---
 ## Tests

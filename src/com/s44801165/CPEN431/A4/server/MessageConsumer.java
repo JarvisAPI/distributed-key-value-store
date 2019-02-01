@@ -93,7 +93,8 @@ public class MessageConsumer extends Thread {
                         packet.setPort(message.getPort());
                         mSocket.send(packet);
                         continue;
-                    } else {
+                    } 
+                    else {
                         try {
                             if (!mMessageCache.putIfNotExist(message.getIdString(),
                                     MessageCache.ENTRY_BEING_PROCESSED, CACHE_META_COMPLETE_RESPONSE, 0)) {
