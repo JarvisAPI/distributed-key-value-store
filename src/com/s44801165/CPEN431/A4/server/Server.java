@@ -48,11 +48,15 @@ public class Server {
         final String COMMAND_NUM_PRODUCERS = "--num-producers";
         final String COMMAND_NUM_CONSUMERS = "--num-consumers";
         final String COMMAND_PORT = "--port";
+        final String COMMAND_MAX_KEY_VALUE_STORE_SIZE = "--max-kvstore-size";
+        final String COMMAND_MAX_MESSAGE_CACHE_SIZE = "--max-cache-size";
         
         try {
             int port = 8082;
             int numProducers = 1;
             int numConsumers = 1;
+            int maxKeyValueStoreSize = 40;
+            int maxCacheSize = 8;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {
@@ -64,6 +68,12 @@ public class Server {
                         break;
                     case COMMAND_PORT:
                         port = Integer.parseInt(args[i+1]);
+                        break;
+                    case COMMAND_MAX_KEY_VALUE_STORE_SIZE:
+                        maxKeyValueStoreSize = Integer.parseInt(args[i+1]);
+                        break;
+                    case COMMAND_MAX_MESSAGE_CACHE_SIZE:
+                        maxCacheSize = Integer.parseInt(args[i+1]);
                         break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
@@ -77,6 +87,15 @@ public class Server {
             System.out.println("Port: " + port);
             System.out.println("Number of producer threads: " + numProducers);
             System.out.println("Number of consumer threads: " + numConsumers);
+            System.out.println("Max key-value store size: " + maxKeyValueStoreSize + "MB");
+            System.out.println("Max cache size: " + maxCacheSize + "MB");
+            
+            maxKeyValueStoreSize *= 1024*1024;
+            maxCacheSize *= 1024*1024;
+            
+            MessageCache.setMaxCacheSize(maxCacheSize);
+            KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
+            
             Server server = new Server(port);
             server.setNumThreads(numProducers, numConsumers);
             server.runServer();

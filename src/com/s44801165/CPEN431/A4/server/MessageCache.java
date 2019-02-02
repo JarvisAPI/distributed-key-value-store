@@ -18,7 +18,7 @@ import com.s44801165.CPEN431.A4.protocol.Protocol;
  */
 public class MessageCache {
     private static MessageCache mMessageCache = null;
-    private static final int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
+    private static int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
     private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds
     
     public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
@@ -43,6 +43,14 @@ public class MessageCache {
     private volatile int mSize;
     
     public static final int META_MASK_CACHE_REFERENCE = (1 << 31);
+    
+    /**
+     * Set max cache size in bytes.
+     * @param maxCacheSize
+     */
+    public static final void setMaxCacheSize(int maxCacheSize) {
+        SIZE_MAX_CACHE = maxCacheSize;
+    }
     
     private MessageCache() {
         mCache = new ConcurrentHashMap<>();

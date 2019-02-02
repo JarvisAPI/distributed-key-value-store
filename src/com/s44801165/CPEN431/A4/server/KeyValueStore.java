@@ -19,7 +19,7 @@ public class KeyValueStore {
     }
     
     // Maximum number of bytes that is allowed in the key value store.
-    private static final int MAX_SIZE_BYTES = 45 * 1024 * 1024;
+    private static int MAX_SIZE_BYTES = 40 * 1024 * 1024;
     private volatile int mSize;
     private static KeyValueStore mKeyValueStore;
     private Map<ByteString, ValuePair> mKeyValMap;
@@ -27,6 +27,14 @@ public class KeyValueStore {
     private KeyValueStore() {
         mKeyValMap = new ConcurrentHashMap<>();
         mSize = 0;
+    }
+    
+    /**
+     * Set max key value store size in bytes.
+     * @param maxCacheSize
+     */
+    public static final void setMaxCacheSize(int maxKeyValueStoreSize) {
+        MAX_SIZE_BYTES = maxKeyValueStoreSize;
     }
     
     /**
