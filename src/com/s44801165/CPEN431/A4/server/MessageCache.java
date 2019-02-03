@@ -19,7 +19,7 @@ import com.s44801165.CPEN431.A4.protocol.Protocol;
 public class MessageCache {
     private static MessageCache mMessageCache = null;
     private static int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
-    private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds
+    private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds.
     
     public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
     
@@ -29,11 +29,11 @@ public class MessageCache {
         public final int metaInfo;
         public final ByteString value;
         public final int intField0;
-        int timeout; // In milliseconds
+        public final int timestamp; // In nano seconds
         
-        CacheEntry(ByteString value, int timeout, int metaInfo, int intField0) {
+        CacheEntry(ByteString value, int metaInfo, int intField0) {
             this.value = value;
-            this.timeout = timeout;
+            this.timestamp = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
             this.metaInfo = metaInfo;
             this.intField0 = intField0;
         }
@@ -85,7 +85,7 @@ public class MessageCache {
         }
         if (mSize + update < SIZE_MAX_CACHE) {
             updateSize(update);
-            mCache.put(key,  new CacheEntry(message, TIMEOUT, metaInfo, intField0));
+            mCache.put(key,  new CacheEntry(message, metaInfo, intField0));
             return;
         }
         throw new OutOfMemoryError();
@@ -126,7 +126,6 @@ public class MessageCache {
     }
     
     private class CacheCleaner extends TimerTask {
-        private long elapsedTime = System.nanoTime();
         
         @Override
         public void run() {
@@ -134,16 +133,16 @@ public class MessageCache {
                     mCache.entrySet().iterator();
             Entry<ByteString, CacheEntry> tuple;
             CacheEntry entry;
-            long time = System.nanoTime();
-            long elapsedTimeNano = time - elapsedTime;
-            int elapsedTimeMillis = (int) TimeUnit.NANOSECONDS.toMillis(elapsedTimeNano);
+            int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 
             int update = 0;
             while (it.hasNext()) {
                 tuple = it.next();
                 entry = tuple.getValue();
-                entry.timeout -= elapsedTimeMillis;
-                if (entry.timeout <= 0) {
+                if (entry.value == ENTRY_BEING_PROCESSED) {
+                    continue;
+                }
+                if (time - entry.timestamp >= TIMEOUT) {
                     update += -(tuple.getKey().size() + CacheEntry.SIZE_META_INFO);
                     if ((entry.metaInfo & META_MASK_CACHE_REFERENCE) != 0) {
                         update -= CacheEntry.SIZE_REFERENCE;
@@ -156,7 +155,7 @@ public class MessageCache {
             if (update != 0) {
                 updateSize(update);
             }
-            elapsedTime = time;
+            System.out.println("mSize: " + mSize);
         }
     }
 }
