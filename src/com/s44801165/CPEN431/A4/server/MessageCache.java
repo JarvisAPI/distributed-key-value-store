@@ -155,7 +155,6 @@ public class MessageCache {
             if (update != 0) {
                 updateSize(update);
             }
-            System.out.println("mSize: " + mSize);
         }
     }
 }
