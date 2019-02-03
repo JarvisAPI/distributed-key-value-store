@@ -3,7 +3,6 @@ package com.s44801165.CPEN431.A4.server;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.concurrent.BlockingQueue;
 
 import com.google.protobuf.ByteString;
 import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
@@ -16,7 +15,7 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
 
 public class MessageConsumer extends Thread {
     private DatagramSocket mSocket;
-    private BlockingQueue<NetworkMessage> mQueue;
+    private NetworkQueue mQueue;
     private KeyValueStore mKeyValStore;
     private MessageCache mMessageCache;
     
@@ -24,7 +23,7 @@ public class MessageConsumer extends Thread {
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
     
-    public MessageConsumer(DatagramSocket socket, BlockingQueue<NetworkMessage> queue) {
+    public MessageConsumer(DatagramSocket socket, NetworkQueue queue) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
