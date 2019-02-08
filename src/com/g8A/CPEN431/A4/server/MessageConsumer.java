@@ -1,14 +1,13 @@
-package com.s44801165.CPEN431.A4.server;
+package com.g8A.CPEN431.A4.server;
 
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+import com.g8A.CPEN431.A4.protocol.NetworkMessage;
+import com.g8A.CPEN431.A4.protocol.Protocol;
 import com.google.protobuf.ByteString;
-import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
-import com.s44801165.CPEN431.A4.protocol.Protocol;
-import com.s44801165.CPEN431.A4.server.KeyValueStore.ValuePair;
-import com.s44801165.CPEN431.A4.server.MessageCache.CacheEntry;
+import com.g8A.CPEN431.A4.server.MessageCache.CacheEntry;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
@@ -39,7 +38,7 @@ public class MessageConsumer extends Thread {
                 .toByteArray();
 
         NetworkMessage message;
-        ValuePair vPair;
+        KeyValueStore.ValuePair vPair;
 
         byte[] dataBytes;
         int errCode;

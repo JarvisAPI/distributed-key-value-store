@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A4.client;
+package com.g8A.CPEN431.A4.client;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,10 +6,9 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
-import com.s44801165.CPEN431.A4.MessageTuple;
-import com.s44801165.CPEN431.A4.TimeoutStrategy;
-import com.s44801165.CPEN431.A4.MessageTuple.MessageType;
-import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
+import com.g8A.CPEN431.A4.MessageTuple;
+import com.g8A.CPEN431.A4.TimeoutStrategy;
+import com.g8A.CPEN431.A4.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;
@@ -47,7 +46,7 @@ public class MessageReceiverThread extends Thread {
                     mSocket.setSoTimeout(mTimeoutStrategy.getTimeout());
                 }
                 mSocket.receive(replyPacket);
-                msgTuple.type = MessageType.MSG_RECEIVED;
+                msgTuple.type = MessageTuple.MessageType.MSG_RECEIVED;
                 msgTuple.message = NetworkMessage.contructMessage(
                         Arrays.copyOf(replyPacket.getData(), replyPacket.getLength()));
                 
@@ -59,9 +58,9 @@ public class MessageReceiverThread extends Thread {
                     msgTuple.timeout = mTimeoutStrategy.getTimeout();
                     mTimeoutStrategy.onTimedOut();
                 }
-                msgTuple.type = MessageType.TIMEOUT;
+                msgTuple.type = MessageTuple.MessageType.TIMEOUT;
             } catch (Exception e) {
-                msgTuple.type = MessageType.ERROR;
+                msgTuple.type = MessageTuple.MessageType.ERROR;
             }
             
             mQueue.add(msgTuple);

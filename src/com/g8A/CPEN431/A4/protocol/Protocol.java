@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A4.protocol;
+package com.g8A.CPEN431.A4.protocol;
 
 public class Protocol {
     public static final int SIZE_MAX_KEY_LENGTH = 32;

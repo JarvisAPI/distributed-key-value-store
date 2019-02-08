@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A4;
+package com.g8A.CPEN431.A4;
 
 public interface TimeoutStrategy {
     /**

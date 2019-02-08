@@ -1,4 +1,4 @@
-package com.s44801165.CPEN431.A4.server;
+package com.g8A.CPEN431.A4.server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,8 +6,8 @@ import java.net.DatagramSocket;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
-import com.s44801165.CPEN431.A4.protocol.NetworkMessage;
-import com.s44801165.CPEN431.A4.protocol.Protocol;
+import com.g8A.CPEN431.A4.protocol.NetworkMessage;
+import com.g8A.CPEN431.A4.protocol.Protocol;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
 
