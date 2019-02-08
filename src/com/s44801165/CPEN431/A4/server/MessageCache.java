@@ -19,21 +19,21 @@ import com.s44801165.CPEN431.A4.protocol.Protocol;
 public class MessageCache {
     private static MessageCache mMessageCache = null;
     private static int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
-    private static final int TIMEOUT = 5000; // Timeout of cache entries in milliseconds.
+    private static final long TIMEOUT = 5000; // Timeout of cache entries in milliseconds.
     
     public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
     
     public static final class CacheEntry {
         public static final int SIZE_META_INFO = 12;
-        public static final int SIZE_REFERENCE = 4;
+        public static final int SIZE_REFERENCE = 8;
         public final int metaInfo;
         public final ByteString value;
         public final int intField0;
-        public final int timestamp; // In nano seconds
+        public final long timestamp; // In nano seconds
         
         CacheEntry(ByteString value, int metaInfo, int intField0) {
             this.value = value;
-            this.timestamp = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+            this.timestamp = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
             this.metaInfo = metaInfo;
             this.intField0 = intField0;
         }
@@ -133,7 +133,7 @@ public class MessageCache {
                     mCache.entrySet().iterator();
             Entry<ByteString, CacheEntry> tuple;
             CacheEntry entry;
-            int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+            long time = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 
             int update = 0;
             while (it.hasNext()) {
@@ -146,7 +146,8 @@ public class MessageCache {
                     update += -(tuple.getKey().size() + CacheEntry.SIZE_META_INFO);
                     if ((entry.metaInfo & META_MASK_CACHE_REFERENCE) != 0) {
                         update -= CacheEntry.SIZE_REFERENCE;
-                    } else {
+                    }
+                    else {
                         update -= entry.value.size();
                     }
                     it.remove();
