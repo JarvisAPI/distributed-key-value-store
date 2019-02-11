@@ -1,11 +1,14 @@
 package com.g8A.CPEN431.A4.server.distribution;
 
+import java.util.ArrayList;
+
 /**
  * This strategy for routing directly routes to the destination node.
  * Number of hops: O(1)
  * Amount of state (number of host/port stored): O(N)
  */
-public class DirectRoute implements RouteStrategy {
+public class DirectRoute implements RouteStrategy {    
+	
 	// For now the host name and ports of the nodes are hard coded
 	private static final int DEFAULT_PORT = 5000;
     private static final AddressHolder node1 = new AddressHolder("pl1.eng.monash.edu.au", DEFAULT_PORT);
@@ -21,17 +24,18 @@ public class DirectRoute implements RouteStrategy {
      * @return hostname and port of node to route to, null if value is 
      */
     public AddressHolder getRoute(int nodeId) {
-    	if(nodeId >= 0 && nodeId < 64) {
-        	return node1;
-        }else if(nodeId >= 64 && nodeId < 128) {
-        	return node2;
-        }else if(nodeId >= 128 && nodeId < 192) {
-        	return node3;
-        }else if(nodeId >= 192 && nodeId < 256) {
-        	return node4;
-        }else {
-        	return null;
-        }
+    	switch(nodeId) {
+    	case 1:
+    		return node1;
+    	case 2:
+    		return node2;
+    	case 3:
+    		return node3;
+    	case 4: 
+    		return node4;
+    	default: 
+    		return null;
+    	}
     }
     
     
