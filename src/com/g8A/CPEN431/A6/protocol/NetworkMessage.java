@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A4.protocol;
+package com.g8A.CPEN431.A6.protocol;
 
 import java.io.IOException;
 import java.net.InetAddress;

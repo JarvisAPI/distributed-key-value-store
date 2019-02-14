@@ -1,6 +1,6 @@
-package com.g8A.CPEN431.A4;
+package com.g8A.CPEN431.A6;
 
-import com.g8A.CPEN431.A4.protocol.NetworkMessage;
+import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 
 public class MessageTuple {
     public enum MessageType {
