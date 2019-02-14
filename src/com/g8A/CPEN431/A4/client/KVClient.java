@@ -9,6 +9,7 @@ public interface KVClient {
      * Send a given key/value request to another host.
      * @param request the key/value request to send.
      * @param holder the destination host.
+     * @throws IllegalStateException if the sending queue is full.
      */
-    public void send(KeyValueRequest.KVRequest request, AddressHolder holder);
+    public void send(KeyValueRequest.KVRequest request, AddressHolder holder) throws IllegalStateException;
 }
