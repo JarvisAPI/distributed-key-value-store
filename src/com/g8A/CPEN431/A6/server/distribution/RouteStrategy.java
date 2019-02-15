@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A4.server.distribution;
+package com.g8A.CPEN431.A6.server.distribution;
 
 public interface RouteStrategy {
     public class AddressHolder {

@@ -1,6 +1,4 @@
-package com.g8A.CPEN431.A4.server.distribution;
-
-import java.util.ArrayList;
+package com.g8A.CPEN431.A6.server.distribution;
 
 /**
  * This strategy for routing directly routes to the destination node.

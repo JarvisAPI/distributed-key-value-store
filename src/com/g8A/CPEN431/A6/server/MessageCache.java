@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A4.server;
+package com.g8A.CPEN431.A6.server;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import com.g8A.CPEN431.A4.protocol.Protocol;
+import com.g8A.CPEN431.A6.protocol.Protocol;
 import com.google.protobuf.ByteString;
 
 /**
