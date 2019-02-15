@@ -55,6 +55,16 @@ public class MessageConsumer extends Thread {
                 errCode = Protocol.ERR_SUCCESS;
                 message = mQueue.take();
                 
+                // Us HashEntity to determine node
+                
+                // Determine if locally served or needs to be routed
+                
+                // if not local, grab correct node
+                
+                // build request and send to correct node, then invoke continue;
+                
+                
+                // Process request on local node
                 kvResBuilder.clear();
                 cacheMetaInfo = 0;
                 try {
