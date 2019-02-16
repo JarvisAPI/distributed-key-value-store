@@ -35,15 +35,16 @@ public class MessageConsumer extends Thread {
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
 
-    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, ConcreteKVClient kvClient, int nodeId) {
+    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, ConcreteKVClient kvClient, HashEntity hashEntity, int nodeId) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
         mMessageCache = MessageCache.getInstance();
-        mHashEntity = new HashEntity(); // could be made singleton as well
-        mDirectRoute = DirectRoute.getInstance();
+        mHashEntity = hashEntity; // could be made singleton as well
+        mDirectRoute = DirectRoute.getInstance(mHashEntity);
         mKVClient = kvClient;
         mNodeId = nodeId;
+        
     }
 
     @Override
