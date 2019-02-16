@@ -1,10 +1,13 @@
 package com.g8A.CPEN431.A6.client;
 
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
+import com.g8A.CPEN431.A6.protocol.Protocol;
 import com.g8A.CPEN431.A6.server.MessageCache;
 import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 
 import com.google.protobuf.ByteString;
+
+import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -75,6 +78,10 @@ public class ConcreteKVClient implements KVClient, Runnable {
 
     @Override
     public void run() {
+        byte[] FAILED_BYTES = KVResponse.newBuilder()
+                .setErrCode(Protocol.ERR_INTERNAL_KVSTORE_FAILURE)
+                .build()
+                .toByteArray();
         NetworkMessage replyMessage = new NetworkMessage();
         long elapsedTime = 0;
         
@@ -119,7 +126,8 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     if (bundle.timer <= elapsedTime) {
                         if (bundle.retryCounter <= MAX_RETRY_COUNT) {
                             bundle.retryCounter++;
-                            bundle.timer = INITIAL_TIMEOUT * (1 << bundle.retryCounter);
+                            int leftover = (int) elapsedTime - bundle.timer;
+                            bundle.timer = INITIAL_TIMEOUT * (1 << bundle.retryCounter) - leftover;
                             try {
                                 sendPacket(bundle.msg);
                             } catch (IOException e) {
@@ -127,6 +135,12 @@ public class ConcreteKVClient implements KVClient, Runnable {
                             }
                         }
                         else {
+                            replyMessage.setPayload(FAILED_BYTES);
+                            replyMessage.setAddressAndPort(InetAddress.getByName(bundle.fromAddress.hostname),
+                                    bundle.fromAddress.port);
+                            mMessageCache.put(bundle.msg.getIdString(),
+                                    ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
+                            sendPacket(replyMessage);
                             it.remove();
                         }
                     }
