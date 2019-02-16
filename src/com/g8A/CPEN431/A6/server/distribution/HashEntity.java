@@ -17,9 +17,7 @@ import java.util.TreeMap;
  */
 public class HashEntity {
     private static final int HASH_CIRCLE_SIZE = 256;
-    private static final int VIRTUAL_REPLICAS = 1;
     private final SortedMap<Integer, Integer> ring = new TreeMap<>();
-    private final DirectRoute route = DirectRoute.getInstance();
 
     /**
      * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0-255)
@@ -52,38 +50,24 @@ public class HashEntity {
 
     /**
      * Adds the node and its replicas of virtual nodes to the ring
-     * @param nodeId the id of the node to add
+     * @param node the ByteString representing hostname+port of the node
      */
-    public synchronized void addNode(int nodeId) throws NoSuchAlgorithmException {
+    public synchronized void addNode(ByteString node) throws NoSuchAlgorithmException {
         int hash;
-        for(int i=0; i<VIRTUAL_REPLICAS; i++) {
-            do {
-                hash = hash((route.getRoute(nodeId).toString() + i).getBytes());
-            } while (ring.containsKey(hash));
+        do {
+            hash = hash(node.toByteArray());
+        } while (ring.containsKey(hash));
 
-            ring.put(hash, nodeId);
-        }
+        ring.put(hash, ring.size());
     }
 
     /**
      * Remove the node and its replicas from the ring
-     * @param nodeId the id of the node to remove
+     * @param node the ByteString representing hostname+port of the node
      */
-    public synchronized void removeNode(int nodeId) throws NoSuchAlgorithmException {
-        int hash;
-        for(int i=0; i<VIRTUAL_REPLICAS; i++) {
-            hash = hash((route.getRoute(nodeId).toString() + i).getBytes());
+    public synchronized void removeNode(ByteString node) throws NoSuchAlgorithmException {
+        int hash = hash(node.toByteArray());
 
-            ring.remove(hash);
-        }
+        ring.remove(hash);
     }
-
-    /**
-     * Relocate the range of requests corresponding to the added (or removed) node to the correct node.
-     * @param KVNodeId the mapped id of the added or removed node
-     */
-    public void relocate(int KVNodeId) {
-        // TODO: implement
-    }
-
 }
