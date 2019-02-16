@@ -1,11 +1,13 @@
 package com.g8A.CPEN431.A6.server.distribution;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.g8A.CPEN431.A6.protocol.Util;
-import com.g8A.CPEN431.A6.server.KeyValueStore;
 import com.google.protobuf.ByteString;
 
 /**
@@ -20,25 +22,45 @@ public class DirectRoute implements RouteStrategy {
 	private final int DEFAULT_PORT = 8082;
 	private AddressHolder[] ipaddrs;
 	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<Integer, AddressHolder>();
-    private final AddressHolder node1 = new AddressHolder("pl1.eng.monash.edu.au", DEFAULT_PORT); 
-    private final AddressHolder node2 = new AddressHolder("planetlab-4.eecs.cwru.edu", DEFAULT_PORT);
-    private final AddressHolder node3 = new AddressHolder("planetlab1.cs.ubc.ca", DEFAULT_PORT);
-    private final AddressHolder node4 = new AddressHolder("planetlab2.cs.ubc.ca", DEFAULT_PORT);
+	private final String[] nodeHostnames = {
+	        "", // Empty slot for hostname of this machine
+	        "pl1.eng.monash.edu.au", "planetlab-4.eecs.cwru.edu",
+	        "planetlab1.cs.ubc.ca", "planetlab2.cs.ubc.ca"
+	        };
+	private String mSelfHostname;
+	private int mSelfNodeId;
     
     private static DirectRoute mDirectRoute;
     
-    private DirectRoute(HashEntity hashCircle) {
-    	ipaddrs = new AddressHolder[] { node1, node2, node3, node4 };
+    private DirectRoute() {
+        try {
+            mSelfHostname = InetAddress.getLocalHost().getHostName();
+            nodeHostnames[0] = mSelfHostname;
+        } catch (UnknownHostException e1) {
+            System.err.println("[ERROR] Cannot get hostname of node, it will not be able to have a nodeId, exiting...");
+            System.exit(1);
+        }
+    	Arrays.sort(nodeHostnames);
+    	ipaddrs = new AddressHolder[nodeHostnames.length];
+
     	for(int i = 0; i < ipaddrs.length; i++) {
+            ipaddrs[i] = new AddressHolder(nodeHostnames[i], DEFAULT_PORT);
     		AddressHolder curAddr = ipaddrs[i];
     		ByteString hostnameAndPort = Util.concatHostnameAndPort(curAddr.hostname, curAddr.port);
     		try {
-				int nodeId = hashCircle.getKVNodeId(hostnameAndPort);
+				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort);
+				if (mSelfHostname.equals(curAddr.hostname)) {
+				    mSelfNodeId = nodeId;
+				}
 				nodeIdMap.put(nodeId, curAddr);
 			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			}
     	}
+    }
+    
+    public int getSelfNodeId() {
+        return mSelfNodeId;
     }
     
     @Override
@@ -49,24 +71,16 @@ public class DirectRoute implements RouteStrategy {
      * @return hostname and port of node to route to, null if value is 
      */
     public AddressHolder getRoute(int nodeId) {
-    	switch(nodeId) {
-    	case 1:
-    		return node1;
-    	case 2:
-    		return node2;
-    	case 3:
-    		return node3;
-    	case 4: 
-    		return node4;
-    	default: 
-    		return null;
-    	}
+    	return nodeIdMap.get(nodeId);
     }
     
-    public static synchronized DirectRoute getInstance(HashEntity hashCircle) {
+    public static synchronized void makeInstance() {
         if (mDirectRoute == null) {
-        	mDirectRoute = new DirectRoute(hashCircle);
+            mDirectRoute = new DirectRoute();
         }
+    }
+    
+    public static DirectRoute getInstance() {
         return mDirectRoute;
     }
     

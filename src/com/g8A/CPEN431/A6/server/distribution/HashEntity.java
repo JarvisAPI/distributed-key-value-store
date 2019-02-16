@@ -20,6 +20,10 @@ public class HashEntity {
     private final SortedMap<Integer, Integer> ring = new TreeMap<>();
     
     private static HashEntity mHashEntity;
+    
+    private HashEntity() {
+        
+    }
 
     /**
      * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0-255)
