@@ -137,9 +137,11 @@ public class MessageConsumer extends Thread {
                     
                     // request is not in cache, we need to route it correctly
                     int nodeId = mHashEntity.getKVNodeId(key);
-                    AddressHolder routedNode = new AddressHolder(message.getAddress().getHostName(), message.getPort());
+                    AddressHolder fromAddress = new AddressHolder(message.getAddress().getHostAddress(), message.getPort());
+                    message.setAddressAndPort(message.getAddress(), message.getPort());
                     if(nodeId != mNodeId) {
-                    	mKVClient.send(message, routedNode);
+                    	mKVClient.send(message, fromAddress);
+                    	// message being processed by other node, move on
                     	continue;
                     }
                     
