@@ -18,6 +18,8 @@ import java.util.TreeMap;
 public class HashEntity {
     private static final int HASH_CIRCLE_SIZE = 256;
     private final SortedMap<Integer, Integer> ring = new TreeMap<>();
+    
+    private static HashEntity mHashEntity;
 
     /**
      * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0-255)
@@ -60,5 +62,12 @@ public class HashEntity {
 
         ring.put(hash, ring.size());
         return ring.size();
+    }
+    
+    public static synchronized HashEntity getInstance() {
+        if (mHashEntity == null) {
+        	mHashEntity = new HashEntity();
+        }
+        return mHashEntity;
     }
 }
