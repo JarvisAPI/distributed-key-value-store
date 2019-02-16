@@ -52,22 +52,13 @@ public class HashEntity {
      * Adds the node and its replicas of virtual nodes to the ring
      * @param node the ByteString representing hostname+port of the node
      */
-    public synchronized void addNode(ByteString node) throws NoSuchAlgorithmException {
+    public synchronized int addNode(ByteString node) throws NoSuchAlgorithmException {
         int hash;
         do {
             hash = hash(node.toByteArray());
         } while (ring.containsKey(hash));
 
         ring.put(hash, ring.size());
-    }
-
-    /**
-     * Remove the node and its replicas from the ring
-     * @param node the ByteString representing hostname+port of the node
-     */
-    public synchronized void removeNode(ByteString node) throws NoSuchAlgorithmException {
-        int hash = hash(node.toByteArray());
-
-        ring.remove(hash);
+        return ring.size();
     }
 }
