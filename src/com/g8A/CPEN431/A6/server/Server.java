@@ -2,19 +2,29 @@ package com.g8A.CPEN431.A6.server;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.g8A.CPEN431.A6.client.ConcreteKVClient;
+import com.g8A.CPEN431.A6.client.KVClient;
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
+import com.g8A.CPEN431.A6.protocol.Util;
+import com.g8A.CPEN431.A6.server.distribution.HashEntity;
 
 public class Server {
     private DatagramSocket mSocket;
     private BlockingQueue<NetworkMessage> mQueue;
+    private ConcreteKVClient mKVClient;
+    private HashEntity mHashEntity;
     private static int SIZE_MAX_QUEUE = 256;
     private int mNumProducers = 1;
     private int mNumConsumers = 1;
+    private int mNodeId;
     private boolean mIsSingleThread = false;
 
     private Server(int port) throws SocketException {
@@ -24,6 +34,30 @@ public class Server {
     private void setNumThreads(int numProducers, int numConsumers) {
         mNumProducers = numProducers;
         mNumConsumers = numConsumers;
+    }
+    
+    private void setHashEntityAndNodeId(int port) {
+    	mHashEntity = new HashEntity();
+    	InetAddress localHost;
+		try {
+			localHost = InetAddress.getLocalHost();
+			try {
+				mNodeId = mHashEntity.getKVNodeId(Util.concatHostnameAndPort(localHost.getHostAddress(), port));
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    private void startKVClient() {
+    	try {
+			mKVClient = new ConcreteKVClient();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+        new Thread(mKVClient).start();
     }
 
     private void runServer() {
@@ -73,7 +107,7 @@ public class Server {
                 }
             };
         }
-        MessageConsumer cons = new MessageConsumer(mSocket, queue);
+        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, mHashEntity, mNodeId);
         cons.start();
     }
     
@@ -97,6 +131,7 @@ public class Server {
             int maxKeyValueStoreSize = 40;
             int maxCacheSize = 8;
             int maxReceiveQueueEntryLimit = 256;
+            int nodeId = 0;
             boolean isSingleThread = false;
             for (int i = 0; i < args.length; i+=2) {
                 try {
@@ -151,6 +186,7 @@ public class Server {
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             
             Server server = new Server(port);
+            server.setHashEntityAndNodeId(port);
             if (!isSingleThread) {
                 Server.SIZE_MAX_QUEUE = maxReceiveQueueEntryLimit;
                 server.setNumThreads(numProducers, numConsumers);
@@ -158,6 +194,7 @@ public class Server {
             else {
                 server.setSingleThread(true);
             }
+            server.startKVClient();
             server.runServer();
         } catch (SocketException e) {
             e.printStackTrace();

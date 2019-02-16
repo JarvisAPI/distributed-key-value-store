@@ -2,6 +2,11 @@ package com.g8A.CPEN431.A6.server.distribution;
 
 import com.google.protobuf.ByteString;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 /**
  * Given the key in the key/value request, this class applies
  * a secure hash function to the key and uses the return value
@@ -12,13 +17,57 @@ import com.google.protobuf.ByteString;
  */
 public class HashEntity {
     private static final int HASH_CIRCLE_SIZE = 256;
+    private final SortedMap<Integer, Integer> ring = new TreeMap<>();
+    
+    private static HashEntity mHashEntity;
+
+    /**
+     * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0-255)
+     * @param entry the byte array to be hashed
+     * @return integer in the range of the hash circle
+     */
+    private int hash(byte[] entry) throws NoSuchAlgorithmException {
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha256.digest(entry);
+        return hash[0];
+    }
+
     /**
      * Gets the node id of the node that should store the given key.
      * @param key the key used in the key/value store.
      * @return the node id.
      */
-    public int getKVNodeId(ByteString key) {
-        // TODO: implement
-        return 0;
+    public int getKVNodeId(ByteString key) throws NoSuchAlgorithmException {
+        if(ring.isEmpty()) return -1;
+
+        int hash = hash(key.toByteArray());
+        if(!ring.containsKey(hash)) {
+            // TODO: compare space/performance of using tailMap vs binary search
+            SortedMap<Integer, Integer> tailMap = ring.tailMap(hash);
+            hash = tailMap.isEmpty() ?
+                    ring.firstKey() : tailMap.firstKey();
+        }
+        return ring.get(hash);
+    }
+
+    /**
+     * Adds the node and its replicas of virtual nodes to the ring
+     * @param node the ByteString representing hostname+port of the node
+     */
+    public synchronized int addNode(ByteString node) throws NoSuchAlgorithmException {
+        int hash;
+        do {
+            hash = hash(node.toByteArray());
+        } while (ring.containsKey(hash));
+
+        ring.put(hash, ring.size());
+        return ring.size();
+    }
+    
+    public static synchronized HashEntity getInstance() {
+        if (mHashEntity == null) {
+        	mHashEntity = new HashEntity();
+        }
+        return mHashEntity;
     }
 }

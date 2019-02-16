@@ -3,11 +3,20 @@ package com.g8A.CPEN431.A6.server;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
+import com.g8A.CPEN431.A6.client.ConcreteKVClient;
+import com.g8A.CPEN431.A6.client.KVClient;
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 import com.g8A.CPEN431.A6.protocol.Protocol;
 import com.google.protobuf.ByteString;
 import com.g8A.CPEN431.A6.server.MessageCache.CacheEntry;
+import com.g8A.CPEN431.A6.server.distribution.DirectRoute;
+import com.g8A.CPEN431.A6.server.distribution.HashEntity;
+import com.g8A.CPEN431.A6.server.distribution.RouteStrategy;
+import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
@@ -17,16 +26,25 @@ public class MessageConsumer extends Thread {
     private NetworkQueue mQueue;
     private KeyValueStore mKeyValStore;
     private MessageCache mMessageCache;
+    private HashEntity mHashEntity;
+    private DirectRoute mDirectRoute;
+    private ConcreteKVClient mKVClient;
+    private int mNodeId;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
-    
-    public MessageConsumer(DatagramSocket socket, NetworkQueue queue) {
+
+    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, ConcreteKVClient kvClient, HashEntity hashEntity, int nodeId) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
         mMessageCache = MessageCache.getInstance();
+        mHashEntity = hashEntity; // could be made singleton as well
+        mDirectRoute = DirectRoute.getInstance(mHashEntity);
+        mKVClient = kvClient;
+        mNodeId = nodeId;
+        
     }
 
     @Override
@@ -39,7 +57,6 @@ public class MessageConsumer extends Thread {
 
         NetworkMessage message;
         KeyValueStore.ValuePair vPair;
-
         byte[] dataBytes;
         int errCode;
         ByteString key;
@@ -53,8 +70,7 @@ public class MessageConsumer extends Thread {
             try {       
                 dataBytes = null; 
                 errCode = Protocol.ERR_SUCCESS;
-                message = mQueue.take();
-                
+                message = mQueue.take();               
                 kvResBuilder.clear();
                 cacheMetaInfo = 0;
                 try {
@@ -119,7 +135,17 @@ public class MessageConsumer extends Thread {
     
                     key = kvReq.getKey();
                     value = kvReq.getValue();
-    
+                    
+                    // request is not in cache, we need to route it correctly
+                    int nodeId = mHashEntity.getKVNodeId(key);
+                    AddressHolder fromAddress = new AddressHolder(message.getAddress().getHostAddress(), message.getPort());
+                    message.setAddressAndPort(message.getAddress(), message.getPort());
+                    if(nodeId != mNodeId) {
+                    	mKVClient.send(message, fromAddress);
+                    	// message being processed by other node, move on
+                    	continue;
+                    }
+                    
                     switch (kvReq.getCommand()) {
                     case Protocol.PUT: {
                         if (key.isEmpty() || key.size() > Protocol.SIZE_MAX_KEY_LENGTH) {

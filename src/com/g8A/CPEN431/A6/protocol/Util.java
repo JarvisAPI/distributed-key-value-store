@@ -2,6 +2,8 @@ package com.g8A.CPEN431.A6.protocol;
 
 import java.net.Inet4Address;
 
+import com.google.protobuf.ByteString;
+
 public class Util {
     
     /**
@@ -41,5 +43,9 @@ public class Util {
             System.out.print(String.format("%02X", b));
         }
         System.out.println();
+    }
+    
+    public static ByteString concatHostnameAndPort(String addr, int port) {
+    	return ByteString.copyFrom(addr.concat(String.valueOf(port)).getBytes());
     }
 }
