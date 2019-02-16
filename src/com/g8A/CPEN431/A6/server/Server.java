@@ -7,14 +7,18 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.g8A.CPEN431.A6.client.ConcreteKVClient;
+import com.g8A.CPEN431.A6.client.KVClient;
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 
 public class Server {
     private DatagramSocket mSocket;
     private BlockingQueue<NetworkMessage> mQueue;
+    private ConcreteKVClient mKVClient;
     private static int SIZE_MAX_QUEUE = 256;
     private int mNumProducers = 1;
     private int mNumConsumers = 1;
+    private int mNodeId = 0;
     private boolean mIsSingleThread = false;
 
     private Server(int port) throws SocketException {
@@ -24,6 +28,19 @@ public class Server {
     private void setNumThreads(int numProducers, int numConsumers) {
         mNumProducers = numProducers;
         mNumConsumers = numConsumers;
+    }
+    
+    private void setNodeId(int nodeId) {
+    	mNodeId = nodeId;
+    }
+    
+    private void startKVClient() {
+    	try {
+			mKVClient = new ConcreteKVClient();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+        new Thread(mKVClient).start();
     }
 
     private void runServer() {
@@ -73,7 +90,7 @@ public class Server {
                 }
             };
         }
-        MessageConsumer cons = new MessageConsumer(mSocket, queue);
+        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, mNodeId);
         cons.start();
     }
     
@@ -89,6 +106,7 @@ public class Server {
         final String COMMAND_MAX_MESSAGE_CACHE_SIZE = "--max-cache-size";
         final String COMMAND_SINGLE_THREAD = "--single-thread";
         final String COMMAND_MAX_RECEIVE_QUEUE = "--max-receive-queue-entry-limit";
+        final String COMMAND_NODE_ID = "--nodeId";
         
         try {
             int port = 8082;
@@ -97,6 +115,7 @@ public class Server {
             int maxKeyValueStoreSize = 40;
             int maxCacheSize = 8;
             int maxReceiveQueueEntryLimit = 256;
+            int nodeId = 0;
             boolean isSingleThread = false;
             for (int i = 0; i < args.length; i+=2) {
                 try {
@@ -123,6 +142,9 @@ public class Server {
                     case COMMAND_MAX_RECEIVE_QUEUE:
                         maxReceiveQueueEntryLimit = Integer.parseInt(args[i+1]);
                         break;
+                    case COMMAND_NODE_ID:
+                    	nodeId = Integer.parseInt(args[i+1]);
+                    	break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
                     }
@@ -151,6 +173,7 @@ public class Server {
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             
             Server server = new Server(port);
+            server.setNodeId(nodeId);
             if (!isSingleThread) {
                 Server.SIZE_MAX_QUEUE = maxReceiveQueueEntryLimit;
                 server.setNumThreads(numProducers, numConsumers);
@@ -158,6 +181,7 @@ public class Server {
             else {
                 server.setSingleThread(true);
             }
+            server.startKVClient();
             server.runServer();
         } catch (SocketException e) {
             e.printStackTrace();

@@ -28,25 +28,22 @@ public class MessageConsumer extends Thread {
     private MessageCache mMessageCache;
     private HashEntity mHashEntity;
     private DirectRoute mDirectRoute;
-    private String mHostName;
     private ConcreteKVClient mKVClient;
+    private int mNodeId;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
-    
-    public MessageConsumer(DatagramSocket socket, NetworkQueue queue) {
+
+    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, ConcreteKVClient kvClient, int nodeId) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
         mMessageCache = MessageCache.getInstance();
         mHashEntity = new HashEntity(); // could be made singleton as well
         mDirectRoute = DirectRoute.getInstance();
-        try {
-			mHostName = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+        mKVClient = kvClient;
+        mNodeId = nodeId;
     }
 
     @Override
@@ -59,13 +56,6 @@ public class MessageConsumer extends Thread {
 
         NetworkMessage message;
         KeyValueStore.ValuePair vPair;
-        try {
-			mKVClient = new ConcreteKVClient();
-			mKVClient.run();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
-
         byte[] dataBytes;
         int errCode;
         ByteString key;
@@ -147,8 +137,8 @@ public class MessageConsumer extends Thread {
                     
                     // request is not in cache, we need to route it correctly
                     int nodeId = mHashEntity.getKVNodeId(key);
-                    AddressHolder routedNode = mDirectRoute.getRoute(nodeId);
-                    if(routedNode.hostname != mHostName) {
+                    AddressHolder routedNode = new AddressHolder(message.getAddress().getHostName(), message.getPort());
+                    if(nodeId != mNodeId) {
                     	mKVClient.send(message, routedNode);
                     	continue;
                     }
