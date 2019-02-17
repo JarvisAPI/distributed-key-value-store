@@ -30,18 +30,39 @@ public class A6TestClient {
     
     public void runClient() throws Exception {
         System.out.println("Client running");
+        for (int i = 0; i < 1225; i++) {
+            closedLoop(Protocol.SIZE_MAX_VAL_LENGTH);
+        }
+        Thread.sleep(10 * 1000);
+        System.out.println("First closed loop ended, waiting 10 seconds");
+        for (int i = 0; i < 2; i++) {
+            closedLoop(Protocol.SIZE_MAX_VAL_LENGTH/2);
+        }
+    }
+    
+    private void closedLoop(int valueSize) throws Exception {
+        int errCode;
         ByteString key = generateRandomKey();
-        NetworkMessage msg = generateTestPut(Protocol.SIZE_MAX_VAL_LENGTH, key);
-        
+        NetworkMessage msg = generateTestPut(valueSize, key);
         sendPacket(msg);
-        
         mSocket.receive(mReceivePacket);
-        
         NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
                                                      mReceivePacket.getLength()));
         
         KVResponse builder = KVResponse.parseFrom(msg.getPayload());
-        System.out.println("errCode: " + builder.getErrCode());
+        errCode = builder.getErrCode();
+        System.out.println("PUT errCode: " + errCode);
+        
+        msg = generateTestGet(key);
+        sendPacket(msg);
+        mSocket.receive(mReceivePacket);
+        NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
+                mReceivePacket.getLength()));
+        
+        builder = KVResponse.parseFrom(msg.getPayload());
+        errCode = builder.getErrCode();
+        System.out.println("GET errCode: " + errCode);
+        Thread.sleep(10);
     }
     
     protected final void sendPacket(NetworkMessage message) throws IOException {
@@ -84,6 +105,23 @@ public class A6TestClient {
                 .build()
                 .toByteArray();
 
+        msg.setAddressAndPort(serverAddr, serverPort);
+        msg.setPayload(payload);
+        return msg;
+    }
+    
+    private NetworkMessage generateTestGet(ByteString key) {
+        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), serverPort));
+        
+        KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
+                .newBuilder()
+                .setKey(key)
+                .setCommand(Protocol.GET);
+        
+        byte[] payload = kvBuilder
+                .build()
+                .toByteArray();
+        
         msg.setAddressAndPort(serverAddr, serverPort);
         msg.setPayload(payload);
         return msg;

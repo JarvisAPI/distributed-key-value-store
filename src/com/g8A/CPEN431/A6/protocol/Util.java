@@ -48,8 +48,8 @@ public class Util {
     public static String getHexString(byte[] dataBytes) {
         StringBuilder builder = new StringBuilder();
         for (byte b : dataBytes) {
-            builder.append(hexToChar((b >> 4)));
-            builder.append(b & 0x0f);
+            builder.append(hexToChar((b >> 4) & 0x0f));
+            builder.append(hexToChar(b & 0x0f));
         }
         return builder.toString();
     }

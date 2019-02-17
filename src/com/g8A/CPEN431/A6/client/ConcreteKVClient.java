@@ -2,7 +2,6 @@ package com.g8A.CPEN431.A6.client;
 
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 import com.g8A.CPEN431.A6.protocol.Protocol;
-import com.g8A.CPEN431.A6.protocol.Util;
 import com.g8A.CPEN431.A6.server.MessageCache;
 import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 
@@ -13,7 +12,6 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
@@ -32,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class ConcreteKVClient implements KVClient, Runnable {
-    public static final int INITIAL_TIMEOUT = 100; // In milliseconds.
+    public static final int INITIAL_TIMEOUT = 400; // In milliseconds.
     public static final int MAX_RETRY_COUNT = 3;
     private static class RequestBundle {
         private final NetworkMessage msg;
@@ -80,7 +78,7 @@ public class ConcreteKVClient implements KVClient, Runnable {
     @Override
     public void run() {
         byte[] FAILED_BYTES = KVResponse.newBuilder()
-                .setErrCode(Protocol.ERR_INTERNAL_KVSTORE_FAILURE)
+                .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                 .build()
                 .toByteArray();
         NetworkMessage replyMessage = new NetworkMessage();
@@ -93,10 +91,6 @@ public class ConcreteKVClient implements KVClient, Runnable {
                 try {
                     requestBundle = mQueue.poll(POLL_TIMEOUT, TimeUnit.MILLISECONDS);
                     if (requestBundle != null) {
-                        if (requestBundle.msg.getIdString() == null) {
-                            System.err.println("[ERROR]: Id String is null");
-                        }
-                        
                         mRequestMap.put(requestBundle.msg.getIdString(), requestBundle);
                         sendPacket(requestBundle.msg);
                     }
@@ -111,6 +105,8 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     NetworkMessage.setMessage(replyMessage, Arrays.copyOf(mReceivePacket.getData(),
                                                                           mReceivePacket.getLength()));
                     requestBundle = mRequestMap.remove(replyMessage.getIdString());
+                    // If requestBundle == null then that means we sent multiple requests due to timeout
+                    // but we already processed and sent the reply
                     if (requestBundle != null) {
                         mMessageCache.put(replyMessage.getIdString(),
                                           ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
@@ -119,10 +115,6 @@ public class ConcreteKVClient implements KVClient, Runnable {
                                                        requestBundle.fromAddress.port);
                         
                         sendPacket(replyMessage);
-                    }
-                    else {
-                        System.out.println("[INFO]: replyMessage.getIdString(): " + Util.getHexString(replyMessage.getIdString().toByteArray()));
-                        System.err.println("[WARNING]: RequestBundle is null");
                     }
                 } catch (SocketTimeoutException e) {
                     // Ignore
@@ -143,14 +135,12 @@ public class ConcreteKVClient implements KVClient, Runnable {
                             int leftover = (int) elapsedTime - bundle.timer;
                             bundle.timer = INITIAL_TIMEOUT * (1 << bundle.retryCounter) - leftover;
                             try {
-                                System.out.println("[INFO]: Resending, bundle.msg.getIdString(): " + Util.getHexString(bundle.msg.getIdString().toByteArray()));
                                 sendPacket(bundle.msg);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
                         else {
-                            System.out.println("Sending failed bytes");
                             bundle.msg.setPayload(FAILED_BYTES);
                             bundle.msg.setAddressAndPort(bundle.fromAddress.address,
                                     bundle.fromAddress.port);

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.g8A.CPEN431.A6.client.KVClient;
@@ -56,6 +55,7 @@ public class MessageConsumer extends Thread {
                 .toByteArray();
 
         NetworkMessage message;
+        KeyValueRequest.KVRequest kvReq = null;
         KeyValueStore.ValuePair vPair;
         byte[] dataBytes;
         int errCode;
@@ -121,7 +121,7 @@ public class MessageConsumer extends Thread {
                         }
                     }
     
-                    KeyValueRequest.KVRequest kvReq = KeyValueRequest.KVRequest
+                    kvReq = KeyValueRequest.KVRequest
                             .parseFrom(message.getPayload());
     
                     key = kvReq.getKey();
@@ -204,7 +204,7 @@ public class MessageConsumer extends Thread {
                         System.exit(0);
                         break;
                     case Protocol.WIPEOUT:
-                        mKeyValStore.removeAll();
+                        mKeyValStore.removeAll();                        
                         dataBytes = SUCCESS_BYTES;
                         cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         break;
