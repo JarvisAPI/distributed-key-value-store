@@ -1,4 +1,8 @@
-# CPEN 431 Assignment 4
+# CPEN 431 Project - Group 8A
+
+* William Ou - 44801165
+* Xing Yu Tao - 33610149
+* Sammie Jiang - 32157091
 ---
 ## How to Run
 `
