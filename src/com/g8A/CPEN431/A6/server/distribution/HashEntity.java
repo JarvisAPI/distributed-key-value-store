@@ -57,9 +57,14 @@ public class HashEntity {
     /**
      * Adds the node and its replicas of virtual nodes to the ring
      * @param node the ByteString representing hostname+port of the node
+     * @return the node id
      */
     public synchronized int addNode(ByteString node) throws NoSuchAlgorithmException {
         int hash = hash(node.toByteArray());
+
+        for(int i=0; ring.containsKey(hash); i++) {
+            hash = hash((node.toString() + i).getBytes());
+        }
 
         int nodeId = ring.size();
         ring.put(hash, nodeId);
