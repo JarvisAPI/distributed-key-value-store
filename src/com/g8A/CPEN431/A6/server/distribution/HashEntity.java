@@ -59,13 +59,11 @@ public class HashEntity {
      * @param node the ByteString representing hostname+port of the node
      */
     public synchronized int addNode(ByteString node) throws NoSuchAlgorithmException {
-        int hash;
-        do {
-            hash = hash(node.toByteArray());
-        } while (ring.containsKey(hash));
+        int hash = hash(node.toByteArray());
 
-        ring.put(hash, ring.size());
-        return ring.size();
+        int nodeId = ring.size();
+        ring.put(hash, nodeId);
+        return nodeId;
     }
     
     public static synchronized HashEntity getInstance() {

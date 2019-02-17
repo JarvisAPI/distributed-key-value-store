@@ -45,6 +45,25 @@ public class Util {
         System.out.println();
     }
     
+    public static String getHexString(byte[] dataBytes) {
+        StringBuilder builder = new StringBuilder();
+        for (byte b : dataBytes) {
+            builder.append(hexToChar((b >> 4)));
+            builder.append(b & 0x0f);
+        }
+        return builder.toString();
+    }
+    
+    public static char hexToChar(int b) {
+        if (b >= 10 && b < 16) {
+            return (char) ('A' + b - 10);
+        }
+        else if (b >= 0 && b < 10) {
+            return (char) ('0' + b);
+        }
+        return '0';
+    }
+    
     public static ByteString concatHostnameAndPort(String addr, int port) {
     	return ByteString.copyFrom(addr.concat(String.valueOf(port)).getBytes());
     }

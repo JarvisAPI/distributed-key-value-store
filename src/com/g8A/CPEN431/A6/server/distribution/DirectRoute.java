@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g8A.CPEN431.A6.protocol.Util;
+import com.g8A.CPEN431.A6.server.Server;
 import com.google.protobuf.ByteString;
 
 /**
@@ -24,39 +25,46 @@ public class DirectRoute implements RouteStrategy {
 	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<Integer, AddressHolder>();
 	private final String[] nodeHostnames = {
 	        "", // Empty slot for hostname of this machine
-	        "pl1.eng.monash.edu.au", "planetlab-4.eecs.cwru.edu",
-	        "planetlab1.cs.ubc.ca", "planetlab2.cs.ubc.ca"
+	        "127.0.0.1"//, "127.0.0.1"
 	        };
-	private String mSelfHostname;
 	private int mSelfNodeId;
     
     private static DirectRoute mDirectRoute;
     
     private DirectRoute() {
+        String selfHostname = "127.0.0.1";
+        /*
         try {
-            mSelfHostname = InetAddress.getLocalHost().getHostName();
-            nodeHostnames[0] = mSelfHostname;
+            selfHostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e1) {
             System.err.println("[ERROR] Cannot get hostname of node, it will not be able to have a nodeId, exiting...");
             System.exit(1);
-        }
+        }*/
+        nodeHostnames[0] = selfHostname;
     	Arrays.sort(nodeHostnames);
     	ipaddrs = new AddressHolder[nodeHostnames.length];
-
-    	for(int i = 0; i < ipaddrs.length; i++) {
-            ipaddrs[i] = new AddressHolder(nodeHostnames[i], DEFAULT_PORT);
-    		AddressHolder curAddr = ipaddrs[i];
-    		ByteString hostnameAndPort = Util.concatHostnameAndPort(curAddr.hostname, curAddr.port);
-    		try {
+        try {
+        	for(int i = 0; i < ipaddrs.length; i++) {
+                ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostnames[i]), DEFAULT_PORT + i);
+        		AddressHolder curAddr = ipaddrs[i];
+        		ByteString hostnameAndPort = Util.concatHostnameAndPort(nodeHostnames[i], curAddr.port);
+    
 				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort);
-				if (mSelfHostname.equals(curAddr.hostname)) {
+				if (selfHostname.equals(nodeHostnames[i]) && Server.getInstance().PORT == curAddr.port) {
 				    mSelfNodeId = nodeId;
 				}
+				System.out.println("NodeId: " + nodeId + ", hostname: " + nodeHostnames[i] + ", port: " + curAddr.port);
 				nodeIdMap.put(nodeId, curAddr);
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			}
-    	}
+        	}
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            System.err.println("[ERROR]: Unable to get nodeId");
+            System.exit(1);
+        } catch (UnknownHostException e1) {
+            e1.printStackTrace();
+            System.err.println("[ERROR]: Unable to resolve host");
+            System.exit(1);
+        }
     }
     
     public int getSelfNodeId() {
@@ -71,16 +79,13 @@ public class DirectRoute implements RouteStrategy {
      * @return hostname and port of node to route to, null if value is 
      */
     public AddressHolder getRoute(int nodeId) {
-    	return nodeIdMap.get(nodeId);
+        return nodeIdMap.get(nodeId);
     }
     
-    public static synchronized void makeInstance() {
+    public static synchronized DirectRoute getInstance() {
         if (mDirectRoute == null) {
             mDirectRoute = new DirectRoute();
         }
-    }
-    
-    public static DirectRoute getInstance() {
         return mDirectRoute;
     }
     

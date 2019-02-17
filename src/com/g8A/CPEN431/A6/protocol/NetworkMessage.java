@@ -71,7 +71,7 @@ public class NetworkMessage {
     }
 
     public static void setMessage(NetworkMessage msg, byte[] data) throws IOException {
-        Message.Msg transportMsg = Message.Msg.newBuilder().mergeFrom(data).build();
+        Message.Msg transportMsg = Message.Msg.parseFrom(data);
         ByteString id = transportMsg.getMessageID();
         ByteString payload = transportMsg.getPayload();
         long checksum = transportMsg.getCheckSum();

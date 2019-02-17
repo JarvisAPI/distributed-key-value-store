@@ -20,8 +20,11 @@ public class Server {
     private int mNumConsumers = 1;
    
     private boolean mIsSingleThread = false;
+    public final int PORT;
+    private static Server mServer;
 
     private Server(int port) throws SocketException {
+        PORT = port;
         mSocket = new DatagramSocket(port);
     }
     
@@ -35,6 +38,8 @@ public class Server {
 			mKVClient = new ConcreteKVClient();
 		} catch (SocketException e) {
 			e.printStackTrace();
+			System.err.println("[ERROR]: Fatal, unable to open socket for KVClient");
+			System.exit(1);
 		}
         new Thread(mKVClient).start();
     }
@@ -86,12 +91,24 @@ public class Server {
                 }
             };
         }
-        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, DirectRoute.getInstance().getSelfNodeId());
+        int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
+        System.out.println("Self nodeId: " + selfNodeId);
+        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, selfNodeId);
         cons.start();
     }
     
     private void setSingleThread(boolean singleThread) {
         mIsSingleThread = singleThread;
+    }
+    
+    public static void makeInstance(int port) throws SocketException {
+        if (mServer == null) {
+            mServer = new Server(port);
+        }
+    }
+    
+    public static Server getInstance() {
+        return mServer;
     }
 
     public static void main(String[] args) {
@@ -163,7 +180,8 @@ public class Server {
             MessageCache.setMaxCacheSize(maxCacheSize);
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             
-            Server server = new Server(port);
+            Server.makeInstance(port);
+            Server server = Server.getInstance();
             if (!isSingleThread) {
                 Server.SIZE_MAX_QUEUE = maxReceiveQueueEntryLimit;
                 server.setNumThreads(numProducers, numConsumers);

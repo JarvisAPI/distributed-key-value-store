@@ -1,9 +1,11 @@
 package com.g8A.CPEN431.A6.server;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import com.g8A.CPEN431.A6.client.KVClient;
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
@@ -17,6 +19,7 @@ import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
+import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 
 public class MessageConsumer extends Thread {
     private DatagramSocket mSocket;
@@ -113,16 +116,7 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                         } catch (OutOfMemoryError e) {
-                            message.setPayload(kvResBuilder
-                                    .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
-                                    .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
-                                    .build()
-                                    .toByteArray());
-                            dataBytes = message.getDataBytes();
-                            packet.setData(dataBytes);
-                            packet.setAddress(message.getAddress());
-                            packet.setPort(message.getPort());
-                            mSocket.send(packet);
+                            sendOverloadMessage(message, kvResBuilder, packet);
                             continue;
                         }
                     }
@@ -133,17 +127,6 @@ public class MessageConsumer extends Thread {
                     key = kvReq.getKey();
                     value = kvReq.getValue();
                     
-                    // request is not in cache, we need to route it correctly
-                    int nodeId = mHashEntity.getKVNodeId(key);
-                    if(nodeId != mNodeId) {
-                        AddressHolder fromAddress = new AddressHolder(message.getAddress().getHostAddress(), message.getPort());
-                        AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
-                        message.setAddressAndPort(InetAddress.getByName(routedNode.hostname), routedNode.port);
-                    	mKVClient.send(message, fromAddress);
-                    	// message being processed by other node, move on
-                    	continue;
-                    }
-                    
                     switch (kvReq.getCommand()) {
                     case Protocol.PUT: {
                         if (key.isEmpty() || key.size() > Protocol.SIZE_MAX_KEY_LENGTH) {
@@ -151,9 +134,17 @@ public class MessageConsumer extends Thread {
                         } else if (value.size() > Protocol.SIZE_MAX_VAL_LENGTH) {
                             errCode = Protocol.ERR_INVALID_VAL;
                         } else {
-                            mKeyValStore.put(key, value, kvReq.getVersion());
-                            dataBytes = SUCCESS_BYTES;
-                            cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
+                            int nodeId = mHashEntity.getKVNodeId(key);
+                            if(nodeId != mNodeId) {
+                                routeToNode(message, nodeId);
+                                // message being processed by other node, move on
+                                continue;
+                            }
+                            else {
+                                mKeyValStore.put(key, value, kvReq.getVersion());
+                                dataBytes = SUCCESS_BYTES;
+                                cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
+                            }
                         }
                         break;
                     }
@@ -163,17 +154,25 @@ public class MessageConsumer extends Thread {
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
                         } else {
-                            vPair = mKeyValStore.get(key);
-                            if (vPair != null) {
-                                dataBytes = kvResBuilder
-                                        .setErrCode(Protocol.ERR_SUCCESS)
-                                        .setValue(vPair.value)
-                                        .setVersion(vPair.version)
-                                        .build()
-                                        .toByteArray();
-                                cacheMetaInfo = CACHE_META_SUCCESS_GET | MessageCache.META_MASK_CACHE_REFERENCE;
-                            } else {
-                                errCode = Protocol.ERR_NON_EXISTENT_KEY;
+                            int nodeId = mHashEntity.getKVNodeId(key);
+                            if(nodeId != mNodeId) {
+                                routeToNode(message, nodeId);
+                                // message being processed by other node, move on
+                                continue;
+                            }
+                            else {
+                                vPair = mKeyValStore.get(key);
+                                if (vPair != null) {
+                                    dataBytes = kvResBuilder
+                                            .setErrCode(Protocol.ERR_SUCCESS)
+                                            .setValue(vPair.value)
+                                            .setVersion(vPair.version)
+                                            .build()
+                                            .toByteArray();
+                                    cacheMetaInfo = CACHE_META_SUCCESS_GET | MessageCache.META_MASK_CACHE_REFERENCE;
+                                } else {
+                                    errCode = Protocol.ERR_NON_EXISTENT_KEY;
+                                }
                             }
                         }
                         break;
@@ -183,11 +182,21 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_KEY;
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
-                        } else if (mKeyValStore.remove(key)) {
-                            dataBytes = SUCCESS_BYTES;
-                            cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else {
-                            errCode = Protocol.ERR_NON_EXISTENT_KEY;
+                            int nodeId = mHashEntity.getKVNodeId(key);
+                            if(nodeId != mNodeId) {
+                                routeToNode(message, nodeId);
+                                // message being processed by other node, move on
+                                continue;
+                            }
+                            else {
+                                if (mKeyValStore.remove(key)) {
+                                    dataBytes = SUCCESS_BYTES;
+                                    cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
+                                } else {
+                                    errCode = Protocol.ERR_NON_EXISTENT_KEY;
+                                }
+                            }
                         }
                         break;
                     }
@@ -226,6 +235,9 @@ public class MessageConsumer extends Thread {
                         break;
                     }
                     
+                } catch (IllegalStateException e) {
+                    sendOverloadMessage(message, kvResBuilder, packet);
+                    continue;
                 } catch (OutOfMemoryError e) {
                     errCode = Protocol.ERR_OUT_OF_SPACE;
                 } catch (Exception e) {
@@ -265,5 +277,25 @@ public class MessageConsumer extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+    
+    private void routeToNode(NetworkMessage message, int nodeId) throws UnknownHostException {
+        AddressHolder fromAddress = new AddressHolder(message.getAddress(), message.getPort());
+        AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
+        message.setAddressAndPort(routedNode.address, routedNode.port);
+        mKVClient.send(message, fromAddress);
+    }
+    
+    private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException {
+        message.setPayload(kvResBuilder
+                .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
+                .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
+                .build()
+                .toByteArray());
+        byte[] dataBytes = message.getDataBytes();
+        packet.setData(dataBytes);
+        packet.setAddress(message.getAddress());
+        packet.setPort(message.getPort());
+        mSocket.send(packet);
     }
 }

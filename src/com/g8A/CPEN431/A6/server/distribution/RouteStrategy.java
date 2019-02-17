@@ -1,12 +1,14 @@
 package com.g8A.CPEN431.A6.server.distribution;
 
+import java.net.InetAddress;
+
 public interface RouteStrategy {
     public class AddressHolder {
-        public final String hostname;
+        public final InetAddress address;
         public final int port;
         
-        public AddressHolder(String hostname, int port) {
-            this.hostname = hostname;
+        public AddressHolder(InetAddress address, int port) {
+            this.address = address;
             this.port = port;
         }
     }

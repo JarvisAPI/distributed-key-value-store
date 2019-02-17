@@ -2,6 +2,7 @@ package com.g8A.CPEN431.A6.client;
 
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 import com.g8A.CPEN431.A6.protocol.Protocol;
+import com.g8A.CPEN431.A6.protocol.Util;
 import com.g8A.CPEN431.A6.server.MessageCache;
 import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 
@@ -14,6 +15,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,12 +63,11 @@ public class ConcreteKVClient implements KVClient, Runnable {
     public ConcreteKVClient() throws SocketException {
         mMessageCache = MessageCache.getInstance();
         mSocket = new DatagramSocket();
-        mQueue = new LinkedBlockingQueue<>(64);
+        mQueue = new LinkedBlockingQueue<>(1024);
         mRequestMap = new HashMap<>();
         mSendPacket = new DatagramPacket(new byte[0], 0);
         byte[] dataBuf = NetworkMessage.getMaxDataBuffer();
         mReceivePacket = new DatagramPacket(dataBuf, dataBuf.length);
-        
         mSocket.setSoTimeout(RECEIVE_WAIT_TIMEOUT);
     }
     
@@ -92,6 +93,10 @@ public class ConcreteKVClient implements KVClient, Runnable {
                 try {
                     requestBundle = mQueue.poll(POLL_TIMEOUT, TimeUnit.MILLISECONDS);
                     if (requestBundle != null) {
+                        if (requestBundle.msg.getIdString() == null) {
+                            System.err.println("[ERROR]: Id String is null");
+                        }
+                        
                         mRequestMap.put(requestBundle.msg.getIdString(), requestBundle);
                         sendPacket(requestBundle.msg);
                     }
@@ -106,12 +111,21 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     NetworkMessage.setMessage(replyMessage, Arrays.copyOf(mReceivePacket.getData(),
                                                                           mReceivePacket.getLength()));
                     requestBundle = mRequestMap.remove(replyMessage.getIdString());
-                    mMessageCache.put(replyMessage.getIdString(),
-                                      ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
-                    
-                    replyMessage.setAddressAndPort(InetAddress.getByName(requestBundle.fromAddress.hostname),
-                                                   requestBundle.fromAddress.port);
-                    sendPacket(replyMessage);
+                    if (requestBundle != null) {
+                        mMessageCache.put(replyMessage.getIdString(),
+                                          ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
+                        
+                        replyMessage.setAddressAndPort(requestBundle.fromAddress.address,
+                                                       requestBundle.fromAddress.port);
+                        
+                        sendPacket(replyMessage);
+                    }
+                    else {
+                        System.out.println("[INFO]: replyMessage.getIdString(): " + Util.getHexString(replyMessage.getIdString().toByteArray()));
+                        System.err.println("[WARNING]: RequestBundle is null");
+                    }
+                } catch (SocketTimeoutException e) {
+                    // Ignore
                 } catch(IOException e) {
                     e.printStackTrace();
                 }
@@ -129,18 +143,20 @@ public class ConcreteKVClient implements KVClient, Runnable {
                             int leftover = (int) elapsedTime - bundle.timer;
                             bundle.timer = INITIAL_TIMEOUT * (1 << bundle.retryCounter) - leftover;
                             try {
+                                System.out.println("[INFO]: Resending, bundle.msg.getIdString(): " + Util.getHexString(bundle.msg.getIdString().toByteArray()));
                                 sendPacket(bundle.msg);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
                         else {
-                            replyMessage.setPayload(FAILED_BYTES);
-                            replyMessage.setAddressAndPort(InetAddress.getByName(bundle.fromAddress.hostname),
+                            System.out.println("Sending failed bytes");
+                            bundle.msg.setPayload(FAILED_BYTES);
+                            bundle.msg.setAddressAndPort(bundle.fromAddress.address,
                                     bundle.fromAddress.port);
                             mMessageCache.put(bundle.msg.getIdString(),
-                                    ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
-                            sendPacket(replyMessage);
+                                    ByteString.copyFrom(bundle.msg.getDataBytes()), 0, 0);
+                            sendPacket(bundle.msg);
                             it.remove();
                         }
                     }
@@ -149,6 +165,7 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     }
                 }
             } catch(Exception e) {
+                e.printStackTrace();
                 System.err.println("[ERROR]: ConcreteKVClient caught exception, at-most-once semantics might be broken now");
             }
         }
