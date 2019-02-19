@@ -41,7 +41,7 @@ public class MessageProducer extends Thread {
                     kvResBuilder.clear();
                     message.setPayload(kvResBuilder
                             .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
-                            .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
+                            .setOverloadWaitTime(Protocol.getOverloadWaittime())
                             .build()
                             .toByteArray());
                     byte[] dataBytes = message.getDataBytes();

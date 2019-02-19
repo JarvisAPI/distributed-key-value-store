@@ -16,7 +16,7 @@ import java.util.TreeMap;
  *
  */
 public class HashEntity {
-    private static final int HASH_CIRCLE_SIZE = 256;
+    // HASH_CIRCLE_SIZE = 256;
     private final SortedMap<Integer, Integer> ring = new TreeMap<>();
     
     private static HashEntity mHashEntity;
@@ -62,7 +62,7 @@ public class HashEntity {
     public synchronized int addNode(ByteString node) throws NoSuchAlgorithmException {
         int hash = hash(node.toByteArray());
 
-        for(int i=0; ring.containsKey(hash); i++) {
+        for(int i= 0; ring.containsKey(hash); i++) {
             hash = hash((node.toString() + i).getBytes());
         }
 

@@ -1,10 +1,15 @@
 package com.g8A.CPEN431.A6.server.distribution;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.g8A.CPEN431.A6.protocol.Util;
@@ -20,35 +25,24 @@ import com.google.protobuf.ByteString;
 public class DirectRoute implements RouteStrategy {    
 	
 	// For now the host name and ports of the nodes are hard coded
-	private final int DEFAULT_PORT = 8082;
 	private AddressHolder[] ipaddrs;
 	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<Integer, AddressHolder>();
-	private final String[] nodeHostnames = {
-	        "127.0.0.1:8082", // Empty slot for hostname of this machine
-	        "127.0.0.1:8083", "127.0.0.1:8084"
-	        };
+	// Node hostnames format: ip_address + ":" + port
+	private static String[] nodeHostnames = {};
 	private int mSelfNodeId = -1;
     
     private static DirectRoute mDirectRoute;
     
     private DirectRoute() {
         try {
-            String selfHostname = "127.0.0.1";
-            /*
-            try {
-                selfHostname = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException e1) {
-                System.err.println("[ERROR] Cannot get hostname of node, it will not be able to have a nodeId, exiting...");
-                System.exit(1);
-            }*/
-            if (nodeHostnames[0].isEmpty()) {
-                nodeHostnames[0] = selfHostname + ":" + Server.getInstance().PORT;
+            String selfHostname = InetAddress.getLocalHost().getHostName();
+            if (selfHostname.endsWith(".local")) {
+                selfHostname = "127.0.0.1";
             }
-            for (int i = 0; i < nodeHostnames.length; i++) {
-                String[] nodeHostAndPort = nodeHostnames[i].split(":");
-                if (nodeHostAndPort.length <= 1) {
-                    nodeHostnames[i] += ":" + Integer.valueOf(DEFAULT_PORT);
-                }
+            System.out.println("Self Hostname: " + selfHostname);
+            if (nodeHostnames.length == 0) {
+                System.out.println("[INFO]: No other nodes specified, using default single node setup");
+                nodeHostnames = new String[] {selfHostname + ":" + Server.getInstance().PORT};
             }
         	Arrays.sort(nodeHostnames);
         	ipaddrs = new AddressHolder[nodeHostnames.length];
@@ -107,5 +101,35 @@ public class DirectRoute implements RouteStrategy {
         return mDirectRoute;
     }
     
-    
+    public static void parseNodeListFile(String nodeListFile) throws Exception {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(nodeListFile));
+            List<String> nodeList = new ArrayList<>();
+            String entry = reader.readLine();
+            while (entry != null) {
+                String[] hostAndPort = entry.split(":");
+                if (hostAndPort.length < 2) {
+                    System.err.println("[ERRPR]: entry: " + entry + ", format is in correct");
+                }
+                else {
+                    if (hostAndPort[0].equals("localhost")) {
+                        hostAndPort[0] = "127.0.0.1";
+                    }
+                    nodeList.add(hostAndPort[0] + ":" + hostAndPort[1]);
+                }
+                entry = reader.readLine();
+            }
+            nodeHostnames = new String[nodeList.size()];
+            nodeList.toArray(nodeHostnames);
+        } catch(FileNotFoundException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+    }
+   
 }

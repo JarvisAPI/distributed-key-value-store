@@ -77,16 +77,21 @@ public class ConcreteKVClient implements KVClient, Runnable {
 
     @Override
     public void run() {
+        final long ELAPSED_RESET_TIME = INITIAL_TIMEOUT * 1000 * 1000;
         byte[] FAILED_BYTES = KVResponse.newBuilder()
                 .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                 .build()
                 .toByteArray();
         NetworkMessage replyMessage = new NetworkMessage();
         long elapsedTime = 0;
+        boolean resetElapsedTime = true;
         
         RequestBundle requestBundle;
         while (true) {
-            elapsedTime = System.nanoTime();
+            if (resetElapsedTime) {
+                resetElapsedTime = false;
+                elapsedTime = System.nanoTime();
+            }
             try {
                 try {
                     requestBundle = mQueue.poll(POLL_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -122,9 +127,12 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     e.printStackTrace();
                 }
                 
-                
+                if (System.nanoTime() - elapsedTime < ELAPSED_RESET_TIME) {
+                    continue;
+                }
+                resetElapsedTime = true;
                 elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - elapsedTime);
-                
+               
                 Iterator<Entry<ByteString, RequestBundle>> it = mRequestMap.entrySet().iterator();
                 while (it.hasNext()) {
                     Entry<ByteString, RequestBundle> entry = it.next();

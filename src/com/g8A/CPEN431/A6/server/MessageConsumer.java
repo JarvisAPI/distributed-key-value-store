@@ -289,7 +289,7 @@ public class MessageConsumer extends Thread {
     private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException {
         message.setPayload(kvResBuilder
                 .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
-                .setOverloadWaitTime(Protocol.OVERLOAD_WAITTIME)
+                .setOverloadWaitTime(Protocol.getOverloadWaittime())
                 .build()
                 .toByteArray());
         byte[] dataBytes = message.getDataBytes();

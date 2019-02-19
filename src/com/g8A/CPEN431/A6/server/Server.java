@@ -119,6 +119,7 @@ public class Server {
         final String COMMAND_MAX_MESSAGE_CACHE_SIZE = "--max-cache-size";
         final String COMMAND_SINGLE_THREAD = "--single-thread";
         final String COMMAND_MAX_RECEIVE_QUEUE = "--max-receive-queue-entry-limit";
+        final String COMMAND_NODE_LIST = "--node-list";
         
         try {
             int port = 8082;
@@ -152,6 +153,9 @@ public class Server {
                         break;
                     case COMMAND_MAX_RECEIVE_QUEUE:
                         maxReceiveQueueEntryLimit = Integer.parseInt(args[i+1]);
+                        break;
+                    case COMMAND_NODE_LIST:
+                        DirectRoute.parseNodeListFile(args[i+1]);
                         break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
