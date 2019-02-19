@@ -33,7 +33,7 @@ public class HashEntity {
     private int hash(byte[] entry) throws NoSuchAlgorithmException {
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         byte[] hash = sha256.digest(entry);
-        return hash[0];
+        return (int)hash[0] & 0xff;
     }
 
     /**

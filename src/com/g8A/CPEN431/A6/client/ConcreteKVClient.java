@@ -45,8 +45,8 @@ public class ConcreteKVClient implements KVClient, Runnable {
             this.retryCounter = 0;
         }
     }
-    private static final int RECEIVE_WAIT_TIMEOUT = 100;
-    private static final int POLL_TIMEOUT = 100; // Amount of time in milliseconds to wait for item to send
+    private static final int RECEIVE_WAIT_TIMEOUT = 10;
+    private static final int POLL_TIMEOUT = 10; // Amount of time in milliseconds to wait for item to send
     private BlockingQueue<RequestBundle> mQueue;
     private Map<ByteString, RequestBundle> mRequestMap;
     private MessageCache mMessageCache;
