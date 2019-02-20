@@ -11,6 +11,7 @@ import java.util.Arrays;
 import com.g8A.CPEN431.A6.protocol.NetworkMessage;
 import com.g8A.CPEN431.A6.protocol.Protocol;
 import com.g8A.CPEN431.A6.protocol.Util;
+import com.g8A.CPEN431.A6.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
@@ -21,6 +22,7 @@ public class A6TestClient {
     private int serverPort;
     private DatagramSocket mSocket;
     private DatagramPacket mReceivePacket;
+    private AddressHolder[] mAddressAndPorts;
     
     public A6TestClient() throws SocketException {
         mSocket = new DatagramSocket();  
@@ -30,6 +32,10 @@ public class A6TestClient {
     
     public void runClient() throws Exception {
         System.out.println("Client running");
+        for (AddressHolder addressHolder : mAddressAndPorts) {
+            shutdown(addressHolder.address, addressHolder.port);
+        }
+        /*
         for (int i = 0; i < 1225; i++) {
             closedLoop(Protocol.SIZE_MAX_VAL_LENGTH);
         }
@@ -37,7 +43,7 @@ public class A6TestClient {
         System.out.println("First closed loop ended, waiting 10 seconds");
         for (int i = 0; i < 2; i++) {
             closedLoop(Protocol.SIZE_MAX_VAL_LENGTH/2);
-        }
+        }*/
     }
     
     private void closedLoop(int valueSize) throws Exception {
@@ -65,6 +71,16 @@ public class A6TestClient {
         Thread.sleep(10);
     }
     
+    private void shutdown(InetAddress address, int port) throws Exception {
+        KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
+                .newBuilder()
+                .setCommand(Protocol.SHUTDOWN);
+        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), serverPort));
+        msg.setAddressAndPort(address, port);
+        msg.setPayload(kvBuilder.build().toByteArray());
+        sendPacket(msg);
+    }
+    
     protected final void sendPacket(NetworkMessage message) throws IOException {
         byte[] dataBytes = message.getDataBytes();
         DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length,
@@ -75,6 +91,10 @@ public class A6TestClient {
     private void setAddressAndPort(InetAddress addr, int port) {
         serverAddr = addr;
         serverPort = port;
+    }
+    
+    private void setAddressAndPorts(AddressHolder[] addressAndPorts) {
+        mAddressAndPorts = addressAndPorts;
     }
     
     private ByteString generateRandomKey() {
@@ -131,7 +151,19 @@ public class A6TestClient {
         A6TestClient client = new A6TestClient();
         InetAddress addr = InetAddress.getLoopbackAddress();
         int port = 8082;
-        client.setAddressAndPort(addr, port);
+        //client.setAddressAndPort(addr, port);
+        String[] hostAndPort = {
+                "planetlab1.cs.ubc.ca:50111",
+                "planetlab2.cs.ubc.ca:50111",
+                "pl1.rcc.uottawa.ca:50111"
+                };
+        AddressHolder[] addrAndPorts = new AddressHolder[hostAndPort.length];
+        int i = 0;
+        for (String entry : hostAndPort) {
+            String[] hp = entry.split(":");
+            addrAndPorts[i++] = new AddressHolder(InetAddress.getByName(hp[0]), Integer.parseInt(hp[1]));
+        }
+        client.setAddressAndPorts(addrAndPorts);
         client.runClient();
     }
 }

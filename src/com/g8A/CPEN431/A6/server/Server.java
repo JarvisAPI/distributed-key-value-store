@@ -120,6 +120,7 @@ public class Server {
         final String COMMAND_SINGLE_THREAD = "--single-thread";
         final String COMMAND_MAX_RECEIVE_QUEUE = "--max-receive-queue-entry-limit";
         final String COMMAND_NODE_LIST = "--node-list";
+        final String COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES = "--max-kvclient-queue-entries";
         
         try {
             int port = 8082;
@@ -129,6 +130,7 @@ public class Server {
             int maxCacheSize = 8;
             int maxReceiveQueueEntryLimit = 256;
             boolean isSingleThread = false;
+            int maxKvClientQueueEntries = 1024;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {
@@ -157,6 +159,9 @@ public class Server {
                     case COMMAND_NODE_LIST:
                         DirectRoute.parseNodeListFile(args[i+1]);
                         break;
+                    case COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES:
+                        maxKvClientQueueEntries = Integer.parseInt(args[i+1]);
+                        break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
                     }
@@ -177,12 +182,14 @@ public class Server {
             }
             System.out.println("Max key-value store size: " + maxKeyValueStoreSize + "MB");
             System.out.println("Max cache size: " + maxCacheSize + "MB");
+            System.out.println("Max KV client queue entries: " + maxKvClientQueueEntries);
             
             maxKeyValueStoreSize *= 1024*1024;
             maxCacheSize *= 1024*1024;
             
             MessageCache.setMaxCacheSize(maxCacheSize);
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
+            ConcreteKVClient.setMaxNumQueueEntries(maxKvClientQueueEntries);
             
             Server.makeInstance(port);
             Server server = Server.getInstance();

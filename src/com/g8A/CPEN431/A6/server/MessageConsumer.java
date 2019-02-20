@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.g8A.CPEN431.A6.client.KVClient;
@@ -33,6 +34,8 @@ public class MessageConsumer extends Thread {
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
+    
+    private KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
 
     public MessageConsumer(DatagramSocket socket, NetworkQueue queue, KVClient kvClient, int nodeId) {
         mSocket = socket;
@@ -55,7 +58,6 @@ public class MessageConsumer extends Thread {
                 .toByteArray();
 
         NetworkMessage message;
-        KeyValueRequest.KVRequest kvReq = null;
         KeyValueStore.ValuePair vPair;
         byte[] dataBytes;
         int errCode;
@@ -121,13 +123,13 @@ public class MessageConsumer extends Thread {
                         }
                     }
     
-                    kvReq = KeyValueRequest.KVRequest
-                            .parseFrom(message.getPayload());
+                    kvReqBuilder.clear();
+                    kvReqBuilder = kvReqBuilder.mergeFrom(message.getPayload());
     
-                    key = kvReq.getKey();
-                    value = kvReq.getValue();
+                    key = kvReqBuilder.getKey();
+                    value = kvReqBuilder.getValue();
                     
-                    switch (kvReq.getCommand()) {
+                    switch (kvReqBuilder.getCommand()) {
                     case Protocol.PUT: {
                         if (key.isEmpty() || key.size() > Protocol.SIZE_MAX_KEY_LENGTH) {
                             errCode = Protocol.ERR_INVALID_KEY;
@@ -141,7 +143,7 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                             else {
-                                mKeyValStore.put(key, value, kvReq.getVersion());
+                                mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                                 dataBytes = SUCCESS_BYTES;
                                 cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             }
@@ -272,6 +274,12 @@ public class MessageConsumer extends Thread {
                 }
                 
                 mSocket.send(packet);
+                
+                if (kvReqBuilder.hasReplyIpAddress() && kvReqBuilder.hasReplyPort()) {
+                    packet.setAddress(InetAddress.getByName(kvReqBuilder.getReplyIpAddress()));
+                    packet.setPort(kvReqBuilder.getReplyPort());
+                    mSocket.send(packet);
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -280,7 +288,11 @@ public class MessageConsumer extends Thread {
     }
     
     private void routeToNode(NetworkMessage message, int nodeId) throws UnknownHostException {
+        kvReqBuilder.setReplyIpAddress(message.getAddress().getHostAddress());
+        kvReqBuilder.setReplyPort(message.getPort());
+        message.setPayload(kvReqBuilder.build().toByteArray());
         AddressHolder fromAddress = new AddressHolder(message.getAddress(), message.getPort());
+        
         AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
         message.setAddressAndPort(routedNode.address, routedNode.port);
         mKVClient.send(message, fromAddress);

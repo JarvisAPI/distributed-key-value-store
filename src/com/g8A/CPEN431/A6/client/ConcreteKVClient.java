@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class ConcreteKVClient implements KVClient, Runnable {
     public static final int INITIAL_TIMEOUT = 400; // In milliseconds.
     public static final int MAX_RETRY_COUNT = 3;
+    private static int MAX_NUM_QUEUE_ENTRIES = 1024;
     private static class RequestBundle {
         private final NetworkMessage msg;
         private final AddressHolder fromAddress;
@@ -61,7 +62,7 @@ public class ConcreteKVClient implements KVClient, Runnable {
     public ConcreteKVClient() throws SocketException {
         mMessageCache = MessageCache.getInstance();
         mSocket = new DatagramSocket();
-        mQueue = new LinkedBlockingQueue<>(1024);
+        mQueue = new LinkedBlockingQueue<>(MAX_NUM_QUEUE_ENTRIES);
         mRequestMap = new HashMap<>();
         mSendPacket = new DatagramPacket(new byte[0], 0);
         byte[] dataBuf = NetworkMessage.getMaxDataBuffer();
@@ -115,11 +116,12 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     if (requestBundle != null) {
                         mMessageCache.put(replyMessage.getIdString(),
                                           ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
-                        
+                        /*
                         replyMessage.setAddressAndPort(requestBundle.fromAddress.address,
                                                        requestBundle.fromAddress.port);
                         
                         sendPacket(replyMessage);
+                        */
                     }
                 } catch (SocketTimeoutException e) {
                     // Ignore
@@ -174,5 +176,9 @@ public class ConcreteKVClient implements KVClient, Runnable {
         mSendPacket.setAddress(msg.getAddress());
         mSendPacket.setPort(msg.getPort());
         mSocket.send(mSendPacket);
+    }
+    
+    public static void setMaxNumQueueEntries(int maxNumQueueEntries) {
+        MAX_NUM_QUEUE_ENTRIES = maxNumQueueEntries;
     }
 }

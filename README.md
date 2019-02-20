@@ -1,5 +1,9 @@
 # CPEN 431 Project - Group 8A
 
+Group ID: 8A
+Verification Code: 2D271EB546D5A19B28117FBFAFEC7BC7
+Used Run Command: java -Xmx64m -jar A6.jar --port 50111 --max-cache-size 12 --max-kvstore-size 34 --single-thread --max-kvclient-queue-entries 8192 --node-list servers.txt
+
 * William Ou - 44801165
 * Xing Yu Tao - 33610149
 * Sammie Jiang - 32157091

@@ -1,0 +1,3 @@
+planetlab1.cs.ubc.ca:50111
+planetlab2.cs.ubc.ca:50111
+pl1.rcc.uottawa.ca:50111
