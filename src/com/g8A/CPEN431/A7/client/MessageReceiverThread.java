@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6.client;
+package com.g8A.CPEN431.A7.client;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,9 +6,9 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
-import com.g8A.CPEN431.A6.MessageTuple;
-import com.g8A.CPEN431.A6.TimeoutStrategy;
-import com.g8A.CPEN431.A6.protocol.NetworkMessage;
+import com.g8A.CPEN431.A7.MessageTuple;
+import com.g8A.CPEN431.A7.TimeoutStrategy;
+import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 
 public class MessageReceiverThread extends Thread {
     private DatagramSocket mSocket;

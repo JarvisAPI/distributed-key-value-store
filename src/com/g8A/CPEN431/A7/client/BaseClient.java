@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6.client;
+package com.g8A.CPEN431.A7.client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,10 +12,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.g8A.CPEN431.A6.ExponentialTimeoutStrategy;
-import com.g8A.CPEN431.A6.MessageTuple;
-import com.g8A.CPEN431.A6.protocol.NetworkMessage;
-import com.g8A.CPEN431.A6.protocol.Util;
+import com.g8A.CPEN431.A7.ExponentialTimeoutStrategy;
+import com.g8A.CPEN431.A7.MessageTuple;
+import com.g8A.CPEN431.A7.protocol.NetworkMessage;
+import com.g8A.CPEN431.A7.protocol.Util;
 import com.google.protobuf.ByteString;
 
 public abstract class BaseClient {

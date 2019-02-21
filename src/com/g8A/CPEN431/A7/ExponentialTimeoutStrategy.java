@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6;
+package com.g8A.CPEN431.A7;
 
 public class ExponentialTimeoutStrategy implements TimeoutStrategy {
     private final int INITIAL_TIMEOUT;

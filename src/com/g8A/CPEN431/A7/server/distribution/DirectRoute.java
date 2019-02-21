@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6.server.distribution;
+package com.g8A.CPEN431.A7.server.distribution;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g8A.CPEN431.A6.protocol.Util;
-import com.g8A.CPEN431.A6.server.Server;
+import com.g8A.CPEN431.A7.protocol.Util;
+import com.g8A.CPEN431.A7.server.Server;
 import com.google.protobuf.ByteString;
 
 /**

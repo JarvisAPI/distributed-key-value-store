@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6.server.distribution;
+package com.g8A.CPEN431.A7.server.distribution;
 
 import com.google.protobuf.ByteString;
 

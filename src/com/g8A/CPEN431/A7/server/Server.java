@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A6.server;
+package com.g8A.CPEN431.A7.server;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.g8A.CPEN431.A6.client.ConcreteKVClient;
-import com.g8A.CPEN431.A6.protocol.NetworkMessage;
-import com.g8A.CPEN431.A6.server.distribution.DirectRoute;
+import com.g8A.CPEN431.A7.client.ConcreteKVClient;
+import com.g8A.CPEN431.A7.protocol.NetworkMessage;
+import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
 
 public class Server {
     private DatagramSocket mSocket;
