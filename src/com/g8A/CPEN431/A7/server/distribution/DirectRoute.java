@@ -24,8 +24,7 @@ import com.google.protobuf.ByteString;
  */
 public class DirectRoute implements RouteStrategy {    
 	
-	// For now the host name and ports of the nodes are hard coded
-	private AddressHolder[] ipaddrs;
+	private static AddressHolder[] ipaddrs;
 	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<Integer, AddressHolder>();
 	// Node hostnames format: ip_address + ":" + port
 	private static String[] nodeHostnames = {};
@@ -132,4 +131,11 @@ public class DirectRoute implements RouteStrategy {
         }
     }
    
+    public static AddressHolder getRandomNode() {
+        return ipaddrs[Util.rand.nextInt(ipaddrs.length)];
+    }
+    
+    public static int getNumberOfNodes() {
+        return ipaddrs.length;
+    }
 }

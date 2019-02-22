@@ -98,6 +98,10 @@ public class NetworkMessage {
     public ByteString getIdString() {
         return mUniqueId;
     }
+    
+    public void setIdString(ByteString id) {
+        mUniqueId = id;
+    }
 
     public byte[] getPayload() {
         return mPayload.toByteArray();

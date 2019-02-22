@@ -1,10 +1,12 @@
 package com.g8A.CPEN431.A7.protocol;
 
 import java.net.Inet4Address;
+import java.util.Random;
 
 import com.google.protobuf.ByteString;
 
 public class Util {
+    public static final Random rand = new Random();
     
     /**
      * Create a network message id used for transmission.
@@ -66,5 +68,77 @@ public class Util {
     
     public static ByteString concatHostnameAndPort(String addr, int port) {
     	return ByteString.copyFrom(addr.concat(String.valueOf(port)).getBytes());
+    }
+    
+    /**
+     * The bytes are in big endian format
+     * @param num
+     * @param buf
+     * @param start
+     */
+    public static void longToBytes(long num, byte[] buf, int start) {
+        buf[start++] = (byte) (num >>> 56);
+        buf[start++] = (byte) (num >>> 48);
+        buf[start++] = (byte) (num >>> 40);
+        buf[start++] = (byte) (num >>> 32);
+        buf[start++] = (byte) (num >>> 24); 
+        buf[start++] = (byte) (num >>> 16);
+        buf[start++] = (byte) (num >>> 8);
+        buf[start++] = (byte) num;
+    }
+    
+    /**
+     * The bytes are in big endian format
+     * @param num
+     * @param buf
+     * @param start
+     */
+    public static void intToBytes(int num, byte[] buf, int start) {
+        buf[start++] = (byte) (num >>> 24); 
+        buf[start++] = (byte) (num >>> 16);
+        buf[start++] = (byte) (num >>> 8);
+        buf[start++] = (byte) num;
+    }
+    
+    /**
+     * Get int from bytes in big endian format.
+     * @param data
+     * @param start
+     * @return
+     */
+    public static int intFromBytes(byte[] data, int start) {
+        int num = data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        return num;
+    }
+    
+    /**
+     * Get long from bytes in big endian format.
+     * @param data
+     * @param start
+     * @return
+     */
+    public static long longFromBytes(byte[] data, int start) {
+        long num = data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        num = num << 8;
+        num |= data[start++];
+        return num;
     }
 }
