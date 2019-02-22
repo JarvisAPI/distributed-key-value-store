@@ -2,7 +2,6 @@ package com.g8A.CPEN431.A7.server.distribution;
 
 import com.google.protobuf.ByteString;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -90,12 +89,14 @@ public class HashEntity {
      * @param pNode the node id representing the physical node that should be removed
      */
     public synchronized void removeNode(int pNode) {
-        Iterator<Long> it = ring.keySet().iterator();
-        while(it.hasNext()) {
-            long hash = it.next();
-            VirtualNode vNode = ring.get(hash);
-            if(vNode.isVirtualNodeOf(pNode)) {
-                ring.remove(hash);
+        if(pNode > 0 && pNode <= numPNodes) {
+            Iterator<Long> it = ring.keySet().iterator();
+            while (it.hasNext()) {
+                long hash = it.next();
+                VirtualNode vNode = ring.get(hash);
+                if (vNode.isVirtualNodeOf(pNode)) {
+                    ring.remove(hash);
+                }
             }
         }
     }
