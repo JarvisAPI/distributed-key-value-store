@@ -41,15 +41,16 @@ public class EpidemicProtocol implements Runnable {
     private DatagramSocket mSocket;
     
     private static final byte MSG_TYPE_STATUS_UPDATE = 1;
-    // TODO: change nodeIdx to the correct node id for the given node.
-    private int mNodeIdx = 0;
+    private int mNodeIdx;
     
     public EpidemicProtocol() throws SocketException {
         mSocket = new DatagramSocket(EPIDEMIC_PORT);
         mSocket.setSoTimeout(MIN_PUSH_INTERVAL);
         
         mSysImageSize = 0;
-        mSysImages = new SystemImage[DirectRoute.getNumberOfNodes()];
+        mSysImages = new SystemImage[NodeTable.getInstance().getNumberOfNodes()];
+        
+        mNodeIdx = DirectRoute.getInstance().getNodeIdx(DirectRoute.getInstance().getSelfNodeId());
     }
     
     
@@ -72,30 +73,32 @@ public class EpidemicProtocol implements Runnable {
         long elapsedTime;
         while (true) {
             try {
-                node = DirectRoute.getRandomNode();
-                msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, EPIDEMIC_PORT)));
-                byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
-                int j = 0;
-                for (int i = 0; i < mSysImages.length; i++) {
-                    if (mSysImages[i] != null) {
-                        data[j++] = MSG_TYPE_STATUS_UPDATE;
-                        Util.intToBytes(i, data, j);
-                        j += 4; // size of int
-                        if (i == mNodeIdx) {
-                            Util.longToBytes(System.currentTimeMillis(),
-                                    data, j);
+                node = NodeTable.getInstance().getRandomNode();
+                if (node != null) {
+                    msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, EPIDEMIC_PORT)));
+                    byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
+                    int j = 0;
+                    for (int i = 0; i < mSysImages.length; i++) {
+                        if (mSysImages[i] != null) {
+                            data[j++] = MSG_TYPE_STATUS_UPDATE;
+                            Util.intToBytes(i, data, j);
+                            j += 4; // size of int
+                            if (i == mNodeIdx) {
+                                Util.longToBytes(System.currentTimeMillis(),
+                                        data, j);
+                            }
+                            else {
+                                Util.longToBytes(mSysImages[i].lastMsgTimestamp, data, j);
+                            }
+                            j += 8; // size of long
                         }
-                        else {
-                            Util.longToBytes(mSysImages[i].lastMsgTimestamp, data, j);
-                        }
-                        j += 8; // size of long
                     }
+                    msg.setPayload(data);
+                    packet.setData(msg.getDataBytes());
+                    packet.setAddress(node.address);
+                    packet.setPort(EPIDEMIC_PORT);
+                    mSocket.send(packet);
                 }
-                msg.setPayload(data);
-                packet.setData(msg.getDataBytes());
-                packet.setAddress(node.address);
-                packet.setPort(EPIDEMIC_PORT);
-                mSocket.send(packet);
                 
                 elapsedTime = System.nanoTime();
                 mSocket.receive(receivePacket);
@@ -118,7 +121,8 @@ public class EpidemicProtocol implements Runnable {
                                     mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
                                     mSysImages[nodeIdx].timestamp = System.nanoTime();
                                     mSysImageSize++;
-                                 // TODO: Use membership service class to signal node joined.
+                                    NodeTable.getInstance().addAliveNode(nodeIdx);
+                                    // TODO: Use membership service class to signal node joined.
                                 }
                                 else if (msgTimestamp > mSysImages[nodeIdx].lastMsgTimestamp) {
                                     mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
@@ -143,6 +147,8 @@ public class EpidemicProtocol implements Runnable {
                     if (mSysImages[i] != null) {
                         if (currentTimestamp - mSysImages[i].timestamp >= NODE_HAS_FAILED_MARK) {
                             // Node deemed to have failed.
+                            AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
+                            NodeTable.getInstance().removeAliveNode(i);
                             mSysImages[i] = null;
                             // TODO: Use membership service class to signal node failed.
                         }

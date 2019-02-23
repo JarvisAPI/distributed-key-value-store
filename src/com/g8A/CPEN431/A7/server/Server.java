@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.g8A.CPEN431.A7.client.ConcreteKVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
+import com.g8A.CPEN431.A7.server.distribution.NodeTable;
 
 public class Server {
     private DatagramSocket mSocket;
@@ -158,7 +159,7 @@ public class Server {
                         maxReceiveQueueEntryLimit = Integer.parseInt(args[i+1]);
                         break;
                     case COMMAND_NODE_LIST:
-                        DirectRoute.parseNodeListFile(args[i+1]);
+                        NodeTable.parseNodeListFile(args[i+1]);
                         break;
                     case COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES:
                         maxKvClientQueueEntries = Integer.parseInt(args[i+1]);
@@ -191,6 +192,7 @@ public class Server {
             MessageCache.setMaxCacheSize(maxCacheSize);
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             ConcreteKVClient.setMaxNumQueueEntries(maxKvClientQueueEntries);
+            NodeTable.makeInstance();
             
             Server.makeInstance(port);
             Server server = Server.getInstance();
@@ -203,7 +205,7 @@ public class Server {
             }
             server.startKVClient();
             server.runServer();
-        } catch (SocketException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("[ERROR]: Failed to startup exiting");
             System.exit(1);

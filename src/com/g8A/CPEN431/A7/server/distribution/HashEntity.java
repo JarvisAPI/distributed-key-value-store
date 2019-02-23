@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import org.w3c.dom.ranges.Range;
 
 /**
  * Given the key in the key/value request, this class applies
@@ -26,7 +25,7 @@ public class HashEntity {
     private int numPNodes = 0;
     private final SortedMap<Long, VirtualNode> ring = new TreeMap<>();
     private static HashEntity mHashEntity;
-    private static HashFunction hashFunction;
+    private HashFunction hashFunction;
     private static class HashFunction {
         MessageDigest instance;
         public HashFunction() {
