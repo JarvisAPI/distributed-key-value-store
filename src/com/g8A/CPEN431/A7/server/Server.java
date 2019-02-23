@@ -94,7 +94,7 @@ public class Server {
         }
         int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
         System.out.println("Self nodeId: " + selfNodeId);
-        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, selfNodeId);
+        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, selfNodeId, mQueue);
         cons.start();
     }
     

@@ -63,10 +63,6 @@ public class DirectRoute implements RouteStrategy {
         	    System.err.println("[ERROR]: Self node id not set! Exiting...");
         	    System.exit(1);
         	}
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            System.err.println("[ERROR]: Unable to get node id");
-            System.exit(1);
         } catch (UnknownHostException e1) {
             e1.printStackTrace();
             System.err.println("[ERROR]: Unable to resolve host");

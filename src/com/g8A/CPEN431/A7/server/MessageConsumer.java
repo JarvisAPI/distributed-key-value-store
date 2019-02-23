@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
@@ -31,6 +32,7 @@ public class MessageConsumer extends Thread {
     private RouteStrategy mRouteStrat;
     private KVClient mKVClient;
     private int mNodeId;
+    private static BlockingQueue<NetworkMessage> mProducerQueue;
     private static boolean mIsMigrating;
     private static List<long[]> mAffectedRanges;
     
@@ -40,7 +42,7 @@ public class MessageConsumer extends Thread {
     
     private KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
 
-    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, KVClient kvClient, int nodeId) {
+    public MessageConsumer(DatagramSocket socket, NetworkQueue queue, KVClient kvClient, int nodeId, BlockingQueue<NetworkMessage> producerQueue) {
         mSocket = socket;
         mQueue = queue;
         mKeyValStore = KeyValueStore.getInstance();
@@ -49,6 +51,7 @@ public class MessageConsumer extends Thread {
         mRouteStrat = DirectRoute.getInstance();
         mKVClient = kvClient;
         mNodeId = nodeId;
+        mProducerQueue = producerQueue;
         mIsMigrating = false;
         mAffectedRanges = null;
     }
@@ -180,7 +183,7 @@ public class MessageConsumer extends Thread {
                             else {
                                 vPair = mKeyValStore.get(key);
                                 if (vPair != null) {
-                                    dataBytes = kvResBuilder
+                                	dataBytes = kvResBuilder
                                             .setErrCode(Protocol.ERR_SUCCESS)
                                             .setValue(vPair.value)
                                             .setVersion(vPair.version)
@@ -326,9 +329,10 @@ public class MessageConsumer extends Thread {
         mSocket.send(packet);
     }
     
-    public static synchronized void startMigration(List<long[]> affectedRanges) {
+    public static synchronized void startMigration(List<long[]> affectedRanges, AddressHolder toAddress) {
     	mIsMigrating = true;
     	mAffectedRanges = affectedRanges;
+    	(new MigrateKVThread(affectedRanges, toAddress, mProducerQueue)).start();
     }
     
     public static synchronized void stopMigration() {

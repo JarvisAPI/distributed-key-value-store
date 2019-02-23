@@ -40,9 +40,9 @@ public class MembershipService {
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
     	if(affectedNodes.containsKey(localHostNameAndPort)) {
-    		MessageConsumer.startMigration(affectedNodes.get(localHostNameAndPort)); // sets flag in MessageConsumer to bounce off get/put requests
+    		MessageConsumer.startMigration(affectedNodes.get(localHostNameAndPort), holder); // sets flag in MessageConsumer to bounce off get/put requests
     		
-    		// copy relevant keys over to the new node
+    		// copy relevant keys over to the new node (may be triggered by message consumer flag?)
     		
     		// delete nodes from old node
     		
