@@ -14,7 +14,7 @@ public interface RouteStrategy {
     }
     
     /**
-     * Get the addess and port of the node to route to, given the nodeId
+     * Get the address and port of the node to route to, given the nodeId
      * as the id of the final destination node.
      * @param nodeId the id of the final destination node
      * @return hostname and port of node to route to
