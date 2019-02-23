@@ -112,6 +112,7 @@ public class HashEntity {
     	Map<ByteString, List<long[]>> affectedNodes = new HashMap<ByteString, List<long[]>>();
     	
     	for(int i = 0; i < numVNodes; i++) {
+    	    // TODO: Make it more efficient by just calling a get key function
     		VirtualNode vNode = new VirtualNode(pNode, numPNodes + i, i);
     		VirtualNode prevVNode = getPrevVNode(vNode.getKey());
     		VirtualNode nextVNode = getNextVNode(vNode.getKey());
