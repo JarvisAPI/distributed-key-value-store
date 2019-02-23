@@ -8,11 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import org.w3c.dom.ranges.Range;
 
 /**
  * Given the key in the key/value request, this class applies
@@ -23,10 +21,12 @@ import org.w3c.dom.ranges.Range;
  *
  */
 public class HashEntity {
-    private int numPNodes = 0;
     private final SortedMap<Long, VirtualNode> ring = new TreeMap<>();
     private static HashEntity mHashEntity;
     private static HashFunction hashFunction;
+    private int numPNodes = 0;
+    private static int numVNodes;
+
     private static class HashFunction {
         MessageDigest instance;
         public HashFunction() {
@@ -46,7 +46,7 @@ public class HashEntity {
             instance.reset();
             instance.update(entry);
             byte[] hash = instance.digest();
-            return ((long) ByteBuffer.wrap(hash).getInt() & 0xffffffffL);
+            return ByteBuffer.wrap(hash).getLong() & 0xffffffffL;
         }
     }
 
@@ -108,7 +108,7 @@ public class HashEntity {
      * @param numVNodes: number of virtual nodes
      * @return a map of pNodeIds to List of ranges
      */
-    public Map<ByteString, List<long[]>> getAffectedNodesOnJoin(ByteString pNode, int numVNodes){
+    public Map<ByteString, List<long[]>> getAffectedNodesOnJoin(ByteString pNode){
     	if(ring.isEmpty()) return null;
     	Map<ByteString, List<long[]>> affectedNodes = new HashMap<ByteString, List<long[]>>();
     	
@@ -145,7 +145,7 @@ public class HashEntity {
      * @param pNode the ByteString representing hostname+port of the node
      * @return the unique physical node id
      */
-    public synchronized int addNode(ByteString pNode, int numVNodes) {
+    public synchronized int addNode(ByteString pNode) {
         int pNodeId = numPNodes;
         for(int i=0; i<numVNodes; i++) {
             VirtualNode vNode = new VirtualNode(pNode, pNodeId, i);
@@ -163,14 +163,16 @@ public class HashEntity {
      * @param pNode the node id representing the physical node that should be removed
      */
     public synchronized void removeNode(ByteString pNode) {
-        Iterator<Long> it = ring.keySet().iterator();
-        while (it.hasNext()) {
-            long hash = it.next();
-            VirtualNode vNode = ring.get(hash);
-            if (vNode.isVirtualNodeOf(pNode)) {
+        for(int i=0; i<numVNodes; i++) {
+            long hash = hashFunction.hash((pNode + "" + i).getBytes());
+            if(ring.get(hash).isVirtualNodeOf(pNode)) {
                 ring.remove(hash);
             }
         }
+    }
+
+    public void setNumVNodes(int numVNodes) {
+        this.numVNodes = numVNodes;
     }
     
     public static synchronized HashEntity getInstance() {

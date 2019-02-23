@@ -36,7 +36,7 @@ public class MembershipService {
     	// obtain map of affected nodes, with ranges of hash values that need to be migrated on new node join
     	ByteString localHostNameAndPort = Util.concatHostnameAndPort(localAddress.address.getHostName(), localAddress.port);
     	ByteString hostNameAndPort = Util.concatHostnameAndPort(holder.address.getHostName(), holder.port);    	
-    	Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort, numVNodes);
+    	Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
     	if(affectedNodes.containsKey(localHostNameAndPort)) {
@@ -56,6 +56,7 @@ public class MembershipService {
      * @param holder
      */
     public void OnNodeLeft(AddressHolder holder) {
-        
+        ByteString hostNameAndPort = Util.concatHostnameAndPort(holder.address.getHostName(), holder.port);
+        HashEntity.getInstance().removeNode(hostNameAndPort);
     }
 }
