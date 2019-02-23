@@ -2,12 +2,17 @@ package com.g8A.CPEN431.A7.server.distribution;
 
 import com.google.protobuf.ByteString;
 
+import java.util.List;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import org.w3c.dom.ranges.Range;
 
 /**
  * Given the key in the key/value request, this class applies
@@ -65,6 +70,65 @@ public class HashEntity {
         }
 
         return ring.get(hash).getPNodeId();
+    }
+    
+    /**
+     * Gets the previous virtual node on the ring given a virtual node key
+     * @param key: the key of a virtual node
+     * @return the predecessor virtual node
+     */
+    private VirtualNode getPrevVNode(byte[] vNodeKey) {
+    	if(ring.isEmpty()) return null;
+    	
+    	long hash = hashFunction.hash(vNodeKey);
+    	if(!ring.containsKey(hash)) return null;
+    	
+    	long prevKey = ring.headMap(hash).lastKey();
+    	return ring.get(prevKey);
+    }
+    
+    /**
+     * Gets the next virtual node on the ring given a virtual node key
+     * @param key: the key of a virtual node
+     * @return the successor virtual node
+     */
+    private VirtualNode getNextVNode(byte[] vNodeKey) {
+    	if(ring.isEmpty()) return null;
+    	
+    	long hash = hashFunction.hash(vNodeKey);
+    	if(!ring.containsKey(hash)) return null;
+    	
+    	long nextKey = ring.tailMap(hash).firstKey();
+    	return ring.get(nextKey);
+    }
+    
+    /**
+     * Gets a map physical nodeIds and list of ranges (hash values) affected that need to be migrated to the newly joined node
+     * @param pNode: the pNodeId of the node that is joining
+     * @param numVNodes: number of virtual nodes
+     * @return a map of pNodeIds to List of ranges
+     */
+    public Map<ByteString, List<long[]>> getAffectedNodesOnJoin(ByteString pNode, int numVNodes){
+    	if(ring.isEmpty()) return null;
+    	Map<ByteString, List<long[]>> affectedNodes = new HashMap<ByteString, List<long[]>>();
+    	
+    	for(int i = 0; i < numVNodes; i++) {
+    		VirtualNode vNode = new VirtualNode(pNode, numPNodes + i, i);
+    		VirtualNode prevVNode = getPrevVNode(vNode.getKey());
+    		VirtualNode nextVNode = getNextVNode(vNode.getKey());
+    		
+    		long affectedRangeStart = hashFunction.hash(prevVNode.getKey()) + 1;
+    		long affectedRangeEnd = hashFunction.hash(vNode.getKey());
+    		long[] affectedRange = new long[]{ affectedRangeStart, affectedRangeEnd };
+    		
+    		List<long[]> affectedRangeList = affectedNodes.containsKey(nextVNode.getPNode()) ? 
+    				affectedNodes.get(nextVNode.getPNode()) : new ArrayList<long[]>();
+
+    		affectedRangeList.add(affectedRange);
+			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
+    	}
+    	
+    	return affectedNodes;
     }
 
     /**
