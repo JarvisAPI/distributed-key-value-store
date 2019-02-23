@@ -52,7 +52,7 @@ public class DirectRoute implements RouteStrategy {
         		AddressHolder curAddr = ipaddrs[i];
         		ByteString hostnameAndPort = Util.concatHostnameAndPort(nodeHostAndPort[0], curAddr.port);
     
-				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort);
+				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort, numVNodes);
 				if (selfHostname.equals(nodeHostAndPort[0]) && Server.getInstance().PORT == curAddr.port) {
 				    mSelfNodeId = nodeId;
 				}
@@ -80,6 +80,10 @@ public class DirectRoute implements RouteStrategy {
     
     public int getSelfNodeId() {
         return mSelfNodeId;
+    }
+    
+    public AddressHolder getLocalAddress() {
+    	return nodeIdMap.get(mSelfNodeId);
     }
     
     @Override
