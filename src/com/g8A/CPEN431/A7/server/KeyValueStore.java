@@ -1,6 +1,7 @@
 package com.g8A.CPEN431.A7.server;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.protobuf.ByteString;
@@ -87,6 +88,14 @@ public class KeyValueStore {
     public synchronized void removeAll() {
         mSize = 0;
         mKeyValMap.clear();
+    }
+    
+    /**
+     * Obtain set of all keys in KVStore
+     * @return set of keys
+     */
+    public Set<ByteString> getKeys() {
+    	return mKeyValMap.keySet();
     }
     
     public static synchronized KeyValueStore getInstance() {

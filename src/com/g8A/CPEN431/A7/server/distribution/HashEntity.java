@@ -130,6 +130,15 @@ public class HashEntity {
     	
     	return affectedNodes;
     }
+    
+    /**
+     * Given a key, returns the raw hash value
+     * @param key
+     * @return hashed value of key
+     */
+    public long getHashValue(ByteString key) {
+    	return hashFunction.hash(key.toByteArray());
+    }
 
     /**
      * Adds the node and its replicas of virtual nodes to the ring
