@@ -1,12 +1,16 @@
 package com.g8A.CPEN431.A7.server.distribution;
 
+import com.google.protobuf.ByteString;
+
 public class VirtualNode implements Node {
 
-    private final int pNode;
+    private final ByteString pNode;
+    private int pNodeId;
     private final long vIndex;
 
-    public VirtualNode(int pNode, long vIndex) {
+    public VirtualNode(ByteString pNode, int pNodeId, long vIndex) {
         this.pNode = pNode;
+        this.pNodeId = pNodeId;
         this.vIndex = vIndex;
     }
 
@@ -14,11 +18,15 @@ public class VirtualNode implements Node {
         return (pNode + "" + vIndex).getBytes();
     }
 
-    public int getPNode() {
+    public ByteString getPNode() {
         return this.pNode;
     }
 
-    public boolean isVirtualNodeOf(int physicalNode) {
-        return physicalNode == this.pNode;
+    public int getPNodeId() {
+        return this.pNodeId;
+    }
+
+    public boolean isVirtualNodeOf(ByteString physicalNode) {
+        return physicalNode.equals(this.pNode);
     }
 }
