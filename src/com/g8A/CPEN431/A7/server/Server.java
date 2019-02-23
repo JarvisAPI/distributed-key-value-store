@@ -44,7 +44,7 @@ public class Server {
         new Thread(mKVClient).start();
     }
 
-    private void runServer() {
+    private void runServer() throws SocketException {
         if (!mIsSingleThread) {
             mQueue = new LinkedBlockingQueue<>(SIZE_MAX_QUEUE);
             
@@ -66,7 +66,7 @@ public class Server {
         prod.start();
     }
     
-    private void createMessageConsumer() {
+    private void createMessageConsumer() throws SocketException {
         NetworkQueue queue;
         if (mIsSingleThread) {
             queue = new NetworkQueue() {
@@ -93,7 +93,8 @@ public class Server {
         }
         int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
         System.out.println("Self nodeId: " + selfNodeId);
-        MessageConsumer cons = new MessageConsumer(mSocket, queue, mKVClient, selfNodeId);
+        DatagramSocket socket = new DatagramSocket();
+        MessageConsumer cons = new MessageConsumer(socket, queue, mKVClient, selfNodeId);
         cons.start();
     }
     
@@ -204,6 +205,8 @@ public class Server {
             server.runServer();
         } catch (SocketException e) {
             e.printStackTrace();
+            System.err.println("[ERROR]: Failed to startup exiting");
+            System.exit(1);
         }
     }
 }

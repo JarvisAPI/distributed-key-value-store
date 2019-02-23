@@ -24,6 +24,7 @@ public class EpidemicProtocol implements Runnable {
     // the rate might actually be slower due to other operations. In milliseconds.
     private static final int MIN_PUSH_INTERVAL = 4000;
     private static final int TOLERANCE = 100;
+    private static final int EPIDEMIC_PORT = 50222;
     // The number of nanoseconds that has elapsed since last state update from
     // a node, before marking the node as failed.
     private static final long NODE_HAS_FAILED_MARK = 30 * 1000 * 1000 * 1000;
@@ -40,10 +41,11 @@ public class EpidemicProtocol implements Runnable {
     private DatagramSocket mSocket;
     
     private static final byte MSG_TYPE_STATUS_UPDATE = 1;
+    // TODO: change nodeIdx to the correct node id for the given node.
     private int mNodeIdx = 0;
     
     public EpidemicProtocol() throws SocketException {
-        mSocket = new DatagramSocket();
+        mSocket = new DatagramSocket(EPIDEMIC_PORT);
         mSocket.setSoTimeout(MIN_PUSH_INTERVAL);
         
         mSysImageSize = 0;
@@ -71,7 +73,7 @@ public class EpidemicProtocol implements Runnable {
         while (true) {
             try {
                 node = DirectRoute.getRandomNode();
-                msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, node.port)));
+                msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, EPIDEMIC_PORT)));
                 byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
                 int j = 0;
                 for (int i = 0; i < mSysImages.length; i++) {
@@ -92,7 +94,7 @@ public class EpidemicProtocol implements Runnable {
                 msg.setPayload(data);
                 packet.setData(msg.getDataBytes());
                 packet.setAddress(node.address);
-                packet.setPort(node.port);
+                packet.setPort(EPIDEMIC_PORT);
                 mSocket.send(packet);
                 
                 elapsedTime = System.nanoTime();
