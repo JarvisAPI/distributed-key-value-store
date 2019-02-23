@@ -44,6 +44,12 @@ public class NodeTable {
             int port = Integer.parseInt(nodeHostAndPort[1]);
             ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostAndPort[0]), port);
         }
+        
+        
+        // Initially assume all other nodes are alive.
+        for (int i = 0; i < ipaddrs.length; i++) {
+            mCurrentAliveNodes.add(i);
+        }
     }
 
     public static void parseNodeListFile(String nodeListFile) throws Exception {

@@ -123,4 +123,5 @@ public class NetworkMessage {
     public int getPort() {
         return mPort;
     }
+
 }

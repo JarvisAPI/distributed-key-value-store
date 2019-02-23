@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
@@ -30,6 +31,8 @@ public class MessageConsumer extends Thread {
     private RouteStrategy mRouteStrat;
     private KVClient mKVClient;
     private int mNodeId;
+    private static boolean mIsMigrating;
+    private static List<long[]> mAffectedRanges;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
@@ -46,7 +49,8 @@ public class MessageConsumer extends Thread {
         mRouteStrat = DirectRoute.getInstance();
         mKVClient = kvClient;
         mNodeId = nodeId;
-        
+        mIsMigrating = false;
+        mAffectedRanges = null;
     }
 
     @Override
@@ -75,6 +79,7 @@ public class MessageConsumer extends Thread {
                 message = mQueue.take();               
                 kvResBuilder.clear();
                 cacheMetaInfo = 0;
+                
                 try {
                     CacheEntry entry = mMessageCache.get(message.getIdString());
                     if (entry != null) {
@@ -155,6 +160,10 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_KEY;
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
+                        } else if (mIsMigrating && MembershipService.isKeyAffected(key, mAffectedRanges)){
+                        	sendOverloadMessage(message, kvResBuilder, packet);
+                        	// message overload because of migration, move on
+                        	continue;
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
@@ -165,7 +174,7 @@ public class MessageConsumer extends Thread {
                             else {
                                 vPair = mKeyValStore.get(key);
                                 if (vPair != null) {
-                                    dataBytes = kvResBuilder
+                                	dataBytes = kvResBuilder
                                             .setErrCode(Protocol.ERR_SUCCESS)
                                             .setValue(vPair.value)
                                             .setVersion(vPair.version)
@@ -184,6 +193,10 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_KEY;
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
+                        } else if (mIsMigrating && MembershipService.isKeyAffected(key, mAffectedRanges)){
+                            sendOverloadMessage(message, kvResBuilder, packet);
+                            // message overload because of migration, move on
+                            continue;
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
@@ -206,6 +219,11 @@ public class MessageConsumer extends Thread {
                         System.exit(0);
                         break;
                     case Protocol.WIPEOUT:
+                        if (mIsMigrating){
+                            sendOverloadMessage(message, kvResBuilder, packet);
+                            // message overload because of migration, move on
+                            continue;
+                        } 
                         mKeyValStore.removeAll();                        
                         dataBytes = SUCCESS_BYTES;
                         cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
@@ -309,5 +327,15 @@ public class MessageConsumer extends Thread {
         packet.setAddress(message.getAddress());
         packet.setPort(message.getPort());
         mSocket.send(packet);
+    }
+    
+    public static synchronized void startMigration(List<long[]> affectedRanges, AddressHolder toAddress) {
+    	mIsMigrating = true;
+    	mAffectedRanges = affectedRanges;
+    }
+    
+    public static synchronized void stopMigration() {
+    	mIsMigrating = false;
+    	mAffectedRanges = null;
     }
 }

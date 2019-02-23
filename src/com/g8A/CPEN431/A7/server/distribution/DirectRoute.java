@@ -15,7 +15,6 @@ import com.google.protobuf.ByteString;
  * Updated to Singleton pattern
  */
 public class DirectRoute implements RouteStrategy {    
-	private static final int DEFAULT_NUM_VNODES = 10; 
 	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<Integer, AddressHolder>();
 	private int mSelfNodeId = -1;
     
@@ -30,7 +29,7 @@ public class DirectRoute implements RouteStrategy {
         		String hostname = curAddr.address.getHostName();
         		ByteString hostnameAndPort = Util.concatHostnameAndPort(hostname, curAddr.port);
     
-				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort, DEFAULT_NUM_VNODES);
+				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort);
 				if (nodeTable.getSelfHostname().equals(hostname) && Server.getInstance().PORT == curAddr.port) {
 				    mSelfNodeId = nodeId;
 				}
@@ -54,6 +53,10 @@ public class DirectRoute implements RouteStrategy {
     
     public int getSelfNodeId() {
         return mSelfNodeId;
+    }
+    
+    public AddressHolder getLocalAddress() {
+    	return nodeIdMap.get(mSelfNodeId);
     }
     
     @Override

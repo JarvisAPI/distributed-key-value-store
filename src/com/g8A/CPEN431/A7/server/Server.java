@@ -8,9 +8,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.g8A.CPEN431.A7.client.ConcreteKVClient;
+import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
+import com.g8A.CPEN431.A7.server.distribution.EpidemicProtocol;
 import com.g8A.CPEN431.A7.server.distribution.NodeTable;
+import com.g8A.CPEN431.A7.server.distribution.HashEntity;
 
 public class Server {
     private DatagramSocket mSocket;
@@ -43,6 +46,10 @@ public class Server {
 			System.exit(1);
 		}
         new Thread(mKVClient).start();
+    }
+    
+    private void startEpidemicProtocol() throws SocketException {
+        new Thread(new EpidemicProtocol()).start();
     }
 
     private void runServer() throws SocketException {
@@ -94,6 +101,7 @@ public class Server {
         }
         int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
         System.out.println("Self nodeId: " + selfNodeId);
+
         DatagramSocket socket = new DatagramSocket();
         MessageConsumer cons = new MessageConsumer(socket, queue, mKVClient, selfNodeId);
         cons.start();
@@ -112,6 +120,10 @@ public class Server {
     public static Server getInstance() {
         return mServer;
     }
+    
+    public KVClient getKVClient() {
+        return mKVClient;
+    }
 
     public static void main(String[] args) {
         final String COMMAND_NUM_PRODUCERS = "--num-producers";
@@ -123,6 +135,7 @@ public class Server {
         final String COMMAND_MAX_RECEIVE_QUEUE = "--max-receive-queue-entry-limit";
         final String COMMAND_NODE_LIST = "--node-list";
         final String COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES = "--max-kvclient-queue-entries";
+        final String COMMAND_NUM_VNODES = "--num-vnodes";
         
         try {
             int port = 8082;
@@ -133,6 +146,7 @@ public class Server {
             int maxReceiveQueueEntryLimit = 256;
             boolean isSingleThread = false;
             int maxKvClientQueueEntries = 1024;
+            int numVNodes = 1;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {
@@ -164,6 +178,9 @@ public class Server {
                     case COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES:
                         maxKvClientQueueEntries = Integer.parseInt(args[i+1]);
                         break;
+                    case COMMAND_NUM_VNODES:
+                        numVNodes = Integer.parseInt(args[i+1]);
+                        break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
                     }
@@ -185,6 +202,7 @@ public class Server {
             System.out.println("Max key-value store size: " + maxKeyValueStoreSize + "MB");
             System.out.println("Max cache size: " + maxCacheSize + "MB");
             System.out.println("Max KV client queue entries: " + maxKvClientQueueEntries);
+            System.out.println("Number of virtual nodes: " + numVNodes);
             
             maxKeyValueStoreSize *= 1024*1024;
             maxCacheSize *= 1024*1024;
@@ -192,7 +210,9 @@ public class Server {
             MessageCache.setMaxCacheSize(maxCacheSize);
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             ConcreteKVClient.setMaxNumQueueEntries(maxKvClientQueueEntries);
+            
             NodeTable.makeInstance();
+            HashEntity.setNumVNodes(numVNodes);
             
             Server.makeInstance(port);
             Server server = Server.getInstance();
@@ -204,6 +224,7 @@ public class Server {
                 server.setSingleThread(true);
             }
             server.startKVClient();
+            server.startEpidemicProtocol();
             server.runServer();
         } catch (Exception e) {
             e.printStackTrace();

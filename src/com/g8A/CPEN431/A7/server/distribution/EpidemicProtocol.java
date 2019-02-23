@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.protocol.Util;
+import com.g8A.CPEN431.A7.server.MembershipService;
 import com.g8A.CPEN431.A7.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
@@ -122,7 +123,7 @@ public class EpidemicProtocol implements Runnable {
                                     mSysImages[nodeIdx].timestamp = System.nanoTime();
                                     mSysImageSize++;
                                     NodeTable.getInstance().addAliveNode(nodeIdx);
-                                    // TODO: Use membership service class to signal node joined.
+                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
                                 }
                                 else if (msgTimestamp > mSysImages[nodeIdx].lastMsgTimestamp) {
                                     mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
@@ -150,7 +151,7 @@ public class EpidemicProtocol implements Runnable {
                             AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                             NodeTable.getInstance().removeAliveNode(i);
                             mSysImages[i] = null;
-                            // TODO: Use membership service class to signal node failed.
+                            MembershipService.OnNodeLeft(failedNode);
                         }
                     }
                 }

@@ -150,12 +150,14 @@ public class ConcreteKVClient implements KVClient, Runnable {
                             }
                         }
                         else {
-                            bundle.msg.setPayload(FAILED_BYTES);
-                            bundle.msg.setAddressAndPort(bundle.fromAddress.address,
-                                    bundle.fromAddress.port);
-                            mMessageCache.put(bundle.msg.getIdString(),
-                                    ByteString.copyFrom(bundle.msg.getDataBytes()), 0, 0);
-                            sendPacket(bundle.msg);
+                            if (bundle.fromAddress != null) {
+                                bundle.msg.setPayload(FAILED_BYTES);
+                                bundle.msg.setAddressAndPort(bundle.fromAddress.address,
+                                        bundle.fromAddress.port);
+                                mMessageCache.put(bundle.msg.getIdString(),
+                                        ByteString.copyFrom(bundle.msg.getDataBytes()), 0, 0);
+                                sendPacket(bundle.msg);
+                            }
                             it.remove();
                         }
                     }
