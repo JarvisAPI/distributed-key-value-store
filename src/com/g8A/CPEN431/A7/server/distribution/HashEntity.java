@@ -114,22 +114,18 @@ public class HashEntity {
     	
     	for(int i = 0; i < numVNodes; i++) {
     		VirtualNode vNode = new VirtualNode(pNode, numPNodes + i, i);
+    		VirtualNode prevVNode = getPrevVNode(vNode.getKey());
     		VirtualNode nextVNode = getNextVNode(vNode.getKey());
     		
-    		long affectedRangeStart = hashFunction.hash(vNode.getKey());
-    		long affectedRangeEnd = hashFunction.hash(nextVNode.getKey());
+    		long affectedRangeStart = hashFunction.hash(prevVNode.getKey()) + 1;
+    		long affectedRangeEnd = hashFunction.hash(vNode.getKey());
     		long[] affectedRange = new long[]{ affectedRangeStart, affectedRangeEnd };
-    		List<long[]> affectedRangeList;
     		
-    		if(affectedNodes.containsKey(nextVNode.getPNode())){
-    			affectedRangeList = affectedNodes.get(nextVNode.getPNode());
-    			affectedRangeList.add(affectedRange);
-    			affectedNodes.replace(nextVNode.getPNode(), affectedRangeList);
-    		} else {
-    			affectedRangeList = new ArrayList<long[]>();
-    			affectedRangeList.add(affectedRange);
-    			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
-    		}
+    		List<long[]> affectedRangeList = affectedNodes.containsKey(nextVNode.getPNode()) ? 
+    				affectedNodes.get(nextVNode.getPNode()) : new ArrayList<long[]>();
+
+    		affectedRangeList.add(affectedRange);
+			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
     	}
     	
     	return affectedNodes;
