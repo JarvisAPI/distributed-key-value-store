@@ -112,7 +112,7 @@ public class ConcreteKVClient implements KVClient, Runnable {
                     requestBundle = mRequestMap.remove(replyMessage.getIdString());
                     // If requestBundle == null then that means we sent multiple requests due to timeout
                     // but we already processed and sent the reply
-                    if (requestBundle != null) {
+                    if (requestBundle != null && requestBundle.fromAddress != null) {
                         mMessageCache.put(replyMessage.getIdString(),
                                           ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
                         /*
@@ -150,12 +150,14 @@ public class ConcreteKVClient implements KVClient, Runnable {
                             }
                         }
                         else {
-                            bundle.msg.setPayload(FAILED_BYTES);
-                            bundle.msg.setAddressAndPort(bundle.fromAddress.address,
-                                    bundle.fromAddress.port);
-                            mMessageCache.put(bundle.msg.getIdString(),
-                                    ByteString.copyFrom(bundle.msg.getDataBytes()), 0, 0);
-                            sendPacket(bundle.msg);
+                            if (bundle.fromAddress != null) {
+                                bundle.msg.setPayload(FAILED_BYTES);
+                                bundle.msg.setAddressAndPort(bundle.fromAddress.address,
+                                        bundle.fromAddress.port);
+                                mMessageCache.put(bundle.msg.getIdString(),
+                                        ByteString.copyFrom(bundle.msg.getDataBytes()), 0, 0);
+                                sendPacket(bundle.msg);
+                            }
                             it.remove();
                         }
                     }

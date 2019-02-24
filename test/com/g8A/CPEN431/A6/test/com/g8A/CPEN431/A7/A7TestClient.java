@@ -7,49 +7,116 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.protocol.Protocol;
 import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 
-public class A6TestClient {
+public class A7TestClient {
     private InetAddress serverAddr;
     private int serverPort;
     private DatagramSocket mSocket;
     private DatagramPacket mReceivePacket;
     private AddressHolder[] mAddressAndPorts;
+    private int randomKeyLength = Protocol.SIZE_MAX_KEY_LENGTH;
     
-    public A6TestClient() throws SocketException {
+    public static class Entry {
+        public ByteString value;
+        public int version;
+    }
+    private Map<ByteString, Entry> mMap;
+    
+    public A7TestClient() throws SocketException {
         mSocket = new DatagramSocket();  
         byte[] dataBytes = NetworkMessage.getMaxDataBuffer();
         mReceivePacket = new DatagramPacket(dataBytes, dataBytes.length);
+        mMap = new HashMap<>();
     }
     
     public void runClient() throws Exception {
         System.out.println("Client running");
-        for (AddressHolder addressHolder : mAddressAndPorts) {
-            shutdown(addressHolder.address, addressHolder.port);
+        System.out.println("[INFO]: Phase 1");
+        randomKeyLength = 4;
+        int numKeys = 100;
+        serverAddr = mAddressAndPorts[0].address;
+        serverPort = mAddressAndPorts[0].port;
+        for (int i = 0; i < numKeys; i++) {
+            doPUT(Protocol.SIZE_MAX_VAL_LENGTH);
         }
-        /*
-        for (int i = 0; i < 1225; i++) {
-            closedLoop(Protocol.SIZE_MAX_VAL_LENGTH);
+        System.out.println("Expecting 2nd node to join");
+        Thread.sleep(30 * 1000);
+        System.out.println("[INFO]: Phase 2");
+        
+        Entry receivedEntry, entry;
+        int count = 0;
+        for (ByteString key : mMap.keySet()) {
+            receivedEntry = doGET(key);
+            entry = mMap.get(key);
+            if (receivedEntry != null) {
+                if (!entry.value.equals(receivedEntry.value) ||
+                    entry.version != receivedEntry.version) {
+                    System.err.println("[ERROR]: Wrong GET value or version");
+                }
+            }
+            else {
+                count++;
+            }
         }
-        Thread.sleep(10 * 1000);
-        System.out.println("First closed loop ended, waiting 10 seconds");
-        for (int i = 0; i < 2; i++) {
-            closedLoop(Protocol.SIZE_MAX_VAL_LENGTH/2);
-        }*/
+        System.out.println(String.format("[INFO]: Number of non-successful GETs: %d", count));
+    }
+    
+    public void doPUT(int valueSize) throws Exception {
+        int errCode;
+        ByteString key = generateRandomKey();
+        Entry entry = new Entry();
+        NetworkMessage msg = generateTestPut(valueSize, key, entry);
+        sendPacket(msg);
+        // Assumes server setup is local.
+        mSocket.receive(mReceivePacket);
+        NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
+                                                     mReceivePacket.getLength()));
+        
+        KVResponse builder = KVResponse.parseFrom(msg.getPayload());
+        errCode = builder.getErrCode();
+        if (errCode != 0) {
+            System.out.println("Non-zero PUT errCode: " + errCode);
+        }
+        
+        mMap.put(key, entry);
+    }
+    
+    public Entry doGET(ByteString key) throws Exception {
+        int errCode;
+        Entry entry = new Entry();
+        NetworkMessage msg = generateTestGet(key);
+        sendPacket(msg);
+        mSocket.receive(mReceivePacket);
+        NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
+                mReceivePacket.getLength()));
+        
+        KVResponse builder = KVResponse.parseFrom(msg.getPayload());
+        errCode = builder.getErrCode();
+        if (errCode != 0) {
+            System.out.println("Non-zero GET errCode: " + errCode);
+            return null;
+        }
+        entry.value = builder.getValue();
+        entry.version = builder.getVersion();
+        return entry;
     }
     
     private void closedLoop(int valueSize) throws Exception {
         int errCode;
         ByteString key = generateRandomKey();
-        NetworkMessage msg = generateTestPut(valueSize, key);
+        NetworkMessage msg = generateTestPut(valueSize, key, null);
         sendPacket(msg);
         mSocket.receive(mReceivePacket);
         NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
@@ -88,24 +155,19 @@ public class A6TestClient {
         mSocket.send(packet);
     }
     
-    private void setAddressAndPort(InetAddress addr, int port) {
-        serverAddr = addr;
-        serverPort = port;
-    }
-    
     private void setAddressAndPorts(AddressHolder[] addressAndPorts) {
         mAddressAndPorts = addressAndPorts;
     }
     
     private ByteString generateRandomKey() {
-        byte[] randKey = new byte[Protocol.SIZE_MAX_KEY_LENGTH];
+        byte[] randKey = new byte[randomKeyLength];
         for (int i = 0; i < randKey.length; i++) {
             randKey[i] = (byte) (Math.random() * 256);
         }
         return ByteString.copyFrom(randKey);
     }
     
-    private NetworkMessage generateTestPut(int valueSize, ByteString key) {
+    private NetworkMessage generateTestPut(int valueSize, ByteString key, Entry entry) {
         NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), serverPort));
         
         KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
@@ -120,6 +182,11 @@ public class A6TestClient {
         ByteString bvalue = ByteString.copyFrom(value);
         kvBuilder.setValue(bvalue);
         kvBuilder.setVersion(0);
+        
+        if (entry != null) {
+            entry.value = bvalue;
+            entry.version = 0;
+        }
         
         byte[] payload = kvBuilder
                 .build()
@@ -148,20 +215,16 @@ public class A6TestClient {
     }
     
     public static void main(String[] args) throws Exception {
-        A6TestClient client = new A6TestClient();
-        InetAddress addr = InetAddress.getLoopbackAddress();
-        int port = 8082;
-        //client.setAddressAndPort(addr, port);
+        A7TestClient client = new A7TestClient();
         String[] hostAndPort = {
-                "planetlab1.cs.ubc.ca:50111",
-                "planetlab2.cs.ubc.ca:50111",
-                "pl1.rcc.uottawa.ca:50111"
+                "127.0.0.1:50111",
+                "127.0.0.1:50112"
                 };
         AddressHolder[] addrAndPorts = new AddressHolder[hostAndPort.length];
         int i = 0;
         for (String entry : hostAndPort) {
             String[] hp = entry.split(":");
-            addrAndPorts[i++] = new AddressHolder(InetAddress.getByName(hp[0]), Integer.parseInt(hp[1]));
+            addrAndPorts[i++] = new AddressHolder(InetAddress.getByName(hp[0]), hp[0], Integer.parseInt(hp[1]));
         }
         client.setAddressAndPorts(addrAndPorts);
         client.runClient();
