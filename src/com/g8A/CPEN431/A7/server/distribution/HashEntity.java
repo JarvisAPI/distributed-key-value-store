@@ -170,7 +170,7 @@ public class HashEntity {
 
     /**
      * Removes the node and its replicas of virtual nodes from the ring
-     * @param pNode the node id representing the physical node that should be removed
+     * @param pNode the node key string representing the physical node that should be removed
      */
     public synchronized void removeNode(ByteString pNode) {
         byte[] pNodeBytes = pNode.toByteArray();

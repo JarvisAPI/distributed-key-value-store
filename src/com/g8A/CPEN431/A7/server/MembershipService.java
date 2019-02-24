@@ -75,7 +75,7 @@ public class MembershipService {
      * @param leftNode node that left.
      */
     public static void OnNodeLeft(AddressHolder leftNode) {
-        ByteString hostNameAndPort = Util.concatHostnameAndPort(leftNode.address.getHostName(), leftNode.port);
+        ByteString hostNameAndPort = Util.concatHostnameAndPort(leftNode.hostname, leftNode.port);
         HashEntity.getInstance().removeNode(hostNameAndPort);
     }
 }
