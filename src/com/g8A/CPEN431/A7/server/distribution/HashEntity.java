@@ -1,5 +1,6 @@
 package com.g8A.CPEN431.A7.server.distribution;
 
+import com.g8A.CPEN431.A7.protocol.Util;
 import com.google.protobuf.ByteString;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class HashEntity {
             instance.reset();
             instance.update(entry);
             byte[] hash = instance.digest();
-            return ByteBuffer.wrap(hash).getLong() & 0xffffffffL;
+            return ByteBuffer.wrap(hash).getLong();
         }
     }
 
@@ -158,11 +159,13 @@ public class HashEntity {
      */
     public synchronized int addNode(ByteString pNode) {
         int pNodeId = numPNodes;
+        System.out.println(String.format("[INFO]: pNode: %s", Util.getHexString(pNode.toByteArray())));
         for(int i=0; i<numVNodes; i++) {
             VirtualNode vNode = new VirtualNode(pNode, pNodeId, i);
             long hash = hashFunction.hash(vNode.getKey());
 
             ring.put(hash, vNode);
+            System.out.println(String.format("[INFO]: hash: %s", Long.toUnsignedString(hash)));
         }
 
         numPNodes++;

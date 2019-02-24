@@ -32,7 +32,7 @@ public class NodeTable {
         if (mSelfHostname.endsWith(".local")) {
             mSelfHostname = "127.0.0.1";
         }
-        System.out.println("Self Hostname: " + mSelfHostname);
+        System.out.println("[INFO]: Self Hostname: " + mSelfHostname);
         if (nodeHostnames.length == 0) {
             System.out.println("[INFO]: No other nodes specified, using default single node setup");
             nodeHostnames = new String[] {mSelfHostname + ":" + Server.getInstance().PORT};
@@ -50,7 +50,7 @@ public class NodeTable {
                 epidemicPort = EpidemicProtocol.EPIDEMIC_SRC_PORT;
             }
             System.out.println(String.format("[INFO]: Ipaddr entry %d, hostname: %s, port: %d, epidemicPort: %d", i, nodeHostAndPort[0], port, epidemicPort));
-            ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostAndPort[0]), port, epidemicPort);
+            ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostAndPort[0]), nodeHostAndPort[0], port, epidemicPort);
         }
         
         

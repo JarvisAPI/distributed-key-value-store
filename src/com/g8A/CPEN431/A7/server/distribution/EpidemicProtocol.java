@@ -83,8 +83,8 @@ public class EpidemicProtocol implements Runnable {
             try {
                 node = NodeTable.getInstance().getRandomNode();
                 if (node != null) {
-                    System.out.println(String.format("[INFO]: Chosen node: host: %s, port: %d, epidemicPort: %d",
-                            node.address.getHostName(), node.port, node.epidemicPort));
+                    //System.out.println(String.format("[INFO]: Chosen node: host: %s, port: %d, epidemicPort: %d",
+                    //        node.address.getHostName(), node.port, node.epidemicPort));
                     msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, node.epidemicPort)));
                     byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
                     int j = 0;
@@ -113,7 +113,7 @@ public class EpidemicProtocol implements Runnable {
                 elapsedTime = System.nanoTime();
                 try {
                     mSocket.receive(receivePacket);
-                    System.out.println("[INFO]: Received message");
+                    //System.out.println("[INFO]: Received message");
                     NetworkMessage.setMessage(msg, Arrays.copyOf(receivePacket.getData(), receivePacket.getLength()));
                     byte[] payload = msg.getPayload();
                     
@@ -140,13 +140,14 @@ public class EpidemicProtocol implements Runnable {
                                             MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
                                         }
                                         else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
-                                            System.out.println(String.format("[INFO]: Updated timestamp for nodeIdx: %d", nodeIdx));
+                                            //System.out.println(String.format("[INFO]: Updated timestamp for nodeIdx: %d", nodeIdx));
                                             mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
                                             mSysImages[nodeIdx].timestamp = System.nanoTime();
                                         }
+                                        /*
                                         else {
-                                            System.out.println(String.format("[INFO]: No update"));
-                                        }
+                                            System.out.println("[INFO]: No update");
+                                        }*/
                                     }
                                 }
                                 else {
@@ -168,7 +169,7 @@ public class EpidemicProtocol implements Runnable {
                 long currentTimestamp = System.nanoTime();
                 for (int i = 0; i < mSysImages.length; i++) {
                     if (mNodeIdx != i && mSysImages[i] != null) {
-                        System.out.println(String.format("dif: %d", currentTimestamp - mSysImages[i].timestamp));
+                        //System.out.println(String.format("dif: %d", currentTimestamp - mSysImages[i].timestamp));
                         if (currentTimestamp - mSysImages[i].timestamp >= NODE_HAS_FAILED_MARK) {
                             // Node deemed to have failed.
                             AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];

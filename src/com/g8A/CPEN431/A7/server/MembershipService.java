@@ -36,13 +36,13 @@ public class MembershipService {
     	// obtain map of affected nodes, with ranges of hash values that need to be migrated on new node join
     	ByteString localHostNameAndPort = Util.concatHostnameAndPort(localAddress.address.getHostName(), localAddress.port);
     	
-    	ByteString hostNameAndPort = Util.concatHostnameAndPort(joinedNode.address.getHostName(), joinedNode.port);   
+    	ByteString hostNameAndPort = Util.concatHostnameAndPort(joinedNode.hostname, joinedNode.port);   
         
         // add new node to hash ring so that now the requests can be routed correctly.
         int nodeId = HashEntity.getInstance().addNode(hostNameAndPort);
     	DirectRoute.getInstance().addNode(nodeId, joinedNode);
         System.out.println(String.format("NodeId: %d, hostname: %s, port: %d",
-                nodeId, joinedNode.address.getHostName(), joinedNode.port));
+                nodeId, joinedNode.hostname, joinedNode.port));
     	
     	Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
     	
