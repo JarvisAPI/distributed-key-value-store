@@ -1,6 +1,5 @@
 package com.g8A.CPEN431.A7.server.distribution;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,28 +21,26 @@ public class DirectRoute implements RouteStrategy {
     
     private DirectRoute() {
         try {
-            NodeTable nodeTable = NodeTable.makeInstance();
-            AddressHolder[] ipaddrs = nodeTable.getIPaddrs();
-        	for(int i = 0; i < ipaddrs.length; i++) {
-        		AddressHolder curAddr = ipaddrs[i];
-        		String hostname = curAddr.address.getHostName();
-        		ByteString hostnameAndPort = Util.concatHostnameAndPort(hostname, curAddr.port);
-    
-				int nodeId = HashEntity.getInstance().addNode(hostnameAndPort);
-				if (nodeTable.getSelfHostname().equals(hostname) && Server.getInstance().PORT == curAddr.port) {
-				    mSelfNodeId = nodeId;
-				}
-				System.out.println("NodeId: " + nodeId + ", hostname: " + hostname + ", port: " + curAddr.port);
-				nodeIdMap.put(nodeId, curAddr);
-        	}
+            NodeTable nodeTable = NodeTable.getInstance();
+            String hostname = nodeTable.getSelfHostname();
+            int port = Server.getInstance().PORT;
+            ByteString hostnameAndPort = Util.concatHostnameAndPort(hostname, port);
+            mSelfNodeId = HashEntity.getInstance().addNode(hostnameAndPort);
+            System.out.println("NodeId: " + mSelfNodeId + ", hostname: " + hostname + ", port: " + port);
+            AddressHolder selfAddressHolder = nodeTable.getSelfAddressHolder();
+            if (selfAddressHolder == null) {
+                System.err.println("[ERROR]: Self address holder is null, exiting...");
+                System.exit(1);
+            }
+            if (selfAddressHolder.port != port || selfAddressHolder.epidemicPort != EpidemicProtocol.EPIDEMIC_SRC_PORT) {
+                System.err.println("[ERROR]: Port or epidemic port mismatch in node list and options, exiting...");
+                System.exit(1);
+            }
+            nodeIdMap.put(mSelfNodeId, selfAddressHolder);
         	if (mSelfNodeId == -1) {
         	    System.err.println("[ERROR]: Self node id not set! Exiting...");
         	    System.exit(1);
         	}
-        } catch (UnknownHostException e1) {
-            e1.printStackTrace();
-            System.err.println("[ERROR]: Unable to resolve host");
-            System.exit(1);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("[ERROR]: Failure when contructing node id table");
@@ -78,18 +75,11 @@ public class DirectRoute implements RouteStrategy {
     }
     
     /**
-     * Get the index into the node table array given a nodeId.
-     * @param nodeId the id of the node to get index of.
-     * @return the index into the node address array, or -1 if index does not exit.
+     * Add a node mapping of the nodeId to the node.
+     * @param nodeId the nodeId key.
+     * @param node the node to map to.
      */
-    public int getNodeIdx(int nodeId) {
-        AddressHolder holder = nodeIdMap.get(nodeId);
-        AddressHolder[] ipaddrs = NodeTable.getInstance().getIPaddrs();
-        for (int i = 0; i < ipaddrs.length; i++) {
-            if (ipaddrs[i] == holder) {
-                return i;
-            }
-        }
-        return -1;
+    public void addNode(int nodeId, AddressHolder node) {
+        nodeIdMap.put(nodeId, node);
     }
 }

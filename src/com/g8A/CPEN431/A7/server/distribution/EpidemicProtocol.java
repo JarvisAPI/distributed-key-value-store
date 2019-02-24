@@ -5,6 +5,7 @@ import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +26,12 @@ public class EpidemicProtocol implements Runnable {
     // the rate might actually be slower due to other operations. In milliseconds.
     private static final int MIN_PUSH_INTERVAL = 4000;
     private static final int TOLERANCE = 100;
-    private static final int EPIDEMIC_PORT = 50222;
+    public static int EPIDEMIC_SRC_PORT = 50222; // Source port to receive and send
     // The number of nanoseconds that has elapsed since last state update from
     // a node, before marking the node as failed.
-    private static final long NODE_HAS_FAILED_MARK = 30 * 1000 * 1000 * 1000;
+    private static final long NODE_HAS_FAILED_MARK = 30000000000L;
     private static class SystemImage {
-        private long timestamp; // timestamp recorded by current node
+        private long timestamp; // timestamp recorded by current node, using nanoTime()
         private long lastMsgTimestamp; // timestamp send from originating node.
     }
     
@@ -43,15 +44,21 @@ public class EpidemicProtocol implements Runnable {
     
     private static final byte MSG_TYPE_STATUS_UPDATE = 1;
     private int mNodeIdx;
+    private long mMsgTimestampCounter;
     
     public EpidemicProtocol() throws SocketException {
-        mSocket = new DatagramSocket(EPIDEMIC_PORT);
+        mSocket = new DatagramSocket(EPIDEMIC_SRC_PORT);
         mSocket.setSoTimeout(MIN_PUSH_INTERVAL);
         
         mSysImageSize = 0;
         mSysImages = new SystemImage[NodeTable.getInstance().getNumberOfNodes()];
-        
-        mNodeIdx = DirectRoute.getInstance().getNodeIdx(DirectRoute.getInstance().getSelfNodeId());
+
+        mNodeIdx = NodeTable.getInstance().getSelfNodeIdx();
+        mSysImages[mNodeIdx] = new SystemImage();
+        mSysImages[mNodeIdx].timestamp = System.nanoTime();
+        mMsgTimestampCounter = System.currentTimeMillis();
+        mSysImages[mNodeIdx].lastMsgTimestamp = mMsgTimestampCounter;
+        mSysImageSize++;
     }
     
     
@@ -68,7 +75,7 @@ public class EpidemicProtocol implements Runnable {
         }
         NetworkMessage msg = new NetworkMessage();
         DatagramPacket packet = new DatagramPacket(new byte[0], 0);
-        byte[] buf = new byte[PROTOCOL_FORMAT_SIZE * mSysImages.length];
+        byte[] buf = NetworkMessage.getMaxDataBuffer();
         DatagramPacket receivePacket = new DatagramPacket(buf, buf.length);
         
         long elapsedTime;
@@ -76,7 +83,9 @@ public class EpidemicProtocol implements Runnable {
             try {
                 node = NodeTable.getInstance().getRandomNode();
                 if (node != null) {
-                    msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, EPIDEMIC_PORT)));
+                    System.out.println(String.format("[INFO]: Chosen node: host: %s, port: %d, epidemicPort: %d",
+                            node.address.getHostName(), node.port, node.epidemicPort));
+                    msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, node.epidemicPort)));
                     byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
                     int j = 0;
                     for (int i = 0; i < mSysImages.length; i++) {
@@ -85,72 +94,88 @@ public class EpidemicProtocol implements Runnable {
                             Util.intToBytes(i, data, j);
                             j += 4; // size of int
                             if (i == mNodeIdx) {
-                                Util.longToBytes(System.currentTimeMillis(),
-                                        data, j);
+                                mMsgTimestampCounter++;
+                                mSysImages[i].lastMsgTimestamp = mMsgTimestampCounter;
                             }
-                            else {
-                                Util.longToBytes(mSysImages[i].lastMsgTimestamp, data, j);
-                            }
+                            Util.longToBytes(mSysImages[i].lastMsgTimestamp, data, j);
+                            
                             j += 8; // size of long
                         }
                     }
+                    
                     msg.setPayload(data);
                     packet.setData(msg.getDataBytes());
                     packet.setAddress(node.address);
-                    packet.setPort(EPIDEMIC_PORT);
+                    packet.setPort(node.epidemicPort);
                     mSocket.send(packet);
                 }
                 
                 elapsedTime = System.nanoTime();
-                mSocket.receive(receivePacket);
-                NetworkMessage.setMessage(msg, Arrays.copyOf(receivePacket.getData(), receivePacket.getLength()));
-                byte[] payload = msg.getPayload();
-                
-                if (payload.length % PROTOCOL_FORMAT_SIZE != 0) {
-                    System.err.println("[WARNING]: Epidemic protocol: received wrong data length, ignoring received request");
-                }
-                else {
-                    int nodeIdx;
-                    long msgTimestamp;
-                    for (int i = 0; i < payload.length; ) {
-                        if (payload[i] == MSG_TYPE_STATUS_UPDATE) {
-                            nodeIdx = Util.intFromBytes(payload, i++);
-                            if (nodeIdx >= 0 && nodeIdx < mSysImages.length) {
-                                msgTimestamp = Util.longFromBytes(payload, i + 4);
-                                if (mSysImages[nodeIdx] == null) {
-                                    mSysImages[nodeIdx] = new SystemImage();
-                                    mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                    mSysImages[nodeIdx].timestamp = System.nanoTime();
-                                    mSysImageSize++;
-                                    NodeTable.getInstance().addAliveNode(nodeIdx);
-                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                try {
+                    mSocket.receive(receivePacket);
+                    System.out.println("[INFO]: Received message");
+                    NetworkMessage.setMessage(msg, Arrays.copyOf(receivePacket.getData(), receivePacket.getLength()));
+                    byte[] payload = msg.getPayload();
+                    
+                    if (payload.length % PROTOCOL_FORMAT_SIZE != 0) {
+                        System.err.println("[WARNING]: Epidemic protocol: received wrong data length, ignoring received request");
+                    }
+                    else {
+                        int nodeIdx;
+                        long msgTimestamp;
+                        for (int i = 0; i < payload.length; ) {
+                            if (payload[i] == MSG_TYPE_STATUS_UPDATE) {
+                                i++;
+                                nodeIdx = Util.intFromBytes(payload, i);
+                                if (nodeIdx >= 0 && nodeIdx < mSysImages.length) {
+                                    if (nodeIdx != mNodeIdx) {
+                                        msgTimestamp = Util.longFromBytes(payload, i + 4);
+                                        if (mSysImages[nodeIdx] == null) {
+                                            mSysImages[nodeIdx] = new SystemImage();
+                                            mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
+                                            mSysImages[nodeIdx].timestamp = System.nanoTime();
+                                            mSysImageSize++;
+                                            NodeTable.getInstance().addAliveNode(nodeIdx);
+                                            System.out.println(String.format("[INFO]: nodeIdx %d joining", nodeIdx));
+                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                        }
+                                        else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
+                                            System.out.println(String.format("[INFO]: Updated timestamp for nodeIdx: %d", nodeIdx));
+                                            mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
+                                            mSysImages[nodeIdx].timestamp = System.nanoTime();
+                                        }
+                                        else {
+                                            System.out.println(String.format("[INFO]: No update"));
+                                        }
+                                    }
                                 }
-                                else if (msgTimestamp > mSysImages[nodeIdx].lastMsgTimestamp) {
-                                    mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                    mSysImages[nodeIdx].timestamp = System.nanoTime();
+                                else {
+                                    System.err.println(String.format("[WARNING]: Epidemic protocol: bad nodeIdx: %d", nodeIdx));
                                 }
+                                i += PROTOCOL_FORMAT_SIZE - 1;
                             }
                             else {
-                                System.err.println("[WARNING]: Epidemic protocol: bad nodeIdx");
+                                System.err.println("[WARNING]: Epidemic protocol: unrecognized message type, corrupted message ignoring...");
+                                break;
                             }
-                            i += PROTOCOL_FORMAT_SIZE - 1;
-                        }
-                        else {
-                            System.err.println("[WARNING]: Epidemic protocol: unrecognized message type, corrupted message ignoring...");
-                            break;
                         }
                     }
+                } catch (SocketTimeoutException e) {
+                    // Ignored
                 }
                 
                 // Check if nodes should be marked dead.
                 long currentTimestamp = System.nanoTime();
                 for (int i = 0; i < mSysImages.length; i++) {
-                    if (mSysImages[i] != null) {
+                    if (mNodeIdx != i && mSysImages[i] != null) {
+                        System.out.println(String.format("dif: %d", currentTimestamp - mSysImages[i].timestamp));
                         if (currentTimestamp - mSysImages[i].timestamp >= NODE_HAS_FAILED_MARK) {
                             // Node deemed to have failed.
                             AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                             NodeTable.getInstance().removeAliveNode(i);
                             mSysImages[i] = null;
+                            System.out.println(String.format("[INFO]: nodeIdx %d leaving", i));
+                            mSysImageSize--;
                             MembershipService.OnNodeLeft(failedNode);
                         }
                     }

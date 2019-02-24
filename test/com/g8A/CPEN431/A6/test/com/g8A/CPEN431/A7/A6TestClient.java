@@ -161,7 +161,7 @@ public class A6TestClient {
         int i = 0;
         for (String entry : hostAndPort) {
             String[] hp = entry.split(":");
-            addrAndPorts[i++] = new AddressHolder(InetAddress.getByName(hp[0]), Integer.parseInt(hp[1]));
+            addrAndPorts[i++] = new AddressHolder(InetAddress.getByName(hp[0]), Integer.parseInt(hp[1]), 5000);
         }
         client.setAddressAndPorts(addrAndPorts);
         client.runClient();

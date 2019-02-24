@@ -19,7 +19,7 @@ import com.g8A.CPEN431.A7.server.distribution.RouteStrategy.AddressHolder;
  *
  */
 public class NodeTable {
-    // Node hostnames format: ip_address + ":" + port
+    // Node hostnames format: ip_address + ":" + port + ":" epidemicPort
     private static String[] nodeHostnames = {};
     private AddressHolder[] ipaddrs;
     private static NodeTable mNodeTable;
@@ -42,13 +42,24 @@ public class NodeTable {
         for(int i = 0; i < ipaddrs.length; i++) {
             String[] nodeHostAndPort = nodeHostnames[i].split(":");
             int port = Integer.parseInt(nodeHostAndPort[1]);
-            ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostAndPort[0]), port);
+            int epidemicPort;
+            if (nodeHostAndPort.length > 2) {
+                epidemicPort = Integer.parseInt(nodeHostAndPort[2]);
+            }
+            else {
+                epidemicPort = EpidemicProtocol.EPIDEMIC_SRC_PORT;
+            }
+            System.out.println(String.format("[INFO]: Ipaddr entry %d, hostname: %s, port: %d, epidemicPort: %d", i, nodeHostAndPort[0], port, epidemicPort));
+            ipaddrs[i] = new AddressHolder(InetAddress.getByName(nodeHostAndPort[0]), port, epidemicPort);
         }
         
         
         // Initially assume all other nodes are alive.
+        int selfNodeIdx = getSelfNodeIdx();
         for (int i = 0; i < ipaddrs.length; i++) {
-            mCurrentAliveNodes.add(i);
+            if (i != selfNodeIdx) {
+                mCurrentAliveNodes.add(i);
+            }
         }
     }
 
@@ -67,7 +78,11 @@ public class NodeTable {
                     if (hostAndPort[0].equals("localhost")) {
                         hostAndPort[0] = "127.0.0.1";
                     }
-                    nodeList.add(hostAndPort[0] + ":" + hostAndPort[1]);
+                    String nodeEntry = hostAndPort[0] + ":" + hostAndPort[1];
+                    if (hostAndPort.length > 2) {
+                        nodeEntry += ":" + hostAndPort[2];
+                    }
+                    nodeList.add(nodeEntry);
                 }
                 entry = reader.readLine();
             }
@@ -89,8 +104,8 @@ public class NodeTable {
      *         null if no other nodes are alive.
      */
     public AddressHolder getRandomNode() {
-        int randCurIdx = Util.rand.nextInt(mCurrentAliveNodes.size());
-        if (randCurIdx > 0) {
+        if (mCurrentAliveNodes.size() > 0) {
+            int randCurIdx = Util.rand.nextInt(mCurrentAliveNodes.size());
             int nodeIdx = mCurrentAliveNodes.get(randCurIdx);
             return ipaddrs[nodeIdx];
         }
@@ -129,6 +144,38 @@ public class NodeTable {
     
     public String getSelfHostname() {
         return mSelfHostname;
+    }
+    
+    public AddressHolder getSelfAddressHolder() {
+        for (int i = 0; i < ipaddrs.length; i++) {
+            String hostname = ipaddrs[i].address.getHostName();
+            if (hostname.equals("localhost")) {
+                hostname = "127.0.0.1";
+            }
+            if (mSelfHostname.equals(hostname) &&
+                Server.getInstance().PORT == ipaddrs[i].port) {
+                return ipaddrs[i];
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 
+     * @return the node index of the current node or -1 if it doesn't exist.
+     */
+    public int getSelfNodeIdx() {
+        for (int i = 0; i < ipaddrs.length; i++) {
+            String hostname = ipaddrs[i].address.getHostName();
+            if (hostname.equals("localhost")) {
+                hostname = "127.0.0.1";
+            }
+            if (mSelfHostname.equals(hostname) &&
+                Server.getInstance().PORT == ipaddrs[i].port) {
+                return i;
+            }
+        }
+        return -1;
     }
     
     public static NodeTable makeInstance() throws UnknownHostException {

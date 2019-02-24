@@ -26,7 +26,7 @@ public class NetworkMessage {
     public void setPayload(byte[] payload) {
         int payloadSize = payload.length;
         if (payloadSize > MAX_PAYLOAD_SIZE) {
-            System.out.println("Payload in request message is too long, truncating...");
+            System.out.println("[WARNING]: Payload in request message is too long, truncating...");
             payloadSize = MAX_PAYLOAD_SIZE;
         }
         mPayload = ByteString.copyFrom(payload, 0, payloadSize);

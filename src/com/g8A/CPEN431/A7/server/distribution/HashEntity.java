@@ -83,7 +83,11 @@ public class HashEntity {
     	long hash = hashFunction.hash(vNodeKey);
     	if(!ring.containsKey(hash)) return null;
     	
-    	long prevKey = ring.headMap(hash).lastKey();
+    	SortedMap<Long, VirtualNode> headMap = ring.headMap(hash);
+    	if (headMap.isEmpty()) {
+    	    return null;
+    	}
+    	long prevKey = headMap.lastKey();
     	return ring.get(prevKey);
     }
     
@@ -98,7 +102,11 @@ public class HashEntity {
     	long hash = hashFunction.hash(vNodeKey);
     	if(!ring.containsKey(hash)) return null;
     	
-    	long nextKey = ring.tailMap(hash).firstKey();
+    	SortedMap<Long, VirtualNode> tailMap = ring.tailMap(hash);
+    	if (tailMap.isEmpty()) {
+    	    return null;
+    	}
+    	long nextKey = tailMap.firstKey();
     	return ring.get(nextKey);
     }
     
@@ -118,15 +126,17 @@ public class HashEntity {
     		VirtualNode prevVNode = getPrevVNode(vNode.getKey());
     		VirtualNode nextVNode = getNextVNode(vNode.getKey());
     		
-    		long affectedRangeStart = hashFunction.hash(prevVNode.getKey()) + 1;
-    		long affectedRangeEnd = hashFunction.hash(vNode.getKey());
-    		long[] affectedRange = new long[]{ affectedRangeStart, affectedRangeEnd };
-    		
-    		List<long[]> affectedRangeList = affectedNodes.containsKey(nextVNode.getPNode()) ? 
-    				affectedNodes.get(nextVNode.getPNode()) : new ArrayList<long[]>();
-
-    		affectedRangeList.add(affectedRange);
-			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
+    		if (prevVNode != null) {
+        		long affectedRangeStart = hashFunction.hash(prevVNode.getKey()) + 1;
+        		long affectedRangeEnd = hashFunction.hash(vNode.getKey());
+        		long[] affectedRange = new long[]{ affectedRangeStart, affectedRangeEnd };
+        		
+        		List<long[]> affectedRangeList = affectedNodes.containsKey(nextVNode.getPNode()) ? 
+        				affectedNodes.get(nextVNode.getPNode()) : new ArrayList<long[]>();
+    
+        		affectedRangeList.add(affectedRange);
+    			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
+    		}
     	}
     	
     	return affectedNodes;
@@ -166,8 +176,11 @@ public class HashEntity {
     public synchronized void removeNode(ByteString pNode) {
         for(int i = 0; i < numVNodes; i++) {
             long hash = hashFunction.hash((pNode + "" + i).getBytes());
-            if(ring.get(hash).isVirtualNodeOf(pNode)) {
-                ring.remove(hash);
+            VirtualNode vnode = ring.get(hash);
+            if (vnode != null) {
+                if(vnode.isVirtualNodeOf(pNode)) {
+                    ring.remove(hash);
+                }
             }
         }
     }

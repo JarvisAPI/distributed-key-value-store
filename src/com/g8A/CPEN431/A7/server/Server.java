@@ -136,6 +136,7 @@ public class Server {
         final String COMMAND_NODE_LIST = "--node-list";
         final String COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES = "--max-kvclient-queue-entries";
         final String COMMAND_NUM_VNODES = "--num-vnodes";
+        final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
         
         try {
             int port = 8082;
@@ -146,7 +147,7 @@ public class Server {
             int maxReceiveQueueEntryLimit = 256;
             boolean isSingleThread = false;
             int maxKvClientQueueEntries = 1024;
-            int numVNodes = 1;
+            int numVNodes = 10;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {
@@ -181,6 +182,9 @@ public class Server {
                     case COMMAND_NUM_VNODES:
                         numVNodes = Integer.parseInt(args[i+1]);
                         break;
+                    case COMMAND_EPIDEMIC_PORT:
+                        EpidemicProtocol.EPIDEMIC_SRC_PORT = Integer.parseInt(args[i+1]);
+                        break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
                     }
@@ -203,6 +207,7 @@ public class Server {
             System.out.println("Max cache size: " + maxCacheSize + "MB");
             System.out.println("Max KV client queue entries: " + maxKvClientQueueEntries);
             System.out.println("Number of virtual nodes: " + numVNodes);
+            System.out.println("Epidemic port: " + EpidemicProtocol.EPIDEMIC_SRC_PORT);
             
             maxKeyValueStoreSize *= 1024*1024;
             maxCacheSize *= 1024*1024;
@@ -211,10 +216,10 @@ public class Server {
             KeyValueStore.setMaxCacheSize(maxKeyValueStoreSize);
             ConcreteKVClient.setMaxNumQueueEntries(maxKvClientQueueEntries);
             
-            NodeTable.makeInstance();
             HashEntity.setNumVNodes(numVNodes);
             
             Server.makeInstance(port);
+            NodeTable.makeInstance();
             Server server = Server.getInstance();
             if (!isSingleThread) {
                 Server.SIZE_MAX_QUEUE = maxReceiveQueueEntryLimit;

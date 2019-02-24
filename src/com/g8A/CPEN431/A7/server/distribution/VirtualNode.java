@@ -6,9 +6,9 @@ public class VirtualNode implements Node {
 
     private final ByteString pNode;
     private int pNodeId;
-    private final long vIndex;
+    private final int vIndex;
 
-    public VirtualNode(ByteString pNode, int pNodeId, long vIndex) {
+    public VirtualNode(ByteString pNode, int pNodeId, int vIndex) {
         this.pNode = pNode;
         this.pNodeId = pNodeId;
         this.vIndex = vIndex;
