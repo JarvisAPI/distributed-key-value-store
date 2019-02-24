@@ -16,10 +16,7 @@ public class VirtualNode implements Node {
     }
 
     public byte[] getKey() {
-        byte[] buf = new byte[pNode.size() + 8];
-        System.arraycopy(pNode.toByteArray(), 0, buf, 0, pNode.size());
-        Util.longToBytes(vIndex, buf, pNode.size());
-        return buf;
+        return getKey(pNode.toByteArray(), vIndex);
     }
 
     public ByteString getPNode() {
@@ -32,5 +29,12 @@ public class VirtualNode implements Node {
 
     public boolean isVirtualNodeOf(ByteString physicalNode) {
         return physicalNode.equals(this.pNode);
+    }
+    
+    public static byte[] getKey(byte[] pNodeBytes, int vIndex) {
+        byte[] buf = new byte[pNodeBytes.length + 8];
+        System.arraycopy(pNodeBytes, 0, buf, 0, pNodeBytes.length);
+        Util.longToBytes(vIndex, buf, pNodeBytes.length);
+        return buf;
     }
 }

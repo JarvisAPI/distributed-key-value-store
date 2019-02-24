@@ -149,7 +149,7 @@ public class Server {
             int maxReceiveQueueEntryLimit = 256;
             boolean isSingleThread = false;
             int maxKvClientQueueEntries = 1024;
-            int numVNodes = 10;
+            int numVNodes = 1;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {

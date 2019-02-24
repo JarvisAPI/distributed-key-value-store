@@ -1,7 +1,7 @@
 package com.g8A.CPEN431.A7.server;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
@@ -35,13 +35,16 @@ public class MembershipService {
     	AddressHolder localAddress = DirectRoute.getInstance().getLocalAddress();
     	
     	// obtain map of affected nodes, with ranges of hash values that need to be migrated on new node join
-    	ByteString localHostNameAndPort = Util.concatHostnameAndPort(localAddress.address.getHostName(), localAddress.port);
+    	ByteString localHostNameAndPort = Util.concatHostnameAndPort(localAddress.hostname, localAddress.port);
     	
     	ByteString hostNameAndPort = Util.concatHostnameAndPort(joinedNode.hostname, joinedNode.port);   
         
-        Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
+        Set<ByteString> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
         
-        if (affectedNodes.containsKey(localHostNameAndPort) && MessageConsumer.isMigrating()) {
+        System.out.println(String.format("[INFO]: Affected node size: %d", affectedNodes.size()));
+        
+        if (affectedNodes.contains(localHostNameAndPort) && MessageConsumer.isMigrating()) {
+            System.out.println("[INFO]: Already migrating, waiting for completion before furthur migration");
             // Need to migrate but there is already a migrating thread, so best to wait for it
             // to finish and try again later.
             return;
@@ -54,16 +57,16 @@ public class MembershipService {
                 nodeId, joinedNode.hostname, joinedNode.port));
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
-    	if(affectedNodes.containsKey(localHostNameAndPort)) {
+        System.out.println(String.format("localHostNameAndPort: %s", Util.getHexString(localHostNameAndPort.toByteArray())));
+    	if(affectedNodes.contains(localHostNameAndPort)) {
     	    System.out.println("[DEBUG]: Starting migration thread");
     	    
-    	    List<long[]> affectedRanges = affectedNodes.get(localHostNameAndPort);
-    		MessageConsumer.startMigration(affectedRanges, joinedNode); // sets flag in MessageConsumer to bounce off get/put requests
+    		MessageConsumer.startMigration(nodeId); // sets flag in MessageConsumer to bounce off get/put requests
     		
     		// Migration thread performs the following:
             // copy relevant keys over to the new node
             // delete nodes from old node
-    	    new MigrateKVThread(affectedRanges, joinedNode).start();
+    	    new MigrateKVThread(joinedNode).start();
     	}
     }
     

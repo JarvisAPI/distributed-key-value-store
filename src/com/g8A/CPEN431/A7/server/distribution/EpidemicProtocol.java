@@ -27,11 +27,12 @@ public class EpidemicProtocol implements Runnable {
     private static final int MIN_PUSH_INTERVAL = 4000;
     private static final int TOLERANCE = 100;
     public static int EPIDEMIC_SRC_PORT = 50222; // Source port to receive and send
-    // The number of nanoseconds that has elapsed since last state update from
-    // a node, before marking the node as failed.
-    private static final long NODE_HAS_FAILED_MARK = 30000000000L;
+    // If the timestamp counter - timestamp of system image is greater than this
+    // value then the node is assumed to have failed.
+    private static final long NODE_HAS_FAILED_MARK = 5;
     private static class SystemImage {
-        private long timestamp; // timestamp recorded by current node, using nanoTime()
+        // timestamp recorded by current node, currently it is counter
+        private long timestamp;
         private long lastMsgTimestamp; // timestamp send from originating node.
     }
     
@@ -44,6 +45,8 @@ public class EpidemicProtocol implements Runnable {
     
     private static final byte MSG_TYPE_STATUS_UPDATE = 1;
     private int mNodeIdx;
+    // Approximately every MIN_PUSH_INTERVAL the timestamp counter is incremented
+    private long mTimestampCounter;
     private long mMsgTimestampCounter;
     
     public EpidemicProtocol() throws SocketException {
@@ -56,6 +59,7 @@ public class EpidemicProtocol implements Runnable {
         mNodeIdx = NodeTable.getInstance().getSelfNodeIdx();
         mSysImages[mNodeIdx] = new SystemImage();
         mSysImages[mNodeIdx].timestamp = System.nanoTime();
+        mTimestampCounter = 0;
         mMsgTimestampCounter = System.currentTimeMillis();
         mSysImages[mNodeIdx].lastMsgTimestamp = mMsgTimestampCounter;
         mSysImageSize++;
@@ -131,18 +135,20 @@ public class EpidemicProtocol implements Runnable {
                                     if (nodeIdx != mNodeIdx) {
                                         msgTimestamp = Util.longFromBytes(payload, i + 4);
                                         if (mSysImages[nodeIdx] == null) {
+                                            // Node joined
                                             mSysImages[nodeIdx] = new SystemImage();
                                             mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                            mSysImages[nodeIdx].timestamp = System.nanoTime();
+                                            mSysImages[nodeIdx].timestamp = 0;
                                             mSysImageSize++;
                                             NodeTable.getInstance().addAliveNode(nodeIdx);
                                             System.out.println(String.format("[INFO]: nodeIdx %d joining", nodeIdx));
                                             MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
                                         }
                                         else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
+                                            // Node update
                                             //System.out.println(String.format("[INFO]: Updated timestamp for nodeIdx: %d", nodeIdx));
                                             mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                            mSysImages[nodeIdx].timestamp = System.nanoTime();
+                                            mSysImages[nodeIdx].timestamp++;
                                         }
                                         /*
                                         else {
@@ -166,11 +172,10 @@ public class EpidemicProtocol implements Runnable {
                 }
                 
                 // Check if nodes should be marked dead.
-                long currentTimestamp = System.nanoTime();
                 for (int i = 0; i < mSysImages.length; i++) {
                     if (mNodeIdx != i && mSysImages[i] != null) {
                         //System.out.println(String.format("dif: %d", currentTimestamp - mSysImages[i].timestamp));
-                        if (currentTimestamp - mSysImages[i].timestamp >= NODE_HAS_FAILED_MARK) {
+                        if (mTimestampCounter - mSysImages[i].timestamp > NODE_HAS_FAILED_MARK) {
                             // Node deemed to have failed.
                             AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                             NodeTable.getInstance().removeAliveNode(i);
@@ -186,6 +191,7 @@ public class EpidemicProtocol implements Runnable {
                 if (MIN_PUSH_INTERVAL - elapsedTime > TOLERANCE) {
                     Thread.sleep(MIN_PUSH_INTERVAL - elapsedTime);
                 }
+                mTimestampCounter++;
             } catch(Exception e) {
                 e.printStackTrace();
             }

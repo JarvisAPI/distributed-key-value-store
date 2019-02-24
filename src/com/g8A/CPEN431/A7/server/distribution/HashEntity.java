@@ -3,13 +3,11 @@ package com.g8A.CPEN431.A7.server.distribution;
 import com.g8A.CPEN431.A7.protocol.Util;
 import com.google.protobuf.ByteString;
 
-import java.util.List;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -79,17 +77,17 @@ public class HashEntity {
      * @return the predecessor virtual node
      */
     private VirtualNode getPrevVNode(byte[] vNodeKey) {
-    	if(ring.isEmpty()) return null;
-    	
-    	long hash = hashFunction.hash(vNodeKey);
-    	if(!ring.containsKey(hash)) return null;
-    	
-    	SortedMap<Long, VirtualNode> headMap = ring.headMap(hash);
-    	if (headMap.isEmpty()) {
+    	if(ring.isEmpty()) {
     	    return null;
     	}
-    	long prevKey = headMap.lastKey();
-    	return ring.get(prevKey);
+    	
+    	long curHash;
+    	curHash = hashFunction.hash(vNodeKey);
+        SortedMap<Long, VirtualNode> headMap = ring.headMap(curHash);
+        long hash = headMap.isEmpty() ?
+                ring.lastKey() : headMap.lastKey();
+        
+    	return curHash == hash ? null : ring.get(hash);
     }
     
     /**
@@ -98,45 +96,43 @@ public class HashEntity {
      * @return the successor virtual node
      */
     private VirtualNode getNextVNode(byte[] vNodeKey) {
-    	if(ring.isEmpty()) return null;
-    	
-    	long hash = hashFunction.hash(vNodeKey);
-    	if(!ring.containsKey(hash)) return null;
-    	
-    	SortedMap<Long, VirtualNode> tailMap = ring.tailMap(hash);
-    	if (tailMap.isEmpty()) {
+    	if(ring.isEmpty()) {
     	    return null;
     	}
-    	long nextKey = tailMap.firstKey();
-    	return ring.get(nextKey);
+    	
+    	long curHash = hashFunction.hash(vNodeKey);
+        SortedMap<Long, VirtualNode> tailMap = ring.tailMap(curHash + 1);
+        long hash = tailMap.isEmpty() ?
+                    ring.firstKey() : tailMap.firstKey();
+                    
+    	return curHash == hash ? null : ring.get(hash);
     }
     
     /**
-     * Gets a map physical nodeIds and list of ranges (hash values) affected that need to be migrated to the newly joined node
-     * @param pNode: the pNodeId of the node that is joining
-     * @param numVNodes: number of virtual nodes
-     * @return a map of pNodeIds to List of ranges
+     * Gets a set of physical nodes that will be affected if new node joins.
+     * @param pNode: the pNode key string of the node that is joining.
+     * @return a set of pNode key strings representing the nodes affected.
      */
-    public Map<ByteString, List<long[]>> getAffectedNodesOnJoin(ByteString pNode){
-    	if(ring.isEmpty()) return null;
-    	Map<ByteString, List<long[]>> affectedNodes = new HashMap<ByteString, List<long[]>>();
+    public Set<ByteString> getAffectedNodesOnJoin(ByteString pNode) {
+        Set<ByteString> affectedNodes = new HashSet<ByteString>();
+        
+    	if(ring.isEmpty()) {
+    	    return affectedNodes;
+    	}
     	
+    	byte[] pNodeBytes = pNode.toByteArray();
     	for(int i = 0; i < numVNodes; i++) {
-    	    // TODO: Make it more efficient by just calling a get key function
-    		VirtualNode vNode = new VirtualNode(pNode, numPNodes, i);
-    		VirtualNode prevVNode = getPrevVNode(vNode.getKey());
-    		VirtualNode nextVNode = getNextVNode(vNode.getKey());
+    		byte[] vNodeKey = VirtualNode.getKey(pNodeBytes, i);
+    		VirtualNode prevVNode = getPrevVNode(vNodeKey);
+    		VirtualNode nextVNode = getNextVNode(vNodeKey);
     		
     		if (prevVNode != null) {
-        		long affectedRangeStart = hashFunction.hash(prevVNode.getKey()) + 1;
-        		long affectedRangeEnd = hashFunction.hash(vNode.getKey());
-        		long[] affectedRange = new long[]{ affectedRangeStart, affectedRangeEnd };
-        		
-        		List<long[]> affectedRangeList = affectedNodes.containsKey(nextVNode.getPNode()) ? 
-        				affectedNodes.get(nextVNode.getPNode()) : new ArrayList<long[]>();
-    
-        		affectedRangeList.add(affectedRange);
-    			affectedNodes.put(nextVNode.getPNode(), affectedRangeList);
+    		    if (nextVNode != null) {
+    		        affectedNodes.add(nextVNode.getPNode());
+    		    }
+    		    else {
+    		        System.err.println("[WARNING]: HashEntity: Bug nextVNode should not be null.");
+    		    }
     		}
     	}
     	
@@ -177,11 +173,13 @@ public class HashEntity {
      * @param pNode the node id representing the physical node that should be removed
      */
     public synchronized void removeNode(ByteString pNode) {
+        byte[] pNodeBytes = pNode.toByteArray();
         for(int i = 0; i < numVNodes; i++) {
-            long hash = hashFunction.hash((pNode + "" + i).getBytes());
+            long hash = hashFunction.hash(VirtualNode.getKey(pNodeBytes, i));
             VirtualNode vnode = ring.get(hash);
             if (vnode != null) {
                 if(vnode.isVirtualNodeOf(pNode)) {
+                    System.out.println(String.format("[INFO]: removed hash: %s", Long.toUnsignedString(hash)));
                     ring.remove(hash);
                 }
             }

@@ -1,21 +1,22 @@
 package com.g8A.CPEN431.A7.server;
 
-import java.io.IOException;
-import java.util.List;
+import java.net.Inet4Address;
 import java.util.Set;
 
 import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.protocol.Protocol;
+import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.KeyValueStore.ValuePair;
+import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A7.server.distribution.HashEntity;
+import com.g8A.CPEN431.A7.server.distribution.NodeTable;
 import com.g8A.CPEN431.A7.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 
 public class MigrateKVThread extends Thread {
-	private List<long[]> mAffectedRanges;
 	private AddressHolder mToAddress;
 	private int NUM_OF_PUTS = 5;
 	private int RETRY_INTERVAL = 20;
@@ -25,8 +26,7 @@ public class MigrateKVThread extends Thread {
 	 * @param affectedRanges
 	 * @param toAddress
 	 */
-    public MigrateKVThread(List<long[]> affectedRanges, AddressHolder toAddress) {
-    	mAffectedRanges = affectedRanges;
+    public MigrateKVThread(AddressHolder toAddress) {
     	mToAddress = toAddress;
     }
 
@@ -37,14 +37,24 @@ public class MigrateKVThread extends Thread {
         	ValuePair vPair;
         	int tries = 0;
     
-        	byte[] maxDataBuf;
+        	byte[] dataBuf;
             NetworkMessage message;
             KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
     
         	
             boolean keySent;
+            int nodeId;
+            int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
+            
+            KVClient kvClient = Server.getInstance().getKVClient();
+            Inet4Address selfAddress;
+            try {
+                selfAddress = (Inet4Address) NodeTable.getInstance().getSelfAddressHolder().address;
+            } catch (Exception e) {
+                selfAddress = (Inet4Address) Inet4Address.getLoopbackAddress();
+            }
         	for(ByteString key : keySet) {
-            	long vIndex = hashEntity.getHashValue(key);
+        	    nodeId = hashEntity.getKVNodeId(key);
             	
             	if (tries == NUM_OF_PUTS) {
             		tries = 0;
@@ -56,44 +66,39 @@ public class MigrateKVThread extends Thread {
             	} else {
             		tries++;
             	}
-                
-            	KVClient kvClient = Server.getInstance().getKVClient();
-            	for(long[] range : mAffectedRanges) {
-            		if(vIndex >= range[0] && vIndex <= range[1]) {
-            			// send put request to new node
-            			vPair = KeyValueStore.getInstance().get(key);
-            			
-            			maxDataBuf = kvReqBuilder.setCommand(Protocol.PUT)
-            					.setKey(key)        					
-                                .setValue(vPair.value)
-                                .setVersion(vPair.version)
-                                .build()
-                                .toByteArray();
-            			
-            	        keySent = false;
-            	        while (!keySent) {
-                			try {
-        	                    message = NetworkMessage
-        	                            .contructMessage(maxDataBuf);
-        	                    message.setAddressAndPort(mToAddress.address, mToAddress.port);
-        	                    kvClient.send(message, null);
-        	                    keySent = true;
-        	                    KeyValueStore.getInstance().remove(key);
-                			} catch (IllegalStateException e) {
-                                try {
-                                    Thread.sleep(RETRY_INTERVAL);
-                                } catch (InterruptedException e1) {
-                                    // Ignored
-                                }
-                			} catch (IOException e) {
-                			    keySent = true;
-                				System.err.println("[WARNING]: Protobuf is incorrect format, this should not happen");
-                			}
-            	        }
-            		}
+                if (nodeId != selfNodeId) {
+        			// send put request to new node
+        		    System.out.println(String.format("[DEBUG]: Copying key: %s", Util.getHexString(key.toByteArray())));
+        			vPair = KeyValueStore.getInstance().get(key);
+        			
+        			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
+        					.setKey(key)        					
+                            .setValue(vPair.value)
+                            .setVersion(vPair.version)
+                            .build()
+                            .toByteArray();
+        			
+        	        keySent = false;
+        	        while (!keySent) {
+            			try {
+    	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, mToAddress.port));
+    	                    message.setPayload(dataBuf);
+    	                    message.setAddressAndPort(mToAddress.address, mToAddress.port);
+    	                    kvClient.send(message, null);
+    	                    keySent = true;
+    	                    KeyValueStore.getInstance().remove(key);
+            			} catch (IllegalStateException e) {
+                            try {
+                                Thread.sleep(RETRY_INTERVAL);
+                            } catch (InterruptedException e1) {
+                                // Ignored
+                            }
+            			}
+        	        }
             	}
             }
         } finally {
+            System.out.println("[DEBUG]: Migration ended!");
             MessageConsumer.stopMigration();
         }
     }

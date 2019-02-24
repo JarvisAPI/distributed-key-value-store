@@ -6,11 +6,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
 import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.protocol.Protocol;
+import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.MessageCache.CacheEntry;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A7.server.distribution.HashEntity;
@@ -32,7 +32,7 @@ public class MessageConsumer extends Thread {
     private KVClient mKVClient;
     private int mNodeId;
     private static volatile boolean mIsMigrating;
-    private static volatile List<long[]> mAffectedRanges;
+    private static volatile int mJoiningNodeId;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
@@ -50,7 +50,7 @@ public class MessageConsumer extends Thread {
         mKVClient = kvClient;
         mNodeId = nodeId;
         mIsMigrating = false;
-        mAffectedRanges = null;
+        mJoiningNodeId = -1;
     }
 
     @Override
@@ -148,6 +148,7 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                             else {
+                                System.out.println(String.format("[INFO]: Putting key: %s", Util.getHexString(key.toByteArray())));
                                 mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                                 dataBytes = SUCCESS_BYTES;
                                 cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
@@ -160,13 +161,13 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_KEY;
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
-                        } else if (mIsMigrating && MembershipService.isKeyAffected(key, mAffectedRanges)){
-                        	sendOverloadMessage(message, kvResBuilder, packet);
-                        	// message overload because of migration, move on
-                        	continue;
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
+                                if (mIsMigrating && mJoiningNodeId == nodeId) {
+                                    sendOverloadMessage(message, kvResBuilder, packet);
+                                    continue;
+                                }
                                 routeToNode(message, nodeId);
                                 // message being processed by other node, move on
                                 continue;
@@ -193,13 +194,13 @@ public class MessageConsumer extends Thread {
                             errCode = Protocol.ERR_INVALID_KEY;
                         } else if (!value.isEmpty()) {
                             errCode = Protocol.ERR_INVALID_VAL;
-                        } else if (mIsMigrating && MembershipService.isKeyAffected(key, mAffectedRanges)){
-                            sendOverloadMessage(message, kvResBuilder, packet);
-                            // message overload because of migration, move on
-                            continue;
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
+                                if (mIsMigrating && mJoiningNodeId == nodeId) {
+                                    sendOverloadMessage(message, kvResBuilder, packet);
+                                    continue;
+                                }
                                 routeToNode(message, nodeId);
                                 // message being processed by other node, move on
                                 continue;
@@ -329,14 +330,14 @@ public class MessageConsumer extends Thread {
         mSocket.send(packet);
     }
     
-    public static synchronized void startMigration(List<long[]> affectedRanges, AddressHolder toAddress) {
+    public static synchronized void startMigration(int joiningNodeId) {
     	mIsMigrating = true;
-    	mAffectedRanges = affectedRanges;
+    	mJoiningNodeId = joiningNodeId;
     }
     
     public static synchronized void stopMigration() {
     	mIsMigrating = false;
-    	mAffectedRanges = null;
+    	mJoiningNodeId = -1;
     }
     
     public static boolean isMigrating() {
