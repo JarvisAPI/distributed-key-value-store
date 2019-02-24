@@ -31,8 +31,8 @@ public class MessageConsumer extends Thread {
     private RouteStrategy mRouteStrat;
     private KVClient mKVClient;
     private int mNodeId;
-    private static boolean mIsMigrating;
-    private static List<long[]> mAffectedRanges;
+    private static volatile boolean mIsMigrating;
+    private static volatile List<long[]> mAffectedRanges;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
@@ -337,5 +337,9 @@ public class MessageConsumer extends Thread {
     public static synchronized void stopMigration() {
     	mIsMigrating = false;
     	mAffectedRanges = null;
+    }
+    
+    public static boolean isMigrating() {
+        return mIsMigrating;
     }
 }

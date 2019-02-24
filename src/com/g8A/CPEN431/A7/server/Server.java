@@ -135,6 +135,8 @@ public class Server {
         final String COMMAND_MAX_RECEIVE_QUEUE = "--max-receive-queue-entry-limit";
         final String COMMAND_NODE_LIST = "--node-list";
         final String COMMAND_MAX_KV_CLIENT_QUEUE_ENTRIES = "--max-kvclient-queue-entries";
+        // The number of virtual nodes to give to this node and the number of virtual nodes
+        // that this node expects for every other node.
         final String COMMAND_NUM_VNODES = "--num-vnodes";
         final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
         

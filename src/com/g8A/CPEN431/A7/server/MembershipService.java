@@ -26,7 +26,8 @@ public class MembershipService {
 	
     /**
      * When a node joins adds the node to the hash ring + if necessary
-     * begin copying keys over, via PUT requests.
+     * begin copying keys over, via PUT requests. This method should only ever be
+     * called by one thread.
      * @param joinedNode node that joined.
      */
     public static void OnNodeJoin(AddressHolder joinedNode) {
@@ -38,16 +39,24 @@ public class MembershipService {
     	
     	ByteString hostNameAndPort = Util.concatHostnameAndPort(joinedNode.hostname, joinedNode.port);   
         
+        Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
+        
+        if (affectedNodes.containsKey(localHostNameAndPort) && MessageConsumer.isMigrating()) {
+            // Need to migrate but there is already a migrating thread, so best to wait for it
+            // to finish and try again later.
+            return;
+        }
+        
         // add new node to hash ring so that now the requests can be routed correctly.
         int nodeId = HashEntity.getInstance().addNode(hostNameAndPort);
     	DirectRoute.getInstance().addNode(nodeId, joinedNode);
         System.out.println(String.format("NodeId: %d, hostname: %s, port: %d",
                 nodeId, joinedNode.hostname, joinedNode.port));
     	
-    	Map<ByteString, List<long[]>> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
-    	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
     	if(affectedNodes.containsKey(localHostNameAndPort)) {
+    	    System.out.println("[DEBUG]: Starting migration thread");
+    	    
     	    List<long[]> affectedRanges = affectedNodes.get(localHostNameAndPort);
     		MessageConsumer.startMigration(affectedRanges, joinedNode); // sets flag in MessageConsumer to bounce off get/put requests
     		
