@@ -26,11 +26,13 @@ public class NodeTable {
     private List<Integer> mCurrentAliveNodes; 
     private String mSelfHostname;
     
-    private NodeTable() throws UnknownHostException {
+    private NodeTable(String selfHostname) throws UnknownHostException {
         mCurrentAliveNodes = new ArrayList<>();
-        mSelfHostname = InetAddress.getLocalHost().getHostName();
-        if (mSelfHostname.endsWith(".local")) {
-            mSelfHostname = "127.0.0.1";
+        if (selfHostname == null) {
+            mSelfHostname = InetAddress.getLocalHost().getHostName();
+        }
+        else {
+            mSelfHostname = selfHostname;
         }
         System.out.println("[INFO]: Self Hostname: " + mSelfHostname);
         if (nodeHostnames.length == 0) {
@@ -56,6 +58,7 @@ public class NodeTable {
         
         // Initially assume all other nodes are alive.
         int selfNodeIdx = getSelfNodeIdx();
+        System.out.println("[INFO]: Self Node Idx: " + selfNodeIdx);
         for (int i = 0; i < ipaddrs.length; i++) {
             if (i != selfNodeIdx) {
                 mCurrentAliveNodes.add(i);
@@ -178,9 +181,9 @@ public class NodeTable {
         return -1;
     }
     
-    public static NodeTable makeInstance() throws UnknownHostException {
-        if (mNodeTable == null) {
-            mNodeTable = new NodeTable();
+    public static NodeTable makeInstance(boolean isLocal) throws UnknownHostException {
+        if (mNodeTable == null) {  
+            mNodeTable = new NodeTable(isLocal ? "127.0.0.1" : null);
         }
         return mNodeTable;
     }

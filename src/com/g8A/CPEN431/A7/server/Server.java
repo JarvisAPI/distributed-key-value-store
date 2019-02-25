@@ -49,7 +49,7 @@ public class Server {
     }
     
     private void startEpidemicProtocol() throws SocketException {
-        new Thread(new EpidemicProtocol()).start();
+        new Thread(EpidemicProtocol.makeInstance()).start();
     }
 
     private void runServer() throws SocketException {
@@ -139,7 +139,9 @@ public class Server {
         // that this node expects for every other node.
         final String COMMAND_NUM_VNODES = "--num-vnodes";
         final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
-        
+        final String COMMAND_EPIDEMIC_PUSH_INTERVAL = "--epidemic-push-interval";
+        final String COMMAND_EPIDEMIC_NODE_FAILED_MARK = "--epidemic-node-failed-mark";
+        final String COMMAND_LOCAL_TEST = "--local-test";
         try {
             int port = 8082;
             int numProducers = 1;
@@ -150,6 +152,7 @@ public class Server {
             boolean isSingleThread = false;
             int maxKvClientQueueEntries = 1024;
             int numVNodes = 1;
+            boolean isLocal = false;
             for (int i = 0; i < args.length; i+=2) {
                 try {
                     switch(args[i]) {
@@ -187,6 +190,16 @@ public class Server {
                     case COMMAND_EPIDEMIC_PORT:
                         EpidemicProtocol.EPIDEMIC_SRC_PORT = Integer.parseInt(args[i+1]);
                         break;
+                    case COMMAND_EPIDEMIC_PUSH_INTERVAL:
+                        EpidemicProtocol.MIN_PUSH_INTERVAL = Integer.parseInt(args[i+1]);
+                        break;
+                    case COMMAND_EPIDEMIC_NODE_FAILED_MARK:
+                        EpidemicProtocol.NODE_HAS_FAILED_MARK = Integer.parseInt(args[i+1]);
+                        break;
+                    case COMMAND_LOCAL_TEST:
+                        i -= 1;
+                        isLocal = true;
+                        break;
                     default:
                         System.out.println("Unknown option: " + args[i]);  
                     }
@@ -210,6 +223,11 @@ public class Server {
             System.out.println("Max KV client queue entries: " + maxKvClientQueueEntries);
             System.out.println("Number of virtual nodes: " + numVNodes);
             System.out.println("Epidemic port: " + EpidemicProtocol.EPIDEMIC_SRC_PORT);
+            System.out.println("Epidemic push interval: " + EpidemicProtocol.MIN_PUSH_INTERVAL + "ms");
+            System.out.println("Epidemic node failed mark: " + EpidemicProtocol.NODE_HAS_FAILED_MARK);
+            if (isLocal) {
+                System.out.println("***Running as local test***");
+            }
             
             maxKeyValueStoreSize *= 1024*1024;
             maxCacheSize *= 1024*1024;
@@ -221,7 +239,7 @@ public class Server {
             HashEntity.setNumVNodes(numVNodes);
             
             Server.makeInstance(port);
-            NodeTable.makeInstance();
+            NodeTable.makeInstance(isLocal);
             Server server = Server.getInstance();
             if (!isSingleThread) {
                 Server.SIZE_MAX_QUEUE = maxReceiveQueueEntryLimit;

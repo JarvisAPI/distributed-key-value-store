@@ -1,5 +1,7 @@
 package com.g8A.CPEN431.A7;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -216,6 +218,33 @@ public class A7TestClient {
     
     public static void main(String[] args) throws Exception {
         A7TestClient client = new A7TestClient();
+        if (args.length == 2) {
+            if (args[0].equals("--shutdown-all")) {
+                BufferedReader reader = null;
+                try {
+                    reader = new BufferedReader(new FileReader(args[1]));
+                    String line = reader.readLine();
+                    int counter;
+                    int tryCount = 3;
+                    while (line != null) {
+                        counter = 0;
+                        String[] hostAndPort = line.split(":");
+                        System.out.println("Shutting down: " + line);
+                        while (counter < tryCount) {
+                            client.shutdown(InetAddress.getByName(hostAndPort[0]), Integer.parseInt(hostAndPort[1]));
+                            Thread.sleep(50);
+                            counter++;
+                        }
+                        line = reader.readLine();
+                    }
+                } finally {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                }
+            }
+            return;
+        }
         String[] hostAndPort = {
                 "127.0.0.1:50111",
                 "127.0.0.1:50112"

@@ -13,6 +13,7 @@ import com.g8A.CPEN431.A7.protocol.Protocol;
 import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.MessageCache.CacheEntry;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
+import com.g8A.CPEN431.A7.server.distribution.EpidemicProtocol;
 import com.g8A.CPEN431.A7.server.distribution.HashEntity;
 import com.g8A.CPEN431.A7.server.distribution.RouteStrategy;
 import com.g8A.CPEN431.A7.server.distribution.RouteStrategy.AddressHolder;
@@ -247,7 +248,7 @@ public class MessageConsumer extends Thread {
                     case Protocol.GET_MEMBERSHIP_COUNT:
                         dataBytes = kvResBuilder
                         .setErrCode(Protocol.ERR_SUCCESS)
-                        .setMembershipCount(1)
+                        .setMembershipCount(EpidemicProtocol.getInstance().getAliveMembers())
                         .build()
                         .toByteArray();
                         break;

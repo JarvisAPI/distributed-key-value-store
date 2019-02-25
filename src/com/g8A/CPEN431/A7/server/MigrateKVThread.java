@@ -68,7 +68,6 @@ public class MigrateKVThread extends Thread {
             	}
                 if (nodeId != selfNodeId) {
         			// send put request to new node
-        		    System.out.println(String.format("[DEBUG]: Copying key: %s", Util.getHexString(key.toByteArray())));
         			vPair = KeyValueStore.getInstance().get(key);
         			
         			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
@@ -98,7 +97,6 @@ public class MigrateKVThread extends Thread {
             	}
             }
         } finally {
-            System.out.println("[DEBUG]: Migration ended!");
             MessageConsumer.stopMigration();
         }
     }

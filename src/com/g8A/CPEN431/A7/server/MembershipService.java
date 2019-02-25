@@ -29,8 +29,10 @@ public class MembershipService {
      * begin copying keys over, via PUT requests. This method should only ever be
      * called by one thread.
      * @param joinedNode node that joined.
+     * @return true if migration process started, false if migration should be halting due to
+     *   resource constraints.
      */
-    public static void OnNodeJoin(AddressHolder joinedNode) {
+    public static boolean OnNodeJoin(AddressHolder joinedNode) {
     	
     	AddressHolder localAddress = DirectRoute.getInstance().getLocalAddress();
     	
@@ -41,26 +43,19 @@ public class MembershipService {
         
         Set<ByteString> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
         
-        System.out.println(String.format("[INFO]: Affected node size: %d", affectedNodes.size()));
-        
         if (affectedNodes.contains(localHostNameAndPort) && MessageConsumer.isMigrating()) {
-            System.out.println("[INFO]: Already migrating, waiting for completion before furthur migration");
+            System.out.println("[INFO]: Already migrating, waiting for completion before further migration");
             // Need to migrate but there is already a migrating thread, so best to wait for it
             // to finish and try again later.
-            return;
+            return false;
         }
         
         // add new node to hash ring so that now the requests can be routed correctly.
         int nodeId = HashEntity.getInstance().addNode(hostNameAndPort);
     	DirectRoute.getInstance().addNode(nodeId, joinedNode);
-        System.out.println(String.format("NodeId: %d, hostname: %s, port: %d",
-                nodeId, joinedNode.hostname, joinedNode.port));
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
-        System.out.println(String.format("localHostNameAndPort: %s", Util.getHexString(localHostNameAndPort.toByteArray())));
-    	if(affectedNodes.contains(localHostNameAndPort)) {
-    	    System.out.println("[DEBUG]: Starting migration thread");
-    	    
+    	if(affectedNodes.contains(localHostNameAndPort)) {    	    
     		MessageConsumer.startMigration(nodeId); // sets flag in MessageConsumer to bounce off get/put requests
     		
     		// Migration thread performs the following:
@@ -68,6 +63,7 @@ public class MembershipService {
             // delete nodes from old node
     	    new MigrateKVThread(joinedNode).start();
     	}
+    	return true;
     }
     
     /**

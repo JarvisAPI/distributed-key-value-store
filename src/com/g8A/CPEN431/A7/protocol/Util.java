@@ -107,13 +107,13 @@ public class Util {
      * @return
      */
     public static int intFromBytes(byte[] data, int start) {
-        int num = data[start++];
+        int num = data[start++] & 0xff;
         num = num << 8;
-        num |= data[start++];
+        num |= (data[start++] & 0xff);
         num = num << 8;
-        num |= data[start++];
+        num |= (data[start++] & 0xff);
         num = num << 8;
-        num |= data[start++];
+        num |= (data[start++] & 0xff);
         return num;
     }
     
@@ -124,21 +124,12 @@ public class Util {
      * @return
      */
     public static long longFromBytes(byte[] data, int start) {
-        long num = data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
-        num = num << 8;
-        num |= data[start++];
+        int mostSignificant = intFromBytes(data, start);
+        int leastSignificant = intFromBytes(data, start + 4);
+        
+        long num = mostSignificant;
+        num = num << 32;
+        num |= leastSignificant;
         return num;
     }
 }
