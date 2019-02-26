@@ -28,11 +28,11 @@ public class MembershipService {
      * When a node joins adds the node to the hash ring + if necessary
      * begin copying keys over, via PUT requests. This method should only ever be
      * called by one thread.
-     * @param joinedNode node that joined.
+     * @param nodeIdx the node index that joined.
      * @return true if migration process started, false if migration should be halting due to
      *   resource constraints.
      */
-    public static boolean OnNodeJoin(AddressHolder joinedNode) {
+    public static void OnNodeJoin(AddressHolder joinedNode) {
     	
     	AddressHolder localAddress = DirectRoute.getInstance().getLocalAddress();
     	
@@ -43,27 +43,14 @@ public class MembershipService {
         
         Set<ByteString> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
         
-        if (affectedNodes.contains(localHostNameAndPort) && MessageConsumer.isMigrating()) {
-            System.out.println("[INFO]: Already migrating, waiting for completion before further migration");
-            // Need to migrate but there is already a migrating thread, so best to wait for it
-            // to finish and try again later.
-            return false;
-        }
-        
         // add new node to hash ring so that now the requests can be routed correctly.
         int nodeId = HashEntity.getInstance().addNode(hostNameAndPort);
     	DirectRoute.getInstance().addNode(nodeId, joinedNode);
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
-    	if(affectedNodes.contains(localHostNameAndPort)) {    	    
-    		MessageConsumer.startMigration(nodeId); // sets flag in MessageConsumer to bounce off get/put requests
-    		
-    		// Migration thread performs the following:
-            // copy relevant keys over to the new node
-            // delete nodes from old node
-    	    new MigrateKVThread(joinedNode).start();
+    	if(affectedNodes.contains(localHostNameAndPort)) {    
+    	    MigrateKVThread.getInstance().migrate(nodeId);
     	}
-    	return true;
     }
     
     /**

@@ -41,7 +41,7 @@ public class EpidemicProtocol implements Runnable {
     
     private static EpidemicProtocol mEpidemicProtocol;
     
-    private SystemImage[] mSysImages;
+    private volatile SystemImage[] mSysImages;
     private volatile int mSysImageSize; // The number of valid entries in mSysImages
     private DatagramSocket mSocket;
     
@@ -61,7 +61,7 @@ public class EpidemicProtocol implements Runnable {
         mSysImages[mNodeIdx] = new SystemImage();
         mTimestampCounter = 0;
         mSysImages[mNodeIdx].timestamp = mTimestampCounter;
-        mMsgTimestampCounter = mNodeIdx * 1000000L;
+        mMsgTimestampCounter = mNodeIdx;
         mSysImages[mNodeIdx].lastMsgTimestamp = mMsgTimestampCounter;
         mSysImageSize++;
     }
@@ -194,11 +194,10 @@ public class EpidemicProtocol implements Runnable {
                                                 mSysImages[nodeIdx].timestamp = mTimestampCounter;
                                                 mSysImages[nodeIdx].failedRoundCounter = 0;
                                                 
-                                                if (MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx])) {
-                                                    mSysImageSize++;
-                                                    NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                    System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
-                                                }
+                                                mSysImageSize++;
+                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                                NodeTable.getInstance().addAliveNode(nodeIdx);
+                                                System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
                                             }
                                             else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
                                                 // Node update
@@ -207,11 +206,10 @@ public class EpidemicProtocol implements Runnable {
                                                 if (mSysImages[nodeIdx].failedRoundCounter > 0) {
                                                     // A failed node should rejoin
                                                     mSysImages[nodeIdx].failedRoundCounter = 0;
-                                                    if (MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx])) {
-                                                        mSysImageSize++;
-                                                        NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                        System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
-                                                    }
+                                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                                    mSysImageSize++;
+                                                    NodeTable.getInstance().addAliveNode(nodeIdx);
+                                                    System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
                                                 }
                                             }
                                         }

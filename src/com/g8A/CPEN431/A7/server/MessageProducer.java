@@ -35,9 +35,7 @@ public class MessageProducer extends Thread {
                         .contructMessage(Arrays.copyOf(packet.getData(), packet.getLength()));
                 message.setAddressAndPort(packet.getAddress(), packet.getPort());
                 
-                try {
-                    mBlockingQueue.add(message);
-                } catch (IllegalStateException e) {
+                if (!mBlockingQueue.offer(message)) {
                     kvResBuilder.clear();
                     message.setPayload(kvResBuilder
                             .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
@@ -50,7 +48,7 @@ public class MessageProducer extends Thread {
                     replyPacket.setPort(packet.getPort());
                     mSocket.send(replyPacket);
                 }
-            } catch (IOException e) {
+            } catch (IllegalStateException | IOException e) {
                 e.printStackTrace();
             }
         }

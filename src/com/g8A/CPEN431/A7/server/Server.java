@@ -238,6 +238,7 @@ public class Server {
             
             HashEntity.setNumVNodes(numVNodes);
             
+            new Thread(MigrateKVThread.getInstance()).start();
             Server.makeInstance(port);
             NodeTable.makeInstance(isLocal);
             Server server = Server.getInstance();

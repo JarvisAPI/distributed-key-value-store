@@ -32,8 +32,6 @@ public class MessageConsumer extends Thread {
     private RouteStrategy mRouteStrat;
     private KVClient mKVClient;
     private int mNodeId;
-    private static volatile boolean mIsMigrating;
-    private static volatile int mJoiningNodeId;
     
     private static final int CACHE_META_COMPLETE_RESPONSE = 0;
     private static final int CACHE_META_SUCCESS_BYTES = 1;
@@ -50,8 +48,6 @@ public class MessageConsumer extends Thread {
         mRouteStrat = DirectRoute.getInstance();
         mKVClient = kvClient;
         mNodeId = nodeId;
-        mIsMigrating = false;
-        mJoiningNodeId = -1;
     }
 
     @Override
@@ -165,7 +161,7 @@ public class MessageConsumer extends Thread {
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
-                                if (mIsMigrating && mJoiningNodeId == nodeId) {
+                                if (MigrateKVThread.getInstance().isMigrating(nodeId)) {
                                     sendOverloadMessage(message, kvResBuilder, packet);
                                     continue;
                                 }
@@ -198,7 +194,7 @@ public class MessageConsumer extends Thread {
                         } else {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
-                                if (mIsMigrating && mJoiningNodeId == nodeId) {
+                                if (MigrateKVThread.getInstance().isMigrating(nodeId)) {
                                     sendOverloadMessage(message, kvResBuilder, packet);
                                     continue;
                                 }
@@ -221,7 +217,7 @@ public class MessageConsumer extends Thread {
                         System.exit(0);
                         break;
                     case Protocol.WIPEOUT:
-                        if (mIsMigrating){
+                        if (MigrateKVThread.getInstance().isMigrating()){
                             sendOverloadMessage(message, kvResBuilder, packet);
                             // message overload because of migration, move on
                             continue;
@@ -329,19 +325,5 @@ public class MessageConsumer extends Thread {
         packet.setAddress(message.getAddress());
         packet.setPort(message.getPort());
         mSocket.send(packet);
-    }
-    
-    public static synchronized void startMigration(int joiningNodeId) {
-    	mIsMigrating = true;
-    	mJoiningNodeId = joiningNodeId;
-    }
-    
-    public static synchronized void stopMigration() {
-    	mIsMigrating = false;
-    	mJoiningNodeId = -1;
-    }
-    
-    public static boolean isMigrating() {
-        return mIsMigrating;
     }
 }
