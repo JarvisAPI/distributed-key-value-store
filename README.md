@@ -2,11 +2,13 @@
 
 Group ID: 8A
 
-Verification Code: 2D271EB546D5A19B28117FBFAFEC7BC7
+Verification Code: 96C600CBD1C9B98D805B63815E8B75D1
 
-Used Run Command: java -Xmx64m -jar A6.jar --port 50111 --max-cache-size 12 --max-kvstore-size 34 --single-thread --max-kvclient-queue-entries 8192 --node-list servers.txt
+Used Run Command: java -Xmx64m -jar A7.jar --port 50111  --max-cache-size 6 --max-kvstore-size 36 --num-consumers 1 --num-producers 1 --num-vnodes 10 --node-list servers.txt
 
-Brief Description:
+Used Run Command (AWS): java -Xmx64m -jar A7.jar --port 43100  --max-cache-size 8 --max-kvstore-size 36 --num-consumers 2 --num-producers 1 --num-vnodes 1
+
+Brief Description: SHUTDOWN command line: MessageConsumer.java:215
 
 ---
 ## How to Run

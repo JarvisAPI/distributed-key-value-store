@@ -100,7 +100,6 @@ public class Server {
             };
         }
         int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
-        System.out.println("Self nodeId: " + selfNodeId);
 
         DatagramSocket socket = new DatagramSocket();
         MessageConsumer cons = new MessageConsumer(socket, queue, mKVClient, selfNodeId);
