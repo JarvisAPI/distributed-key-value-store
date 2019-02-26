@@ -143,7 +143,7 @@ public class EpidemicProtocol implements Runnable {
                                     AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                                     NodeTable.getInstance().removeAliveNode(i);
                                     mSysImageSize--;
-                                    System.err.println(String.format("[INFO]: Node idx: %d leaving", i));
+                                    System.out.println(String.format("[INFO]: Node idx: %d leaving", i));
                                     MembershipService.OnNodeLeft(failedNode);
                                 }
                                 mSysImages[i].failedRoundCounter++;
