@@ -4,7 +4,7 @@ pl1.eng.monash.edu.au:50111
 pl1.rcc.uottawa.ca:50111
 planetlab-02.bu.edu:50111
 planetlab2.pop-pa.rnp.br:50111
-pl2.cs.montana.edu:50111
+pl2.cs.montana.edu:50112
 planetlab-01.bu.edu:50111
 planetlab3.rutgers.edu:50111
 planetlab2.citadel.edu:50111

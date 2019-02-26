@@ -10,7 +10,6 @@ import java.net.UnknownHostException;
 import com.g8A.CPEN431.A7.client.KVClient;
 import com.g8A.CPEN431.A7.protocol.NetworkMessage;
 import com.g8A.CPEN431.A7.protocol.Protocol;
-import com.g8A.CPEN431.A7.protocol.Util;
 import com.g8A.CPEN431.A7.server.MessageCache.CacheEntry;
 import com.g8A.CPEN431.A7.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A7.server.distribution.EpidemicProtocol;
@@ -145,7 +144,6 @@ public class MessageConsumer extends Thread {
                                 continue;
                             }
                             else {
-                                System.out.println(String.format("[INFO]: Putting key: %s", Util.getHexString(key.toByteArray())));
                                 mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                                 dataBytes = SUCCESS_BYTES;
                                 cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;

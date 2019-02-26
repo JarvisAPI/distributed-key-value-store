@@ -11,7 +11,7 @@ Brief Description:
 ---
 ## How to Run
 `
-java -Xmx64m -jar A4.jar --port 8082 --num-producers 1 --num-consumers 1 --max-kvstore-size 40 --max-cache-size 8
+java -Xmx64m -jar A7.jar --port 8082 --num-producers 1 --num-consumers 1 --max-kvstore-size 40 --max-cache-size 8
 `
 
 This starts the server on port 8082, if no port is supplied the server defaults to listen on 8082.

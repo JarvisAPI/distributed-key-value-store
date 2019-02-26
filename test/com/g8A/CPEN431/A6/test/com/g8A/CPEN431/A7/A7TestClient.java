@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
+import ca.NetSysLab.ProtocolBuffers.KeyValueResponse;
 import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 
 public class A7TestClient {
@@ -169,6 +171,29 @@ public class A7TestClient {
         return ByteString.copyFrom(randKey);
     }
     
+    private void wipeout(InetAddress address, int port) throws Exception {
+        mSocket.setSoTimeout(5000);
+        KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
+                .newBuilder()
+                .setCommand(Protocol.WIPEOUT);
+        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), serverPort));
+        msg.setAddressAndPort(address, port);
+        msg.setPayload(kvBuilder.build().toByteArray());
+        sendPacket(msg);
+        
+        try {
+            mSocket.receive(mReceivePacket);
+            NetworkMessage.setMessage(msg, Arrays.copyOf(mReceivePacket.getData(),
+                    mReceivePacket.getLength()));
+            
+            KeyValueResponse.KVResponse builder = KVResponse.parseFrom(msg.getPayload());
+            int errCode = builder.getErrCode();
+            System.out.println("WIPEOUT errCode: " + errCode);
+        } catch(SocketTimeoutException e) {
+            System.out.println("WIPEOUT request timeout");
+        }
+    }
+    
     private NetworkMessage generateTestPut(int valueSize, ByteString key, Entry entry) {
         NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), serverPort));
         
@@ -219,7 +244,9 @@ public class A7TestClient {
     public static void main(String[] args) throws Exception {
         A7TestClient client = new A7TestClient();
         if (args.length == 2) {
-            if (args[0].equals("--shutdown-all")) {
+            switch (args[0]) {
+            case "--wipeout-all":
+            case "--shutdown-all":
                 BufferedReader reader = null;
                 try {
                     reader = new BufferedReader(new FileReader(args[1]));
@@ -229,11 +256,24 @@ public class A7TestClient {
                     while (line != null) {
                         counter = 0;
                         String[] hostAndPort = line.split(":");
-                        System.out.println("Shutting down: " + line);
-                        while (counter < tryCount) {
-                            client.shutdown(InetAddress.getByName(hostAndPort[0]), Integer.parseInt(hostAndPort[1]));
-                            Thread.sleep(50);
-                            counter++;
+                        String prefix = "Shutting down: ";
+                        boolean isWipeout = false;
+                        if (args[0].equals("--wipeout-all")) {
+                            prefix = "Wipeing put: ";
+                            isWipeout = true;
+                        }
+                        InetAddress address = InetAddress.getByName(hostAndPort[0]);
+                        int port = Integer.parseInt(hostAndPort[1]);
+                        System.out.println(prefix + line);
+                        if (isWipeout) {
+                            client.wipeout(address, port);
+                        }
+                        else {
+                            while (counter < tryCount) {
+                                client.shutdown(address, port);
+                                Thread.sleep(50);
+                                counter++;
+                            }
                         }
                         line = reader.readLine();
                     }
