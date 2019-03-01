@@ -2,11 +2,13 @@ package com.g8A.CPEN431.A8.protocol;
 
 import java.net.Inet4Address;
 import java.util.Random;
+import java.util.Timer;
 
 import com.google.protobuf.ByteString;
 
 public class Util {
     public static final Random rand = new Random();
+    public static final Timer timer = new Timer(true);
     
     /**
      * Create a network message id used for transmission.

@@ -37,7 +37,7 @@ public class NodeTable {
         System.out.println("[INFO]: Self Hostname: " + mSelfHostname);
         if (nodeHostnames.length == 0) {
             System.out.println("[INFO]: No other nodes specified, using default single node setup");
-            nodeHostnames = new String[] {mSelfHostname + ":" + Server.getInstance().PORT};
+            nodeHostnames = new String[] {mSelfHostname + ":" + Server.PORT};
         }
         Arrays.sort(nodeHostnames);
         ipaddrs = new AddressHolder[nodeHostnames.length];
@@ -151,12 +151,12 @@ public class NodeTable {
     
     public AddressHolder getSelfAddressHolder() {
         for (int i = 0; i < ipaddrs.length; i++) {
-            String hostname = ipaddrs[i].address.getHostName();
+            String hostname = ipaddrs[i].hostname;
             if (hostname.equals("localhost")) {
                 hostname = "127.0.0.1";
             }
             if (mSelfHostname.equals(hostname) &&
-                Server.getInstance().PORT == ipaddrs[i].port) {
+                Server.PORT == ipaddrs[i].port) {
                 return ipaddrs[i];
             }
         }
@@ -169,12 +169,12 @@ public class NodeTable {
      */
     public int getSelfNodeIdx() {
         for (int i = 0; i < ipaddrs.length; i++) {
-            String hostname = ipaddrs[i].address.getHostName();
+            String hostname = ipaddrs[i].hostname;
             if (hostname.equals("localhost")) {
                 hostname = "127.0.0.1";
             }
             if (mSelfHostname.equals(hostname) &&
-                Server.getInstance().PORT == ipaddrs[i].port) {
+                Server.PORT == ipaddrs[i].port) {
                 return i;
             }
         }

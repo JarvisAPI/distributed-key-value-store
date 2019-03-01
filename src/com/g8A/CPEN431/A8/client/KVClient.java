@@ -11,5 +11,5 @@ public interface KVClient {
      *   sending the request.
      * @throws IllegalStateException if the sending queue is full.
      */
-    public void send(NetworkMessage msg, AddressHolder fromAddress) throws IllegalStateException;
+    public void send(NetworkMessage msg, AddressHolder fromAddress) throws Exception;
 }

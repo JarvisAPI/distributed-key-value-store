@@ -5,7 +5,6 @@ import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import com.g8A.CPEN431.A8.client.KVClient;
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
@@ -57,7 +56,7 @@ public class MessageConsumer extends Thread {
                 .build()
                 .toByteArray();
 
-        NetworkMessage message;
+        NetworkMessage message = new NetworkMessage();
         KeyValueStore.ValuePair vPair;
         byte[] dataBytes;
         int errCode;
@@ -72,7 +71,7 @@ public class MessageConsumer extends Thread {
             try {       
                 dataBytes = null; 
                 errCode = Protocol.ERR_SUCCESS;
-                message = mQueue.take();               
+                mQueue.take(message);               
                 kvResBuilder.clear();
                 cacheMetaInfo = 0;
                 
@@ -301,7 +300,7 @@ public class MessageConsumer extends Thread {
         }
     }
     
-    private void routeToNode(NetworkMessage message, int nodeId) throws UnknownHostException {
+    private void routeToNode(NetworkMessage message, int nodeId) throws Exception {
         kvReqBuilder.setReplyIpAddress(message.getAddress().getHostAddress());
         kvReqBuilder.setReplyPort(message.getPort());
         message.setPayload(kvReqBuilder.build().toByteArray());

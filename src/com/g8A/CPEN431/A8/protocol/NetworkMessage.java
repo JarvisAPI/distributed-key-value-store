@@ -9,12 +9,13 @@ import ca.NetSysLab.ProtocolBuffers.Message;
 
 public class NetworkMessage {
     public static final int ID_SIZE = 16; // in bytes
-    private static final int MAX_PAYLOAD_SIZE = 16 * 1024; // in bytes
+    public static final int MAX_PAYLOAD_SIZE = 16 * 1024; // in bytes
 
     private ByteString mUniqueId;
     private ByteString mPayload;
     private InetAddress mAddress;
     private int mPort;
+    private CRC32 mCrc = new CRC32();
 
     public NetworkMessage() {
     }
@@ -62,7 +63,7 @@ public class NetworkMessage {
         byte[] id = transportMsg.getMessageID().toByteArray();
         byte[] payload = transportMsg.getPayload().toByteArray();
         long checksum = transportMsg.getCheckSum();
-        if (!validateChecksum(id, payload, checksum)) {
+        if (!validateChecksum(new CRC32(), id, payload, checksum)) {
             throw new IOException("Checksum doesn't match");
         }
         NetworkMessage msg = new NetworkMessage(id);
@@ -75,15 +76,15 @@ public class NetworkMessage {
         ByteString id = transportMsg.getMessageID();
         ByteString payload = transportMsg.getPayload();
         long checksum = transportMsg.getCheckSum();
-        if (!validateChecksum(id.toByteArray(), payload.toByteArray(), checksum)) {
+        
+        if (!validateChecksum(msg.mCrc, id.toByteArray(), payload.toByteArray(), checksum)) {
             throw new IOException("Checksum doesn't match");
         }
         msg.mUniqueId = id;
         msg.mPayload = payload;
     }
 
-    private static boolean validateChecksum(byte[] id, byte[] payload, long checksum) {
-        CRC32 crc = new CRC32();
+    private static boolean validateChecksum(CRC32 crc, byte[] id, byte[] payload, long checksum) {
         crc.reset();
         crc.update(id);
         crc.update(payload);

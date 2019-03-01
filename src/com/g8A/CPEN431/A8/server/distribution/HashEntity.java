@@ -36,7 +36,7 @@ public class HashEntity {
         }
 
         /**
-         * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0...2^32-1)
+         * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0...2^64-1)
          * @param entry the byte array to be hashed
          * @return long in the range of the hash circle
          */

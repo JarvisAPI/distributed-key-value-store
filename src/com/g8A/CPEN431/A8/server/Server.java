@@ -24,7 +24,7 @@ public class Server {
     private int mNumConsumers = 1;
    
     private boolean mIsSingleThread = false;
-    public final int PORT;
+    public static int PORT;
     private static Server mServer;
 
     private Server(int port) throws SocketException {
@@ -89,6 +89,13 @@ public class Server {
                     message.setAddressAndPort(packet.getAddress(), packet.getPort());
                     return message;
                 }
+
+                @Override
+                public void take(NetworkMessage message) throws Exception {
+                    mSocket.receive(packet);
+                    NetworkMessage.setMessage(message, Arrays.copyOf(packet.getData(), packet.getLength()));
+                    message.setAddressAndPort(packet.getAddress(), packet.getPort());
+                }
             };
         }
         else {
@@ -96,6 +103,14 @@ public class Server {
                 @Override
                 public NetworkMessage take() throws Exception {
                     return mQueue.take();
+                }
+                
+                @Override
+                public void take(NetworkMessage msg) throws Exception {
+                    NetworkMessage message = mQueue.take();
+                    msg.setPayload(message.getPayload());
+                    msg.setIdString(message.getIdString());
+                    msg.setAddressAndPort(message.getAddress(), message.getPort());
                 }
             };
         }

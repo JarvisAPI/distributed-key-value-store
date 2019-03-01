@@ -23,7 +23,7 @@ public class DirectRoute implements RouteStrategy {
         try {
             NodeTable nodeTable = NodeTable.getInstance();
             String hostname = nodeTable.getSelfHostname();
-            int port = Server.getInstance().PORT;
+            int port = Server.PORT;
             ByteString hostnameAndPort = Util.concatHostnameAndPort(hostname, port);
             mSelfNodeId = HashEntity.getInstance().addNode(hostnameAndPort);
             System.out.println("NodeId: " + mSelfNodeId + ", hostname: " + hostname + ", port: " + port);
