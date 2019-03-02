@@ -1,5 +1,5 @@
 #!/bin/bash
-# Kills all servers started on planet lab nodes
+# Kills all servers started on planet lab nodes in nodes.txt
 # Usage:
 #   "./stop_all.sh"
 

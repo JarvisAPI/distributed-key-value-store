@@ -1,5 +1,7 @@
 #!/bin/bash
 # Performs a grep for java processes on all planet lab nodes in nodes.txt and prints it out in terminal
+# Usage: 
+#   "./grep_java_process.sh"
 
 nodes="$(cat nodes.txt)"
 key=$HOME/.ssh/id_rsa
