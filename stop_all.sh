@@ -1,7 +1,11 @@
 #!/bin/bash
 # Kills all servers started on planet lab nodes in nodes.txt
+# 
 # Usage:
 #   "./stop_all.sh"
+#
+# $KEY should be path of your id_rsa file
+
 
 nodes="$(cat nodes.txt)"
 key=$HOME/.ssh/id_rsa
