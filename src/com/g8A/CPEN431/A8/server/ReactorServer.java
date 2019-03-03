@@ -74,9 +74,11 @@ public final class ReactorServer {
         final String COMMAND_PORT = "--port";
         final String COMMAND_NODE_LIST = "--node-list";
         final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
+        final String COMMAND_IS_LOCAL_TEST = "--local-test";
         
         int threadPoolSize = 2;
         int port = 50111;
+        boolean isLocal = false;
         for (int i = 0; i < args.length; i += 2) {
             switch(args[i]) {
             case COMMAND_THREAD_POOL_SIZE:
@@ -91,6 +93,10 @@ public final class ReactorServer {
                 break;
             case COMMAND_EPIDEMIC_PORT:
                 EpidemicProtocol.EPIDEMIC_SRC_PORT = Integer.parseInt(args[i+1]);
+                break;
+            case COMMAND_IS_LOCAL_TEST:
+                isLocal = true;
+                i -= 1;
                 break;
             default:
                 System.out.println("Unknown option: " + args[i]);    
@@ -108,9 +114,10 @@ public final class ReactorServer {
         msgCacheSize /= (1024 * 1024);
         System.out.println("Max message cache size: " + msgCacheSize + "MB");
         
-        NodeTable.makeInstance(true);
+        NodeTable.makeInstance(isLocal);
         DirectRoute.getInstance();
         
+        new Thread(MigrateKVThread.getInstance()).start();
         new Thread(EpidemicProtocol.makeInstance()).start();
         ReactorServer.makeInstance(port, threadPoolSize).run();
     }
