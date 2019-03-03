@@ -1,1 +1,1 @@
---port 50136 --node-list servers.txt --epidemic-port 50326 --num-producers 1 --num-consumers 10
+--port 50136 --node-list servers.txt --epidemic-port 50326 --thread-pool-size 10
