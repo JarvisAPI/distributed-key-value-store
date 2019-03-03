@@ -252,7 +252,6 @@ public class Server {
             
             HashEntity.setNumVNodes(numVNodes);
             
-            new Thread(MigrateKVThread.getInstance()).start();
             Server.makeInstance(port);
             NodeTable.makeInstance(isLocal);
             Server server = Server.getInstance();
@@ -264,6 +263,7 @@ public class Server {
                 server.setSingleThread(true);
             }
             server.startKVClient();
+            new Thread(MigrateKVThread.makeInstance(server.getKVClient())).start();
             server.startEpidemicProtocol();
             server.runServer();
         } catch (Exception e) {

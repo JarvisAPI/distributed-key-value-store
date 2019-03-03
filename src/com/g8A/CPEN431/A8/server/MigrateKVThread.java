@@ -24,9 +24,11 @@ public class MigrateKVThread implements Runnable {
 	private int RETRY_INTERVAL = 20;
 	private BlockingQueue<Integer> mJoiningNodeIdx;
 	private static MigrateKVThread mMigrateThread;
+	private KVClient mClient;
 
-    private MigrateKVThread() {
+    private MigrateKVThread(KVClient client) {
         mJoiningNodeIdx = new LinkedBlockingQueue<>();
+        mClient = client;
     }
     
     /**
@@ -52,10 +54,14 @@ public class MigrateKVThread implements Runnable {
         return !mJoiningNodeIdx.isEmpty();
     }
     
-    public static MigrateKVThread getInstance() {
+    public static MigrateKVThread makeInstance(KVClient client) {
         if (mMigrateThread == null) {
-            mMigrateThread = new MigrateKVThread();
+            mMigrateThread = new MigrateKVThread(client);
         }
+        return mMigrateThread;
+    }
+    
+    public static MigrateKVThread getInstance() {
         return mMigrateThread;
     }
 
@@ -78,7 +84,6 @@ public class MigrateKVThread implements Runnable {
                 int nodeId;
                 int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
                 
-                KVClient kvClient = Server.getInstance().getKVClient();
                 Inet4Address selfAddress;
                 try {
                     selfAddress = (Inet4Address) NodeTable.getInstance().getSelfAddressHolder().address;
@@ -115,7 +120,7 @@ public class MigrateKVThread implements Runnable {
         	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, mToAddress.port));
         	                    message.setPayload(dataBuf);
         	                    message.setAddressAndPort(mToAddress.address, mToAddress.port);
-        	                    kvClient.send(message, null);
+        	                    mClient.send(message, null);
         	                    keySent = true;
         	                    KeyValueStore.getInstance().remove(key);
                 			} catch (IllegalStateException e) {

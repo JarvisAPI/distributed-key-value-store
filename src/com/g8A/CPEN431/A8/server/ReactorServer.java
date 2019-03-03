@@ -19,10 +19,29 @@ public final class ReactorServer {
     private KVClient mKVClient;
     private static ReactorServer mReactorServer;
     private int mKeyValuePort;
+    private Reactor mReactor;
     
-    private ReactorServer(int port, int threadPoolSize) {
+    private ReactorServer(int port, int threadPoolSize) throws Exception {
         mKeyValuePort = port;
         mThreadPool = Executors.newFixedThreadPool(threadPoolSize);
+        
+        DatagramChannel channel = DatagramChannel.open();
+        channel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
+        channel.socket().bind(new InetSocketAddress(mKeyValuePort));
+        channel.configureBlocking(false);
+        
+        DatagramChannel kvClientChannel = DatagramChannel.open();
+        kvClientChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
+        kvClientChannel.bind(null);
+        kvClientChannel.configureBlocking(false);
+        
+        mKVClient = PeriodicKVClient.makeInstance(kvClientChannel);
+        
+        mReactor = Reactor.makeInstance();
+        mReactor.registerChannel(SelectionKey.OP_READ, channel);
+        mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
+        
+        mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler());
     }
     
     public ExecutorService getThreadPool() {
@@ -37,32 +56,15 @@ public final class ReactorServer {
         return mKeyValuePort;
     }
 
-    private void run() throws Exception {
-        DatagramChannel channel = DatagramChannel.open();
-        channel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
-        channel.socket().bind(new InetSocketAddress(mKeyValuePort));
-        channel.configureBlocking(false);
-        
-        DatagramChannel kvClientChannel = DatagramChannel.open();
-        kvClientChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
-        kvClientChannel.bind(null);
-        kvClientChannel.configureBlocking(false);
-        
-        mKVClient = PeriodicKVClient.makeInstance(kvClientChannel);
-        
-        Reactor reactor = Reactor.makeInstance();
-        reactor.registerChannel(SelectionKey.OP_READ, channel);
-        reactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
-        
-        reactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler());
-        reactor.run();
+    private void run() {
+        mReactor.run();
     }
     
     public static ReactorServer getInstance() {
         return mReactorServer;
     }
     
-    public static ReactorServer makeInstance(int port, int threadPoolSize) {
+    public static ReactorServer makeInstance(int port, int threadPoolSize) throws Exception {
         if (mReactorServer == null) {
             mReactorServer = new ReactorServer(port, threadPoolSize);
         }
@@ -117,9 +119,11 @@ public final class ReactorServer {
         NodeTable.makeInstance(isLocal);
         DirectRoute.getInstance();
         
-        new Thread(MigrateKVThread.getInstance()).start();
+        ReactorServer.makeInstance(port, threadPoolSize);
+        new Thread(MigrateKVThread.makeInstance(ReactorServer.getInstance().getKVClient())).start();
         new Thread(EpidemicProtocol.makeInstance()).start();
-        ReactorServer.makeInstance(port, threadPoolSize).run();
+        
+        ReactorServer.getInstance().run();
     }
 
 }
