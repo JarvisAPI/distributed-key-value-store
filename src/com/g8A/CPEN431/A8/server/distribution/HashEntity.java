@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Given the key in the key/value request, this class applies
@@ -19,17 +20,17 @@ import java.util.TreeMap;
  *
  */
 public class HashEntity {
-    private final SortedMap<Long, VirtualNode> ring = new TreeMap<>();
+    private final ConcurrentSkipListMap<Long, VirtualNode> ring = new ConcurrentSkipListMap<>();
     private static HashEntity mHashEntity;
     private HashFunction hashFunction;
-    private int numPNodes = 0;
+    private int uniquePNodeId = 0;
     private static int numVNodes = 10;
 
     private static class HashFunction {
         MessageDigest instance;
         public HashFunction() {
             try {
-                instance = MessageDigest.getInstance("SHA-256");
+                instance = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
@@ -152,8 +153,8 @@ public class HashEntity {
      * @param pNode the ByteString representing hostname+port of the node
      * @return the unique physical node id
      */
-    public synchronized int addNode(ByteString pNode) {
-        int pNodeId = numPNodes;
+    public int addNode(ByteString pNode) {
+        int pNodeId = uniquePNodeId;
         for(int i=0; i<numVNodes; i++) {
             VirtualNode vNode = new VirtualNode(pNode, pNodeId, i);
             long hash = hashFunction.hash(vNode.getKey());
@@ -161,7 +162,7 @@ public class HashEntity {
             ring.put(hash, vNode);
         }
 
-        numPNodes++;
+        uniquePNodeId++;
         return pNodeId;
     }
 
@@ -169,7 +170,7 @@ public class HashEntity {
      * Removes the node and its replicas of virtual nodes from the ring
      * @param pNode the node key string representing the physical node that should be removed
      */
-    public synchronized void removeNode(ByteString pNode) {
+    public void removeNode(ByteString pNode) {
         byte[] pNodeBytes = pNode.toByteArray();
         for(int i = 0; i < numVNodes; i++) {
             long hash = hashFunction.hash(VirtualNode.getKey(pNodeBytes, i));
