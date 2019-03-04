@@ -85,6 +85,8 @@ public final class ReactorServer {
         final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
         final String COMMAND_IS_LOCAL_TEST = "--local-test";
         final String COMMAND_NUM_VNODES = "--num-vnodes";
+        final String COMMAND_MAX_KV_STORE_SIZE = "--max-kvstore-size";
+        final String COMMAND_MAX_CACHE_SIZE = "--max-cache-size";
         
         int threadPoolSize = 2;
         int port = 50111;
@@ -112,12 +114,20 @@ public final class ReactorServer {
             case COMMAND_NUM_VNODES:
                 numVNodes = Integer.parseInt(args[i+1]);
                 break;
+            case COMMAND_MAX_KV_STORE_SIZE:
+                KeyValueStore.MAX_SIZE_BYTES = Integer.parseInt(args[i+1]) * 1024 * 1024;
+                break;
+            case COMMAND_MAX_CACHE_SIZE:
+                MessageCache.SIZE_MAX_CACHE = Integer.parseInt(args[i+1]) * 1024 * 1024;
+                break;
             default:
                 System.out.println("Unknown option: " + args[i]);    
             }
         }
         
         System.out.println("Starting reactor server");
+        System.out.println("KV store size: " + KeyValueStore.MAX_SIZE_BYTES / (1024 * 1024) + "MB");
+        System.out.println("Max message cache size: " + MessageCache.SIZE_MAX_CACHE / (1024 * 1024) + "MB");
         System.out.println("Number of virtual nodes: " + numVNodes);
         System.out.println("Thread pool size: " + threadPoolSize);
         System.out.println("Port: " + port);
