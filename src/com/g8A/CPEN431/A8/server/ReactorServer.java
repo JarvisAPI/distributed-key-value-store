@@ -12,6 +12,7 @@ import com.g8A.CPEN431.A8.client.PeriodicKVClient;
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
 import com.g8A.CPEN431.A8.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A8.server.distribution.EpidemicProtocol;
+import com.g8A.CPEN431.A8.server.distribution.HashEntity;
 import com.g8A.CPEN431.A8.server.distribution.NodeTable;
 
 public final class ReactorServer {
@@ -41,7 +42,7 @@ public final class ReactorServer {
         mReactor.registerChannel(SelectionKey.OP_READ, channel);
         mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
         
-        mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler());
+        mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool));
     }
     
     public ExecutorService getThreadPool() {
@@ -77,10 +78,12 @@ public final class ReactorServer {
         final String COMMAND_NODE_LIST = "--node-list";
         final String COMMAND_EPIDEMIC_PORT = "--epidemic-port";
         final String COMMAND_IS_LOCAL_TEST = "--local-test";
+        final String COMMAND_NUM_VNODES = "--num-vnodes";
         
         int threadPoolSize = 2;
         int port = 50111;
         boolean isLocal = false;
+        int numVNodes = 1;
         for (int i = 0; i < args.length; i += 2) {
             switch(args[i]) {
             case COMMAND_THREAD_POOL_SIZE:
@@ -100,12 +103,16 @@ public final class ReactorServer {
                 isLocal = true;
                 i -= 1;
                 break;
+            case COMMAND_NUM_VNODES:
+                numVNodes = Integer.parseInt(args[i+1]);
+                break;
             default:
                 System.out.println("Unknown option: " + args[i]);    
             }
         }
         
         System.out.println("Starting reactor server");
+        System.out.println("Number of virtual nodes: " + numVNodes);
         System.out.println("Thread pool size: " + threadPoolSize);
         System.out.println("Port: " + port);
         System.out.println("Epidemic port: " + EpidemicProtocol.EPIDEMIC_SRC_PORT);
@@ -116,12 +123,17 @@ public final class ReactorServer {
         msgCacheSize /= (1024 * 1024);
         System.out.println("Max message cache size: " + msgCacheSize + "MB");
         
+        HashEntity.setNumVNodes(numVNodes);
         NodeTable.makeInstance(isLocal);
         DirectRoute.getInstance();
         
         ReactorServer.makeInstance(port, threadPoolSize);
-        new Thread(MigrateKVThread.makeInstance(ReactorServer.getInstance().getKVClient())).start();
-        new Thread(EpidemicProtocol.makeInstance()).start();
+        MigrateKVThread.makeInstance(ReactorServer.getInstance().getKVClient());
+        new Thread(MigrateKVThread.getInstance()).start();
+        EpidemicProtocol.makeInstance();
+        new Thread(EpidemicProtocol.getInstance()).start();
+        
+        KeyValueRequestTask.init();
         
         ReactorServer.getInstance().run();
     }

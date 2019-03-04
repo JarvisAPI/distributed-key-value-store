@@ -13,22 +13,24 @@ import com.g8A.CPEN431.A8.server.KeyValueStore.ValuePair;
 import com.g8A.CPEN431.A8.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A8.server.distribution.HashEntity;
 import com.g8A.CPEN431.A8.server.distribution.NodeTable;
+import com.g8A.CPEN431.A8.server.distribution.RouteStrategy;
 import com.g8A.CPEN431.A8.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 
 public class MigrateKVThread implements Runnable {
-	private AddressHolder mToAddress;
 	private int NUM_OF_PUTS = 5;
 	private int RETRY_INTERVAL = 20;
 	private BlockingQueue<Integer> mJoiningNodeIdx;
 	private static MigrateKVThread mMigrateThread;
 	private KVClient mClient;
+	private RouteStrategy mRouteStrat;
 
     private MigrateKVThread(KVClient client) {
         mJoiningNodeIdx = new LinkedBlockingQueue<>();
         mClient = client;
+        mRouteStrat = DirectRoute.getInstance();
     }
     
     /**
@@ -106,6 +108,7 @@ public class MigrateKVThread implements Runnable {
                     if (nodeId != selfNodeId) {
             			// send put request to new node
             			vPair = KeyValueStore.getInstance().get(key);
+            			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
             			
             			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
             					.setKey(key)        					
@@ -117,9 +120,9 @@ public class MigrateKVThread implements Runnable {
             	        keySent = false;
             	        while (!keySent) {
                 			try {
-        	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, mToAddress.port));
+        	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, toAddress.port));
         	                    message.setPayload(dataBuf);
-        	                    message.setAddressAndPort(mToAddress.address, mToAddress.port);
+        	                    message.setAddressAndPort(toAddress.address, toAddress.port);
         	                    mClient.send(message, null);
         	                    keySent = true;
         	                    KeyValueStore.getInstance().remove(key);

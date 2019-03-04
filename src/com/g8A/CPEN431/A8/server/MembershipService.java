@@ -34,7 +34,7 @@ public class MembershipService {
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
     	if(affectedNodes.contains(localHostNameAndPort)) {    
-    	    MigrateKVThread.getInstance().migrate(nodeId);
+    	    //MigrateKVThread.getInstance().migrate(nodeId);
     	}
     }
     

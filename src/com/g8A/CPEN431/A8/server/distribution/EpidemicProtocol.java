@@ -61,7 +61,7 @@ public class EpidemicProtocol implements Runnable {
         mSysImages[mNodeIdx] = new SystemImage();
         mTimestampCounter = 0;
         mSysImages[mNodeIdx].timestamp = mTimestampCounter;
-        mMsgTimestampCounter = mNodeIdx;
+        mMsgTimestampCounter = System.currentTimeMillis();
         mSysImages[mNodeIdx].lastMsgTimestamp = mMsgTimestampCounter;
         mSysImageSize++;
     }

@@ -159,6 +159,7 @@ public class MessageConsumer extends Thread {
                             int nodeId = mHashEntity.getKVNodeId(key);
                             if(nodeId != mNodeId) {
                                 if (MigrateKVThread.getInstance().isMigrating(nodeId)) {
+                                    System.out.println("[INFO]: Migrating sending overload");
                                     sendOverloadMessage(message, kvResBuilder, packet);
                                     continue;
                                 }

@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
+import com.g8A.CPEN431.A8.client.KVClient;
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
 import com.g8A.CPEN431.A8.protocol.Protocol;
 import com.g8A.CPEN431.A8.server.MessageCache.CacheEntry;
@@ -27,33 +28,38 @@ public class KeyValueRequestTask implements Runnable {
     private static final int CACHE_META_SUCCESS_BYTES = 1;
     private static final int CACHE_META_SUCCESS_GET = 2;
     private byte[] mDataBytes;
-    private KeyValueStore mKeyValStore;
-    private MessageCache mMessageCache;
-    private HashEntity mHashEntity;
-    private RouteStrategy mRouteStrat;
-    private int mNodeId;
+    private static KeyValueStore mKeyValStore;
+    private static MessageCache mMessageCache;
+    private static HashEntity mHashEntity;
+    private static RouteStrategy mRouteStrat;
+    private static int mNodeId;
+    private static KVClient mKVClient;
     private DatagramChannel mChannel;
     private KeyValueRequest.KVRequest.Builder kvReqBuilder;
     private InetSocketAddress mAddr;
+    private static final byte[] SUCCESS_BYTES = KeyValueResponse.KVResponse.newBuilder()
+            .setErrCode(Protocol.ERR_SUCCESS)
+            .build()
+            .toByteArray();
 
     public KeyValueRequestTask(DatagramChannel channel, InetSocketAddress addr, byte[] dataBytes) {
         mChannel = channel;
         mDataBytes = dataBytes;
+        mAddr = addr;
+    }
+    
+    public static void init() {
         mKeyValStore = KeyValueStore.getInstance();
         mMessageCache = MessageCache.getInstance();
         mHashEntity = HashEntity.getInstance();
         mRouteStrat = DirectRoute.getInstance();
         mNodeId = DirectRoute.getInstance().getSelfNodeId();
-        mAddr = addr;
+        mKVClient = ReactorServer.getInstance().getKVClient();
     }
 
     @Override
     public void run() {
         try {   
-            byte[] SUCCESS_BYTES = KeyValueResponse.KVResponse.newBuilder()
-                    .setErrCode(Protocol.ERR_SUCCESS)
-                    .build()
-                    .toByteArray();
             kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
             KeyValueResponse.KVResponse.Builder kvResBuilder = KeyValueResponse.KVResponse.newBuilder();
     
@@ -304,7 +310,7 @@ public class KeyValueRequestTask implements Runnable {
         
         AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
         message.setAddressAndPort(routedNode.address, routedNode.port);
-        ReactorServer.getInstance().getKVClient().send(message, fromAddress);
+        mKVClient.send(message, fromAddress);
     }
     
     private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException {
