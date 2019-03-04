@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.g8A.CPEN431.A8.client.PeriodicKVClient;
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
+import com.g8A.CPEN431.A8.server.distribution.EpidemicProtocol;
 
 public class ReadEventHandler implements EventHandler {
     private ByteBuffer mInputBuffer = ByteBuffer.wrap(NetworkMessage.getMaxDataBuffer());
@@ -28,9 +29,14 @@ public class ReadEventHandler implements EventHandler {
             byte[] buffer = new byte[mInputBuffer.limit()];
             mInputBuffer.get(buffer);
             
-            if (channel.socket().getLocalPort() == ReactorServer.getInstance().getKeyValuePort()) {
+            int localPort = channel.socket().getLocalPort();
+            if (localPort == ReactorServer.KEY_VALUE_PORT) {
                 mThreadPool
                     .execute(new KeyValueRequestTask(channel, (InetSocketAddress) addr,  buffer));
+            }
+            else if (localPort == EpidemicProtocol.EPIDEMIC_SRC_PORT) {
+                mThreadPool
+                    .execute(new EpidemicProtocol.EpidemicReceiveTask(buffer));
             }
             else {
                 mThreadPool

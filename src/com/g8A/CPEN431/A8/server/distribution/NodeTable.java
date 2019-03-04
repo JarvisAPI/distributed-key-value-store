@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.g8A.CPEN431.A8.protocol.Util;
-import com.g8A.CPEN431.A8.server.Server;
+import com.g8A.CPEN431.A8.server.ReactorServer;
 import com.g8A.CPEN431.A8.server.distribution.RouteStrategy.AddressHolder;
 
 /**
@@ -37,7 +37,7 @@ public class NodeTable {
         System.out.println("[INFO]: Self Hostname: " + mSelfHostname);
         if (nodeHostnames.length == 0) {
             System.out.println("[INFO]: No other nodes specified, using default single node setup");
-            nodeHostnames = new String[] {mSelfHostname + ":" + Server.PORT};
+            nodeHostnames = new String[] {mSelfHostname + ":" + ReactorServer.KEY_VALUE_PORT};
         }
         Arrays.sort(nodeHostnames);
         ipaddrs = new AddressHolder[nodeHostnames.length];
@@ -156,7 +156,7 @@ public class NodeTable {
                 hostname = "127.0.0.1";
             }
             if (mSelfHostname.equals(hostname) &&
-                Server.PORT == ipaddrs[i].port) {
+                    ReactorServer.KEY_VALUE_PORT == ipaddrs[i].port) {
                 return ipaddrs[i];
             }
         }
@@ -174,7 +174,7 @@ public class NodeTable {
                 hostname = "127.0.0.1";
             }
             if (mSelfHostname.equals(hostname) &&
-                Server.PORT == ipaddrs[i].port) {
+                    ReactorServer.KEY_VALUE_PORT == ipaddrs[i].port) {
                 return i;
             }
         }

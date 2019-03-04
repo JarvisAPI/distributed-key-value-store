@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g8A.CPEN431.A8.protocol.Util;
-import com.g8A.CPEN431.A8.server.Server;
+import com.g8A.CPEN431.A8.server.ReactorServer;
 import com.google.protobuf.ByteString;
 
 /**
@@ -23,7 +23,7 @@ public class DirectRoute implements RouteStrategy {
         try {
             NodeTable nodeTable = NodeTable.getInstance();
             String hostname = nodeTable.getSelfHostname();
-            int port = Server.PORT;
+            int port = ReactorServer.KEY_VALUE_PORT;
             ByteString hostnameAndPort = Util.concatHostnameAndPort(hostname, port);
             mSelfNodeId = HashEntity.getInstance().addNode(hostnameAndPort);
             System.out.println("NodeId: " + mSelfNodeId + ", hostname: " + hostname + ", port: " + port);

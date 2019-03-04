@@ -32,6 +32,10 @@ public class PeriodicKVClient implements KVClient {
     private static final int INITIAL_TIMEOUT = 400; // In milliseconds.
     private static final int PERIODIC_TASK_INTERVAL = INITIAL_TIMEOUT; // In milliseconds.
     private static final int MAX_RETRY_COUNT = 3;
+    private static final byte[] FAILED_BYTES = KVResponse.newBuilder()
+            .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
+            .build()
+            .toByteArray();
     
     private static class RequestBundle {
         private final NetworkMessage msg;
@@ -148,10 +152,6 @@ public class PeriodicKVClient implements KVClient {
         @Override
         public void run() {
             try {
-                byte[] FAILED_BYTES = KVResponse.newBuilder()
-                        .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
-                        .build()
-                        .toByteArray();
                 
                 mElapsedTime = System.nanoTime() - mElapsedTime; 
                 mElapsedTime = TimeUnit.NANOSECONDS.toMillis(mElapsedTime);

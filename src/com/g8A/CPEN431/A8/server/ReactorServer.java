@@ -19,16 +19,16 @@ public final class ReactorServer {
     private ExecutorService mThreadPool;
     private KVClient mKVClient;
     private static ReactorServer mReactorServer;
-    private int mKeyValuePort;
+    public static int KEY_VALUE_PORT;
     private Reactor mReactor;
     
     private ReactorServer(int port, int threadPoolSize) throws Exception {
-        mKeyValuePort = port;
+        KEY_VALUE_PORT = port;
         mThreadPool = Executors.newFixedThreadPool(threadPoolSize);
         
         DatagramChannel channel = DatagramChannel.open();
         channel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
-        channel.socket().bind(new InetSocketAddress(mKeyValuePort));
+        channel.socket().bind(new InetSocketAddress(KEY_VALUE_PORT));
         channel.configureBlocking(false);
         
         DatagramChannel kvClientChannel = DatagramChannel.open();
@@ -38,9 +38,19 @@ public final class ReactorServer {
         
         mKVClient = PeriodicKVClient.makeInstance(kvClientChannel);
         
+        DatagramChannel epidemicChannel = DatagramChannel.open();
+        epidemicChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
+        epidemicChannel.bind(new InetSocketAddress(EpidemicProtocol.EPIDEMIC_SRC_PORT));
+        epidemicChannel.configureBlocking(false);
+        
+        EpidemicProtocol.makeInstance(epidemicChannel);
+        EpidemicProtocol.getInstance().start();
+        
         mReactor = Reactor.makeInstance();
         mReactor.registerChannel(SelectionKey.OP_READ, channel);
         mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
+        mReactor.registerChannel(SelectionKey.OP_READ, epidemicChannel);
+        
         
         mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool));
     }
@@ -51,10 +61,6 @@ public final class ReactorServer {
     
     public KVClient getKVClient() {
         return mKVClient;
-    }
-    
-    public int getKeyValuePort() {
-        return mKeyValuePort;
     }
 
     private void run() {
@@ -91,7 +97,7 @@ public final class ReactorServer {
                 break;
             case COMMAND_PORT:
                 port = Integer.parseInt(args[i+1]);
-                Server.PORT = port;
+                ReactorServer.KEY_VALUE_PORT = port;
                 break;
             case COMMAND_NODE_LIST:
                 NodeTable.parseNodeListFile(args[i+1]);
@@ -130,8 +136,6 @@ public final class ReactorServer {
         ReactorServer.makeInstance(port, threadPoolSize);
         MigrateKVThread.makeInstance(ReactorServer.getInstance().getKVClient());
         new Thread(MigrateKVThread.getInstance()).start();
-        EpidemicProtocol.makeInstance();
-        new Thread(EpidemicProtocol.getInstance()).start();
         
         KeyValueRequestTask.init();
         
