@@ -21,7 +21,7 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 
 public class MigrateKVThread implements Runnable {
 	private int NUM_OF_PUTS = 5;
-	private int RETRY_INTERVAL = 20;
+	private int RETRY_INTERVAL = 10;
 	private BlockingQueue<Integer> mJoiningNodeIdx;
 	private static MigrateKVThread mMigrateThread;
 	private KVClient mClient;
