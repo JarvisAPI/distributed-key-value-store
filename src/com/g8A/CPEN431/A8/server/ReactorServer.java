@@ -37,6 +37,7 @@ public final class ReactorServer {
         kvClientChannel.configureBlocking(false);
         
         mKVClient = PeriodicKVClient.makeInstance(kvClientChannel);
+        MigrateKVHandler.makeInstance();
         
         DatagramChannel epidemicChannel = DatagramChannel.open();
         epidemicChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
@@ -144,8 +145,6 @@ public final class ReactorServer {
         DirectRoute.getInstance();
         
         ReactorServer.makeInstance(port, threadPoolSize);
-        MigrateKVThread.makeInstance(ReactorServer.getInstance().getKVClient());
-        new Thread(MigrateKVThread.getInstance()).start();
         
         KeyValueRequestTask.init();
         

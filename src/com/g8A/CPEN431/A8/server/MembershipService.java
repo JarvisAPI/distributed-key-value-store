@@ -33,8 +33,8 @@ public class MembershipService {
     	DirectRoute.getInstance().addNode(nodeId, joinedNode);
     	
     	// if local address (this node) is affected, stop taking get requests and start copying keys over to new node
-    	if(affectedNodes.contains(localHostNameAndPort)) {    
-    	    //MigrateKVThread.getInstance().migrate(nodeId);
+    	if(affectedNodes.contains(localHostNameAndPort)) {  
+    	    MigrateKVHandler.getInstance().migrate(nodeId);
     	}
     }
     

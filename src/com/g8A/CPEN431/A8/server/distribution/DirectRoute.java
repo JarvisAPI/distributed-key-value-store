@@ -2,7 +2,6 @@ package com.g8A.CPEN431.A8.server.distribution;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.g8A.CPEN431.A8.protocol.Util;
 import com.g8A.CPEN431.A8.server.ReactorServer;
@@ -15,7 +14,7 @@ import com.google.protobuf.ByteString;
  * Updated to Singleton pattern
  */
 public class DirectRoute implements RouteStrategy {    
-	private Map<Integer, AddressHolder> nodeIdMap = new TreeMap<Integer, AddressHolder>();
+	private Map<Integer, AddressHolder> nodeIdMap = new HashMap<>();
 	private int mSelfNodeId = -1;
     
     private static DirectRoute mDirectRoute;

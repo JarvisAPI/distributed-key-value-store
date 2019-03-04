@@ -32,6 +32,7 @@ public class KeyValueRequestTask implements Runnable {
     private static MessageCache mMessageCache;
     private static HashEntity mHashEntity;
     private static RouteStrategy mRouteStrat;
+    private static MigrateKVHandler mMigrateKVHandler;
     private static int mNodeId;
     private static KVClient mKVClient;
     private DatagramChannel mChannel;
@@ -55,6 +56,7 @@ public class KeyValueRequestTask implements Runnable {
         mRouteStrat = DirectRoute.getInstance();
         mNodeId = DirectRoute.getInstance().getSelfNodeId();
         mKVClient = ReactorServer.getInstance().getKVClient();
+        mMigrateKVHandler = MigrateKVHandler.getInstance();
     }
 
     @Override
@@ -161,7 +163,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         int nodeId = mHashEntity.getKVNodeId(key);
                         if(nodeId != mNodeId) {
-                            if (MigrateKVThread.getInstance().isMigrating(nodeId)) {
+                            if (mMigrateKVHandler.isMigrating(nodeId)) {
                                 sendOverloadMessage(message, kvResBuilder, packet);
                                 return;
                             }
@@ -194,7 +196,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         int nodeId = mHashEntity.getKVNodeId(key);
                         if(nodeId != mNodeId) {
-                            if (MigrateKVThread.getInstance().isMigrating(nodeId)) {
+                            if (mMigrateKVHandler.isMigrating(nodeId)) {
                                 sendOverloadMessage(message, kvResBuilder, packet);
                                 return;
                             }
@@ -217,7 +219,7 @@ public class KeyValueRequestTask implements Runnable {
                     System.exit(0);
                     break;
                 case Protocol.WIPEOUT:
-                    if (MigrateKVThread.getInstance().isMigrating()){
+                    if (mMigrateKVHandler.isMigrating()){
                         sendOverloadMessage(message, kvResBuilder, packet);
                         // message overload because of migration, move on
                         return;
