@@ -8,4 +8,4 @@ Used Run Command: java -Xmx64m -jar A8.jar --port 50136 --node-list servers.txt 
 
 Used Run Command (AWS): java -Xmx64m -jar A8.jar --port 50136 --node-list servers.txt --epidemic-port 50326 --thread-pool-size 1 --num-vnodes 10 --max-kvstore-size 36
 
-Brief Description: SHUTDOWN command line: MessageConsumer.java:215
+Brief Description: Refactored to use reactor pattern
