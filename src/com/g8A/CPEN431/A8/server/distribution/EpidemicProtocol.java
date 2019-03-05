@@ -192,7 +192,7 @@ public class EpidemicProtocol {
                                             mSysImages[nodeIdx].failedRoundCounter = 0;
                                             
                                             mSysImageSize++;
-                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], true);
                                             NodeTable.getInstance().addAliveNode(nodeIdx);
                                             System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
                                         }
@@ -201,9 +201,9 @@ public class EpidemicProtocol {
                                             mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
                                             mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
                                             if (mSysImages[nodeIdx].failedRoundCounter > 0) {
-                                                // A failed node should rejoin
+                                                // An assumed failed node should rejoin
                                                 mSysImages[nodeIdx].failedRoundCounter = 0;
-                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], false);
                                                 mSysImageSize++;
                                                 NodeTable.getInstance().addAliveNode(nodeIdx);
                                                 System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
