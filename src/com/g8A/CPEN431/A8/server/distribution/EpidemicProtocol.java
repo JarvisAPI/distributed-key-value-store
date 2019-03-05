@@ -132,7 +132,7 @@ public class EpidemicProtocol {
                         if (mNodeIdx != i && mSysImages[i] != null) {
                             if (mTimestampCounter - mSysImages[i].timestamp > NODE_HAS_FAILED_MARK) {
                                 // Node deemed to have failed.
-                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK) {
+                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK * 2) {
                                     mSysImages[i] = null;
                                     continue;
                                 }
@@ -202,11 +202,17 @@ public class EpidemicProtocol {
                                             mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
                                             if (mSysImages[nodeIdx].failedRoundCounter > 0) {
                                                 // An assumed failed node should rejoin
+                                                boolean shouldMigrate = mSysImages[nodeIdx].failedRoundCounter > NODE_HAS_FAILED_MARK / 2;
+                                                if (shouldMigrate) {
+                                                    System.out.println(String.format("[INFO]: Node idx: %d migrating on rejoin", nodeIdx));
+                                                }
+                                                else {
+                                                    System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
+                                                }
+                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], shouldMigrate);
                                                 mSysImages[nodeIdx].failedRoundCounter = 0;
-                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], false);
                                                 mSysImageSize++;
                                                 NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                             }
                                         }
                                     }
