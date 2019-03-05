@@ -206,7 +206,7 @@ public class EpidemicProtocol {
                                                 MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], false);
                                                 mSysImageSize++;
                                                 NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
+                                                System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                             }
                                         }
                                     }
