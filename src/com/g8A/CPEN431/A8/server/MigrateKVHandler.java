@@ -27,13 +27,13 @@ public class MigrateKVHandler {
 	private Set<Integer> mJoiningNodeIdx;
 	private volatile boolean mTimerStarted;
 	private static MigrateKVHandler mHandler;
-	private KVClient mClient;
+	private KVClient mKVClient;
 	private RouteStrategy mRouteStrat;
 	
 
     private MigrateKVHandler() {
         mJoiningNodeIdx = new HashSet<>();
-        mClient = PeriodicKVClient.getInstance();
+        mKVClient = PeriodicKVClient.getInstance();
         mRouteStrat = DirectRoute.getInstance();
     }
     
@@ -94,8 +94,6 @@ public class MigrateKVHandler {
                 NetworkMessage message;
                 KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
         
-            	
-                boolean keySent;
                 int nodeId;
                 int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
                 
@@ -129,24 +127,12 @@ public class MigrateKVHandler {
                                 .setVersion(vPair.version)
                                 .build()
                                 .toByteArray();
-            			
-            	        keySent = false;
-            	        while (!keySent) {
-                			try {
-        	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, toAddress.port));
-        	                    message.setPayload(dataBuf);
-        	                    message.setAddressAndPort(toAddress.address, toAddress.port);
-        	                    mClient.send(message, null);
-        	                    keySent = true;
-        	                    kvStore.remove(key);
-                			} catch (IllegalStateException e) {
-                                try {
-                                    Thread.sleep(RETRY_INTERVAL);
-                                } catch (InterruptedException e1) {
-                                    // Ignored
-                                }
-                			}
-            	        }
+       
+	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, toAddress.port));
+	                    message.setPayload(dataBuf);
+	                    message.setAddressAndPort(toAddress.address, toAddress.port);
+	                    mKVClient.send(message, null);
+	                    kvStore.remove(key);
                 	}
                 }
             } catch (Exception e2) {

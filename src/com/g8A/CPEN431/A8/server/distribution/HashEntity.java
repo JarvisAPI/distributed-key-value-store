@@ -1,8 +1,8 @@
 package com.g8A.CPEN431.A8.server.distribution;
 
+import com.g8A.CPEN431.A8.protocol.Util;
 import com.google.protobuf.ByteString;
 
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -26,7 +26,7 @@ public class HashEntity {
     private static int numVNodes = 10;
 
     private static class HashFunction {
-        MessageDigest instance;
+        private MessageDigest instance;
         public HashFunction() {
             try {
                 instance = MessageDigest.getInstance("MD5");
@@ -41,10 +41,13 @@ public class HashEntity {
          * @return long in the range of the hash circle
          */
         public long hash(byte[] entry) {
-            instance.reset();
-            instance.update(entry);
-            byte[] hash = instance.digest();
-            return ByteBuffer.wrap(hash).getLong();
+            byte[] hash;
+            synchronized(this) {
+                instance.reset();
+                instance.update(entry);
+                hash = instance.digest();
+            }
+            return Util.longFromBytes(hash, 0);
         }
     }
 

@@ -70,7 +70,7 @@ public class PeriodicKVClient implements KVClient {
     
 
     @Override
-    public void send(NetworkMessage msg, AddressHolder fromAddress) throws Exception {
+    public void send(NetworkMessage msg, AddressHolder fromAddress) {
         ReactorServer.getInstance().getThreadPool()
             .execute(new PeriodicKVClient.SendTask(new RequestBundle(msg, fromAddress)));
     }

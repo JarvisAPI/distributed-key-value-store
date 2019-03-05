@@ -255,9 +255,6 @@ public class KeyValueRequestTask implements Runnable {
                     break;
                 }
                 
-            } catch (IllegalStateException e) {
-                sendOverloadMessage(message, kvResBuilder, packet);
-                return;
             } catch (OutOfMemoryError e) {
                 errCode = Protocol.ERR_OUT_OF_SPACE;
             } catch (Exception e) {
