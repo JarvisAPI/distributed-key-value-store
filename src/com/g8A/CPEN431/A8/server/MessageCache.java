@@ -3,12 +3,12 @@ package com.g8A.CPEN431.A8.server;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.g8A.CPEN431.A8.protocol.Protocol;
+import com.g8A.CPEN431.A8.protocol.Util;
 import com.google.protobuf.ByteString;
 
 /**
@@ -18,7 +18,7 @@ import com.google.protobuf.ByteString;
  */
 public class MessageCache {
     private static MessageCache mMessageCache = null;
-    private static int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
+    public static int SIZE_MAX_CACHE = 8 * 1024 * 1024; // Bytes
     private static final long TIMEOUT = 5000; // Timeout of cache entries in milliseconds.
     
     public static final ByteString ENTRY_BEING_PROCESSED = ByteString.copyFrom(new byte[Protocol.SIZE_MAX_VAL_LENGTH]);
@@ -54,8 +54,7 @@ public class MessageCache {
     
     private MessageCache() {
         mCache = new ConcurrentHashMap<>();
-        Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(new CacheCleaner(), 0, TIMEOUT / 2);
+        Util.timer.scheduleAtFixedRate(new CacheCleaner(), 0, TIMEOUT / 2);
     }
     
     /**

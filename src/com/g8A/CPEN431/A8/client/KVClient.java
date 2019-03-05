@@ -9,7 +9,6 @@ public interface KVClient {
      * @param msg the network message to send, contains the address to send to.
      * @param fromAddress the address that request came from, or null if this is the node
      *   sending the request.
-     * @throws IllegalStateException if the sending queue is full.
      */
-    public void send(NetworkMessage msg, AddressHolder fromAddress) throws IllegalStateException;
+    public void send(NetworkMessage msg, AddressHolder fromAddress);
 }

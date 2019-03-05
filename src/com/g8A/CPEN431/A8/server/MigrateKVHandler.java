@@ -1,11 +1,12 @@
 package com.g8A.CPEN431.A8.server;
 
 import java.net.Inet4Address;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.TimerTask;
 
 import com.g8A.CPEN431.A8.client.KVClient;
+import com.g8A.CPEN431.A8.client.PeriodicKVClient;
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
 import com.g8A.CPEN431.A8.protocol.Protocol;
 import com.g8A.CPEN431.A8.protocol.Util;
@@ -13,28 +14,39 @@ import com.g8A.CPEN431.A8.server.KeyValueStore.ValuePair;
 import com.g8A.CPEN431.A8.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A8.server.distribution.HashEntity;
 import com.g8A.CPEN431.A8.server.distribution.NodeTable;
+import com.g8A.CPEN431.A8.server.distribution.RouteStrategy;
 import com.g8A.CPEN431.A8.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 
-public class MigrateKVThread implements Runnable {
-	private AddressHolder mToAddress;
-	private int NUM_OF_PUTS = 5;
-	private int RETRY_INTERVAL = 20;
-	private BlockingQueue<Integer> mJoiningNodeIdx;
-	private static MigrateKVThread mMigrateThread;
+public class MigrateKVHandler {
+	private int NUM_OF_PUTS = 100;
+	private int RETRY_INTERVAL = 100;
+	private int BATCH_INTERVAL = 5000; // Amount of time to wait to batch migrate.
+	private Set<Integer> mJoiningNodeIdx;
+	private volatile boolean mTimerStarted;
+	private static MigrateKVHandler mHandler;
+	private KVClient mKVClient;
+	private RouteStrategy mRouteStrat;
+	
 
-    private MigrateKVThread() {
-        mJoiningNodeIdx = new LinkedBlockingQueue<>();
+    private MigrateKVHandler() {
+        mJoiningNodeIdx = new HashSet<>();
+        mKVClient = PeriodicKVClient.getInstance();
+        mRouteStrat = DirectRoute.getInstance();
     }
     
     /**
      * 
      * @param nodeId the node id from hashing
      */
-    public synchronized void migrate(int nodeId) {
-        if (!mJoiningNodeIdx.contains(nodeId)) {
+    public void migrate(int nodeId) {
+        synchronized(mHandler) {
+            if (!mTimerStarted) {
+                mTimerStarted = true;
+                Util.timer.schedule(new MigrateKVTask(), BATCH_INTERVAL);
+            }
             mJoiningNodeIdx.add(nodeId);
         }
     }
@@ -52,18 +64,27 @@ public class MigrateKVThread implements Runnable {
         return !mJoiningNodeIdx.isEmpty();
     }
     
-    public static MigrateKVThread getInstance() {
-        if (mMigrateThread == null) {
-            mMigrateThread = new MigrateKVThread();
+    public static MigrateKVHandler makeInstance() {
+        if (mHandler == null) {
+            mHandler = new MigrateKVHandler();
         }
-        return mMigrateThread;
+        return mHandler;
+    }
+    
+    public static MigrateKVHandler getInstance() {
+        return mHandler;
     }
 
-    public void run() {
-        while (true) {
+    public class MigrateKVTask extends TimerTask {
+        @Override
+        public void run() {
+            Set<Integer> nodeIdSet = new HashSet<>();
+            synchronized(mHandler) {
+                nodeIdSet.addAll(mJoiningNodeIdx);
+                mTimerStarted = false;
+            }
             try {
-                mJoiningNodeIdx.take();
-                
+                KeyValueStore kvStore = KeyValueStore.getInstance();
             	HashEntity hashEntity = HashEntity.getInstance(); 	
             	Set<ByteString> keySet = KeyValueStore.getInstance().getKeys();
             	ValuePair vPair;
@@ -73,12 +94,9 @@ public class MigrateKVThread implements Runnable {
                 NetworkMessage message;
                 KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
         
-            	
-                boolean keySent;
                 int nodeId;
                 int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
                 
-                KVClient kvClient = Server.getInstance().getKVClient();
                 Inet4Address selfAddress;
                 try {
                     selfAddress = (Inet4Address) NodeTable.getInstance().getSelfAddressHolder().address;
@@ -100,7 +118,8 @@ public class MigrateKVThread implements Runnable {
                 	}
                     if (nodeId != selfNodeId) {
             			// send put request to new node
-            			vPair = KeyValueStore.getInstance().get(key);
+            			vPair = kvStore.get(key);
+            			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
             			
             			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
             					.setKey(key)        					
@@ -108,28 +127,20 @@ public class MigrateKVThread implements Runnable {
                                 .setVersion(vPair.version)
                                 .build()
                                 .toByteArray();
-            			
-            	        keySent = false;
-            	        while (!keySent) {
-                			try {
-        	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, mToAddress.port));
-        	                    message.setPayload(dataBuf);
-        	                    message.setAddressAndPort(mToAddress.address, mToAddress.port);
-        	                    kvClient.send(message, null);
-        	                    keySent = true;
-        	                    KeyValueStore.getInstance().remove(key);
-                			} catch (IllegalStateException e) {
-                                try {
-                                    Thread.sleep(RETRY_INTERVAL);
-                                } catch (InterruptedException e1) {
-                                    // Ignored
-                                }
-                			}
-            	        }
+       
+	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, toAddress.port));
+	                    message.setPayload(dataBuf);
+	                    message.setAddressAndPort(toAddress.address, toAddress.port);
+	                    mKVClient.send(message, null);
+	                    kvStore.remove(key);
                 	}
                 }
             } catch (Exception e2) {
                 e2.printStackTrace();
+            } finally {
+                synchronized(mHandler) {
+                    mJoiningNodeIdx.removeAll(nodeIdSet);
+                }   
             }
         }
     }

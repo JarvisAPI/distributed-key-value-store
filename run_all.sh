@@ -8,7 +8,7 @@ config="$(cat config.txt)"
 key=$KEY
 user="ubc_cpen431_8"
 file=$1
-command="nohup java -Xmx64m -jar $file $config > pl_run.out 2> pl_run.err < /dev/null &"
+command="nohup java -Xmx64m -jar $file $config > out_will.log 2> err_will.log < /dev/null &"
 
 if [ $# -eq 0 ]; then
   echo "No arguments supplied"

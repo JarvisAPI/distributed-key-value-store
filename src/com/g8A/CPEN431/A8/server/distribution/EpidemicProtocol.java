@@ -1,13 +1,14 @@
 package com.g8A.CPEN431.A8.server.distribution;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.util.TimerTask;
 
 import com.g8A.CPEN431.A8.protocol.NetworkMessage;
 import com.g8A.CPEN431.A8.protocol.Util;
@@ -19,7 +20,7 @@ import com.google.protobuf.ByteString;
  * Implements the epidemic protocol, to periodically push updates to
  * other servers
  */
-public class EpidemicProtocol implements Runnable {
+public class EpidemicProtocol {
     // The minimum push interval is the fastest rate at which epidemic protocol
     // will periodically contact another node, however when the system is running
     // the rate might actually be slower due to other operations. In milliseconds.
@@ -41,18 +42,19 @@ public class EpidemicProtocol implements Runnable {
     
     private static EpidemicProtocol mEpidemicProtocol;
     
-    private volatile SystemImage[] mSysImages;
-    private volatile int mSysImageSize; // The number of valid entries in mSysImages
-    private DatagramSocket mSocket;
+    private static volatile SystemImage[] mSysImages;
+    private static volatile int mSysImageSize; // The number of valid entries in mSysImages
+    private DatagramChannel mChannel;
     
     private static final byte MSG_TYPE_STATUS_UPDATE = 1;
     private int mNodeIdx;
     // Approximately every MIN_PUSH_INTERVAL the timestamp counter is incremented
     private volatile long mTimestampCounter;
     private long mMsgTimestampCounter;
+    private Inet4Address mSelfAddr;
     
-    private EpidemicProtocol() throws SocketException {
-        mSocket = new DatagramSocket(EPIDEMIC_SRC_PORT);
+    private EpidemicProtocol(DatagramChannel channel) throws SocketException {
+        mChannel = channel;
         
         mSysImageSize = 0;
         mSysImages = new SystemImage[NodeTable.getInstance().getNumberOfNodes()];
@@ -61,14 +63,22 @@ public class EpidemicProtocol implements Runnable {
         mSysImages[mNodeIdx] = new SystemImage();
         mTimestampCounter = 0;
         mSysImages[mNodeIdx].timestamp = mTimestampCounter;
-        mMsgTimestampCounter = mNodeIdx;
+        mMsgTimestampCounter = System.currentTimeMillis();
         mSysImages[mNodeIdx].lastMsgTimestamp = mMsgTimestampCounter;
         mSysImageSize++;
+        
+        try {
+            mSelfAddr = (Inet4Address) InetAddress.getLocalHost();
+        } catch (UnknownHostException e1) {
+            e1.printStackTrace();
+            System.err.println("[WARNING]: Cannot get self address to construct unique message ID, falling back to use loopback address");
+            mSelfAddr = (Inet4Address) InetAddress.getLoopbackAddress();
+        }
     }
     
-    public static EpidemicProtocol makeInstance() throws SocketException {
+    public static EpidemicProtocol makeInstance(DatagramChannel channel) throws SocketException {
         if (mEpidemicProtocol == null) {
-            mEpidemicProtocol = new EpidemicProtocol();
+            mEpidemicProtocol = new EpidemicProtocol(channel);
         }
         return mEpidemicProtocol;
     }
@@ -81,27 +91,20 @@ public class EpidemicProtocol implements Runnable {
         return mSysImageSize;
     }
     
-    @Override
-    public void run() {
-        AddressHolder node;
-        Inet4Address selfAddr;
-        try {
-            selfAddr = (Inet4Address) InetAddress.getLocalHost();
-        } catch (UnknownHostException e1) {
-            e1.printStackTrace();
-            System.err.println("[WARNING]: Cannot get self address to construct unique message ID, falling back to use loopback address");
-            selfAddr = (Inet4Address) InetAddress.getLoopbackAddress();
-        }
-        NetworkMessage msg = new NetworkMessage();
-        DatagramPacket packet = new DatagramPacket(new byte[0], 0);
-        
-        new EpidemicReceiveThread().start();
-        
-        while (true) {
+    public void start() {
+        Util.timer.scheduleAtFixedRate(new EpidemicSendTask(), MIN_PUSH_INTERVAL, MIN_PUSH_INTERVAL);
+    }
+    
+    private class EpidemicSendTask extends TimerTask {
+
+        @Override
+        public void run() {
             try {
-                node = NodeTable.getInstance().getRandomNode();
+                NetworkMessage msg = new NetworkMessage();
+    
+                AddressHolder node = NodeTable.getInstance().getRandomNode();
                 if (node != null) {
-                    msg.setIdString(ByteString.copyFrom(Util.getUniqueId(selfAddr, node.epidemicPort)));
+                    msg.setIdString(ByteString.copyFrom(Util.getUniqueId(mSelfAddr, node.epidemicPort)));
                     synchronized(mSysImages) {
                         byte[] data = new byte[PROTOCOL_FORMAT_SIZE * mSysImageSize];
                         int j = 0;
@@ -120,13 +123,8 @@ public class EpidemicProtocol implements Runnable {
                         }
                         msg.setPayload(data);
                     }
-                    packet.setData(msg.getDataBytes());
-                    packet.setAddress(node.address);
-                    packet.setPort(node.epidemicPort);
-                    mSocket.send(packet);
+                    mChannel.send(ByteBuffer.wrap(msg.getDataBytes()), new InetSocketAddress(node.address, node.epidemicPort));
                 }
-
-                Thread.sleep(MIN_PUSH_INTERVAL);
                 
                 synchronized(mSysImages) {
                     // Check if nodes should be marked dead.
@@ -134,7 +132,7 @@ public class EpidemicProtocol implements Runnable {
                         if (mNodeIdx != i && mSysImages[i] != null) {
                             if (mTimestampCounter - mSysImages[i].timestamp > NODE_HAS_FAILED_MARK) {
                                 // Node deemed to have failed.
-                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK) {
+                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK * 2) {
                                     mSysImages[i] = null;
                                     continue;
                                 }
@@ -159,76 +157,80 @@ public class EpidemicProtocol implements Runnable {
         }
     }
     
-    private class EpidemicReceiveThread extends Thread {
+    public static class EpidemicReceiveTask implements Runnable {
+        private byte[] mDataBytes;
+        
+        public EpidemicReceiveTask(byte[] dataBytes) {
+            mDataBytes = dataBytes;
+        }
          
         @Override
         public void run() {
-            NetworkMessage msg = new NetworkMessage();
-            byte[] buf = NetworkMessage.getMaxDataBuffer();
-            DatagramPacket receivePacket = new DatagramPacket(buf, buf.length);
-            
-            while (true) {
-                try {
-                    mSocket.receive(receivePacket);
-                    NetworkMessage.setMessage(msg, Arrays.copyOf(receivePacket.getData(), receivePacket.getLength()));
-                    byte[] payload = msg.getPayload();
-                    
-                    if (payload.length % PROTOCOL_FORMAT_SIZE != 0) {
-                        System.err.println("[WARNING]: Epidemic protocol: received wrong data length, ignoring received request");
-                    }
-                    else {
-                        int nodeIdx;
-                        long msgTimestamp;
-                        synchronized(mSysImages) {
-                            for (int i = 0; i < payload.length; ) {
-                                if (payload[i] == MSG_TYPE_STATUS_UPDATE) {
-                                    i++;
-                                    nodeIdx = Util.intFromBytes(payload, i);
-                                    if (nodeIdx >= 0 && nodeIdx < mSysImages.length) {
-                                        if (nodeIdx != mNodeIdx) {
-                                            msgTimestamp = Util.longFromBytes(payload, i + 4);
-                                            if (mSysImages[nodeIdx] == null) {
-                                                // Node joined
-                                                mSysImages[nodeIdx] = new SystemImage();
-                                                mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                                mSysImages[nodeIdx].timestamp = mTimestampCounter;
-                                                mSysImages[nodeIdx].failedRoundCounter = 0;
-                                                
-                                                mSysImageSize++;
-                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
-                                                NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
-                                            }
-                                            else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
-                                                // Node update
-                                                mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
-                                                mSysImages[nodeIdx].timestamp = mTimestampCounter;
-                                                if (mSysImages[nodeIdx].failedRoundCounter > 0) {
-                                                    // A failed node should rejoin
-                                                    mSysImages[nodeIdx].failedRoundCounter = 0;
-                                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
-                                                    mSysImageSize++;
-                                                    NodeTable.getInstance().addAliveNode(nodeIdx);
-                                                    System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
+            try {
+                NetworkMessage msg = NetworkMessage.contructMessage(mDataBytes);
+                byte[] payload = msg.getPayload();
+                
+                if (payload.length % PROTOCOL_FORMAT_SIZE != 0) {
+                    System.err.println("[WARNING]: Epidemic protocol: received wrong data length, ignoring received request");
+                }
+                else {
+                    int nodeIdx;
+                    long msgTimestamp;
+                    synchronized(mSysImages) {
+                        for (int i = 0; i < payload.length; ) {
+                            if (payload[i] == MSG_TYPE_STATUS_UPDATE) {
+                                i++;
+                                nodeIdx = Util.intFromBytes(payload, i);
+                                if (nodeIdx >= 0 && nodeIdx < mSysImages.length) {
+                                    if (nodeIdx != mEpidemicProtocol.mNodeIdx) {
+                                        msgTimestamp = Util.longFromBytes(payload, i + 4);
+                                        if (mSysImages[nodeIdx] == null) {
+                                            // Node joined
+                                            mSysImages[nodeIdx] = new SystemImage();
+                                            mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
+                                            mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
+                                            mSysImages[nodeIdx].failedRoundCounter = 0;
+                                            
+                                            mSysImageSize++;
+                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], true);
+                                            NodeTable.getInstance().addAliveNode(nodeIdx);
+                                            System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
+                                        }
+                                        else if (mSysImages[nodeIdx].lastMsgTimestamp - msgTimestamp < 0) {
+                                            // Node update
+                                            mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
+                                            mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
+                                            if (mSysImages[nodeIdx].failedRoundCounter > 0) {
+                                                // An assumed failed node should rejoin
+                                                boolean shouldMigrate = mSysImages[nodeIdx].failedRoundCounter > NODE_HAS_FAILED_MARK / 2;
+                                                if (shouldMigrate) {
+                                                    System.out.println(String.format("[INFO]: Node idx: %d migrating on rejoin", nodeIdx));
                                                 }
+                                                else {
+                                                    System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
+                                                }
+                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], shouldMigrate);
+                                                mSysImages[nodeIdx].failedRoundCounter = 0;
+                                                mSysImageSize++;
+                                                NodeTable.getInstance().addAliveNode(nodeIdx);
                                             }
                                         }
                                     }
-                                    else {
-                                        System.err.println(String.format("[WARNING]: Epidemic protocol: bad nodeIdx: %d", nodeIdx));
-                                    }
-                                    i += PROTOCOL_FORMAT_SIZE - 1;
                                 }
                                 else {
-                                    System.err.println("[WARNING]: Epidemic protocol: unrecognized message type, corrupted message ignoring...");
-                                    break;
+                                    System.err.println(String.format("[WARNING]: Epidemic protocol: bad nodeIdx: %d", nodeIdx));
                                 }
+                                i += PROTOCOL_FORMAT_SIZE - 1;
+                            }
+                            else {
+                                System.err.println("[WARNING]: Epidemic protocol: unrecognized message type, corrupted message ignoring...");
+                                break;
                             }
                         }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
