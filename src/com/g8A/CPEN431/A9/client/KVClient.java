@@ -1,7 +1,7 @@
-package com.g8A.CPEN431.A8.client;
+package com.g8A.CPEN431.A9.client;
 
-import com.g8A.CPEN431.A8.protocol.NetworkMessage;
-import com.g8A.CPEN431.A8.server.distribution.RouteStrategy.AddressHolder;
+import com.g8A.CPEN431.A9.protocol.NetworkMessage;
+import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
 
 public interface KVClient {
     /**

@@ -1,6 +1,6 @@
-package com.g8A.CPEN431.A8.server.distribution;
+package com.g8A.CPEN431.A9.server.distribution;
 
-import com.g8A.CPEN431.A8.protocol.Util;
+import com.g8A.CPEN431.A9.protocol.Util;
 import com.google.protobuf.ByteString;
 
 public class VirtualNode implements Node {

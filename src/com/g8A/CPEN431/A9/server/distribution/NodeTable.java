@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A8.server.distribution;
+package com.g8A.CPEN431.A9.server.distribution;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.g8A.CPEN431.A8.protocol.Util;
-import com.g8A.CPEN431.A8.server.ReactorServer;
-import com.g8A.CPEN431.A8.server.distribution.RouteStrategy.AddressHolder;
+import com.g8A.CPEN431.A9.protocol.Util;
+import com.g8A.CPEN431.A9.server.ReactorServer;
+import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
 
 /**
  * This class contains information about all the nodes that can join the network and

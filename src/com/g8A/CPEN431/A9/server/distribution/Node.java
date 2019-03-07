@@ -1,4 +1,4 @@
-package com.g8A.CPEN431.A8.server.distribution;
+package com.g8A.CPEN431.A9.server.distribution;
 
 public interface Node {
 
