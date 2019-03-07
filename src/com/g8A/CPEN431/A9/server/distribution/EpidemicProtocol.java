@@ -133,16 +133,25 @@ public class EpidemicProtocol {
                             if (mTimestampCounter - mSysImages[i].timestamp > NODE_HAS_FAILED_MARK) {
                                 // Node deemed to have failed.
                                 if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK * 2) {
+                                    // Node failed long enough such that all nodes have been notified of the node's
+                                    // failure, so it is safe to completely remove it now.
+                                    System.out.println(String.format("[INFO]: Node idx: %d completely removed", i));
                                     mSysImages[i] = null;
                                     continue;
                                 }
-                                if (mSysImages[i].failedRoundCounter == 0) {
-                                    // Node just failed.
+                                if (mSysImages[i].failedRoundCounter == NODE_HAS_FAILED_MARK / 2) {
+                                    // Node has failed long enough to be deemed completely gone, so we remove it
+                                    // now, but not before since it could be deemed failed due to network slowdown,
+                                    // this will cut down potential migration costs.
                                     AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                                     NodeTable.getInstance().removeAliveNode(i);
-                                    mSysImageSize--;
-                                    System.out.println(String.format("[INFO]: Node idx: %d leaving", i));
+                                    System.out.println(String.format("[INFO]: Node idx: %d removed from hash ring", i));
                                     MembershipService.OnNodeLeft(failedNode);
+                                }
+                                if (mSysImages[i].failedRoundCounter == 0) {
+                                    // Node just failed.
+                                    System.out.println(String.format("[INFO]: Node idx: %d just failed", i));
+                                    mSysImageSize--;
                                 }
                                 mSysImages[i].failedRoundCounter++;
                             }
@@ -192,7 +201,7 @@ public class EpidemicProtocol {
                                             mSysImages[nodeIdx].failedRoundCounter = 0;
                                             
                                             mSysImageSize++;
-                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], true);
+                                            MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
                                             NodeTable.getInstance().addAliveNode(nodeIdx);
                                             System.out.println(String.format("[INFO]: Node idx: %d joining", nodeIdx));
                                         }
@@ -202,17 +211,16 @@ public class EpidemicProtocol {
                                             mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
                                             if (mSysImages[nodeIdx].failedRoundCounter > 0) {
                                                 // An assumed failed node should rejoin
-                                                boolean shouldMigrate = mSysImages[nodeIdx].failedRoundCounter > NODE_HAS_FAILED_MARK / 2;
-                                                if (shouldMigrate) {
-                                                    System.out.println(String.format("[INFO]: Node idx: %d migrating on rejoin", nodeIdx));
+                                                if (mSysImages[nodeIdx].failedRoundCounter > NODE_HAS_FAILED_MARK / 2) {
+                                                    System.out.println(String.format("[INFO]: Node idx: %d rejoining, adding to hash ring", nodeIdx));
+                                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                                    NodeTable.getInstance().addAliveNode(nodeIdx);
                                                 }
                                                 else {
                                                     System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                                 }
-                                                MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx], shouldMigrate);
-                                                mSysImages[nodeIdx].failedRoundCounter = 0;
                                                 mSysImageSize++;
-                                                NodeTable.getInstance().addAliveNode(nodeIdx);
+                                                mSysImages[nodeIdx].failedRoundCounter = 0;
                                             }
                                         }
                                     }
