@@ -153,8 +153,7 @@ public class KeyValueRequestTask implements Runnable {
                             routeToNode(message, vnode.getPNodeId());
                             // message being processed by other node, move on
                             return;
-                        }
-                        else {
+                        } else {
                             mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;

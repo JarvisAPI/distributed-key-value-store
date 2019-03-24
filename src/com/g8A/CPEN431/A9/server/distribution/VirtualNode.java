@@ -6,7 +6,7 @@ import com.google.protobuf.ByteString;
 public class VirtualNode implements Node {
 
     private final ByteString pNode;
-    private int pNodeId;
+    private final int pNodeId;
     private final int vIndex;
 
     public VirtualNode(ByteString pNode, int pNodeId, int vIndex) {

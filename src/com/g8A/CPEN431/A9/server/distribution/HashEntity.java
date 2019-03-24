@@ -5,9 +5,7 @@ import com.google.protobuf.ByteString;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -24,6 +22,7 @@ public class HashEntity {
     private final ConcurrentSkipListMap<Long, VirtualNode> ring = new ConcurrentSkipListMap<>();
     private static HashEntity mHashEntity;
     private static int numVNodes = 10;
+    private int uniquePNodeId = 0;
     
     private final Map<Integer, VirtualNode[]> vNodeMap = new ConcurrentHashMap<>();
     
@@ -224,7 +223,8 @@ public class HashEntity {
      * @return the unique physical node id
      */
     public int addNode(ByteString pNode) {
-        int pNodeId = getPhysicalNodeId(pNode);
+        int pNodeId = uniquePNodeId;
+        //int pNodeId = getPhysicalNodeId(pNode);
         VirtualNode[] vNodes = new VirtualNode[numVNodes];
         for(int i=0; i<numVNodes; i++) {
             VirtualNode vNode = new VirtualNode(pNode, pNodeId, i);
@@ -234,6 +234,7 @@ public class HashEntity {
             vNodes[i] = vNode;
         }
 
+        uniquePNodeId++;
         vNodeMap.put(pNodeId, vNodes);
         return pNodeId;
     }
