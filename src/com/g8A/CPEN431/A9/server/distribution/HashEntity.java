@@ -65,6 +65,7 @@ public class HashEntity {
         return ring.get(hash).getPNodeId();
     }
     
+    
     /**
      * Gets the virtual node that should store the given key.
      * @param key the key used in the key/value store.
@@ -215,6 +216,18 @@ public class HashEntity {
     
     public int getPhysicalNodeId(ByteString pNode) {
         return (int) (hash(pNode.toByteArray()) & (int) 0x7FFFFFFF);
+    }
+    
+    /**
+     * Get the node id of a node with a given physical node string. The physical
+     * node string must be the same string passed in when the node is added.
+     * @param pNode the physical node string.
+     * @return the physical node id or -1 if no such node exists.
+     */
+    public int getNodeId(ByteString pNode) {
+        long hash = hash(VirtualNode.getKey(pNode.toByteArray(), 0));
+        VirtualNode vnode = ring.get(hash);
+        return vnode == null ? -1 : vnode.getPNodeId();
     }
 
     /**

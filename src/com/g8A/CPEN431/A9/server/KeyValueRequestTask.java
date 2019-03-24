@@ -328,7 +328,7 @@ public class KeyValueRequestTask implements Runnable {
         AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
         
         if (routedNode == null) {
-            System.out.println(String.format("[DEBUG]: Unable to route to nodeId", nodeId));
+            System.out.println(String.format("[DEBUG]: Unable to route to nodeId %d", nodeId));
         }
         
         message.setAddressAndPort(routedNode.address, routedNode.port);

@@ -40,7 +40,7 @@ public class MembershipService {
     public static void OnNodeLeft(AddressHolder leftNode) {
         ByteString hostNameAndPort = Util.concatHostnameAndPort(leftNode.hostname, leftNode.port);
         
-        int leavingNodeId = HashEntity.getInstance().getKVNodeId(hostNameAndPort);
+        int leavingNodeId = HashEntity.getInstance().getNodeId(hostNameAndPort);
         
         System.out.println(String.format("[INFO]: Leaving node: %s:%d, leavingNodeId: %d", leftNode.hostname, leftNode.port, leavingNodeId));
         
