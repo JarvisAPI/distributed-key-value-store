@@ -326,6 +326,11 @@ public class KeyValueRequestTask implements Runnable {
         AddressHolder fromAddress = new AddressHolder(message.getAddress(), message.getPort());
         
         AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
+        
+        if (routedNode == null) {
+            System.out.println(String.format("[DEBUG]: Unable to route to nodeId", nodeId));
+        }
+        
         message.setAddressAndPort(routedNode.address, routedNode.port);
         mKVClient.send(message, fromAddress);
     }

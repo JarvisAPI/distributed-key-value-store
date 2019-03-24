@@ -42,6 +42,8 @@ public class MembershipService {
         
         int leavingNodeId = HashEntity.getInstance().getKVNodeId(hostNameAndPort);
         
+        System.out.println(String.format("[INFO]: Leaving node: %s:%d, leavingNodeId: %d", leftNode.hostname, leftNode.port, leavingNodeId));
+        
         VirtualNode[] selfVNodes = HashEntity.getInstance().getVNodeMap().get(DirectRoute.getInstance().getSelfNodeId());
         
         Set<VirtualNode> affectedVNodes = new HashSet<>();

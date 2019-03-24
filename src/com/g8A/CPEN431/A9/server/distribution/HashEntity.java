@@ -248,7 +248,13 @@ public class HashEntity {
         for(int i = 0; i < numVNodes; i++) {
             long hash = hash(VirtualNode.getKey(pNodeBytes, i));
             VirtualNode vnode = ring.remove(hash);
-            vNodeMap.remove(vnode.getPNodeId());
+            if (vnode != null) {
+                System.out.println(String.format("[DEBUG]: HashEntity#removeNode, removed vnode with id: %d", vnode.getPNodeId()));
+                vNodeMap.remove(vnode.getPNodeId());
+            }
+            else {
+                System.err.println("[WARNING]: HashEntity#removeNode, cannot find node to remove");
+            }
         }
     }
     
