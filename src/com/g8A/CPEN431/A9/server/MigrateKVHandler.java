@@ -1,6 +1,6 @@
 package com.g8A.CPEN431.A9.server;
 
-import java.net.Inet4Address;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
@@ -13,7 +13,6 @@ import com.g8A.CPEN431.A9.protocol.Util;
 import com.g8A.CPEN431.A9.server.KeyValueStore.ValuePair;
 import com.g8A.CPEN431.A9.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A9.server.distribution.HashEntity;
-import com.g8A.CPEN431.A9.server.distribution.NodeTable;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
@@ -95,14 +94,12 @@ public class MigrateKVHandler {
                 KeyValueRequest.KVRequest.Builder kvReqBuilder = KeyValueRequest.KVRequest.newBuilder();
         
                 int nodeId;
-                int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
+
+                System.out.println("[INFO]: Starting migration task");
+                System.out.println(String.format("[INFO]: Migrated nodeIds: %s", Arrays.asList(nodeIdSet).toString()));
+                System.out.println(String.format("[INFO]: Migration checking %d keys", keySet.size()));
+                int numKeysMigrated = 0;
                 
-                Inet4Address selfAddress;
-                try {
-                    selfAddress = (Inet4Address) NodeTable.getInstance().getSelfAddressHolder().address;
-                } catch (Exception e) {
-                    selfAddress = (Inet4Address) Inet4Address.getLoopbackAddress();
-                }
             	for(ByteString key : keySet) {
             	    nodeId = hashEntity.getKVNodeId(key);
                 	
@@ -116,8 +113,10 @@ public class MigrateKVHandler {
                 	} else {
                 		tries++;
                 	}
-                    if (nodeId != selfNodeId) {
+                    if (nodeIdSet.contains(nodeId)) {
             			// send put request to new node
+                        numKeysMigrated++;
+                        
             			vPair = kvStore.get(key);
             			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
             			
@@ -128,13 +127,15 @@ public class MigrateKVHandler {
                                 .build()
                                 .toByteArray();
        
-	                    message = new NetworkMessage(Util.getUniqueId(selfAddress, toAddress.port));
+	                    message = new NetworkMessage(Util.getUniqueId(toAddress.port));
 	                    message.setPayload(dataBuf);
 	                    message.setAddressAndPort(toAddress.address, toAddress.port);
 	                    mKVClient.send(message, null);
 	                    kvStore.remove(key);
                 	}
                 }
+            	
+            	System.out.println(String.format("[INFO]: Migrated %d keys", numKeysMigrated));
             } catch (Exception e2) {
                 e2.printStackTrace();
             } finally {

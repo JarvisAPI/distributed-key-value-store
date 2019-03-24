@@ -83,6 +83,18 @@ public class NetworkMessage {
         msg.mPayloadBytes = payload;
         return msg;
     }
+    
+    /**
+     * Clones a given NetworkMessage to have the same content as the original but with a different unique Id.
+     * @param original the NetworkMessage to clone.
+     * @param uniqueId the unique id bytes of the clone.
+     * @return a newly cloned NetworkMessage.
+     */
+    public static NetworkMessage clone(NetworkMessage original, byte[] uniqueId) {
+        NetworkMessage clonedMessage = new NetworkMessage(uniqueId);
+        clonedMessage.setPayload(original.getPayload());
+        return clonedMessage;
+    }
 
     public static void setMessage(NetworkMessage msg, byte[] data) throws IOException {
         Message.Msg transportMsg = Message.Msg.parseFrom(data);

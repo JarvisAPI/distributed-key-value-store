@@ -6,8 +6,10 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -21,8 +23,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class HashEntity {
     private final ConcurrentSkipListMap<Long, VirtualNode> ring = new ConcurrentSkipListMap<>();
     private static HashEntity mHashEntity;
-    private int uniquePNodeId = 0;
     private static int numVNodes = 10;
+    
+    private final Map<Integer, VirtualNode[]> vNodeMap = new ConcurrentHashMap<>();
     
     /**
      * Maps a SHA256 hash of the entry byte array to a value on the hash circle (0...2^64-1)
@@ -64,6 +67,108 @@ public class HashEntity {
     }
     
     /**
+     * Gets the virtual node that should store the given key.
+     * @param key the key used in the key/value store.
+     * @return the virtual node that should store key.
+     */
+    public VirtualNode getKVNode(ByteString key) {
+        if(ring.isEmpty()) return null;
+
+        long hash = hash(key.toByteArray());
+        if(!ring.containsKey(hash)) {
+            SortedMap<Long, VirtualNode> tailMap = ring.tailMap(hash);
+            hash = tailMap.isEmpty() ?
+                    ring.firstKey() : tailMap.firstKey();
+        }
+
+        return ring.get(hash);
+    }
+    
+    /**
+     * Get the nodes within distance that the key should be replicated across, the returned
+     * node ids will not be the same as the node id associated with startvnode.
+     * @param startvnode the virtual node to get successors of.
+     * @param key the key used in the key/value store.
+     * @param numSuccessors the number of successor nodes to replicate to.
+     * @param buf the buffer to hold the node ids that should be returned, must be at least numSuccessors
+     * in length.
+     * @return the number of successor nodes placed in the buffer.
+     */
+    public int getSuccessorNodes(VirtualNode startvnode, int numSuccessors, int[] buf) {
+        if(ring.isEmpty()) {
+            return 0;
+        }
+
+        int numVNodesAdded = 0;
+        VirtualNode vnode = startvnode;
+        for(int i=0; i<numSuccessors; i++) {
+            vnode = getNextVNode(vnode.getKey());
+            if(vnode == null || vnode == startvnode) {
+                break;
+            }
+            if (vnode.getPNodeId() == startvnode.getPNodeId()) {
+                i--;
+            }
+            else {
+                numVNodesAdded++;
+                buf[i] = vnode.getPNodeId();
+            }
+        }
+
+        return numVNodesAdded;
+    }
+    
+    
+    /**
+     * Find out if the given physical node holdes a virtual node that is a predecessor within distance
+     * away from another virtual node.
+     * @param startvnode the virtual node to begin searching at.
+     * @param matchNodeId the physical node id to match.
+     * @param distance the max distance to check till.
+     * @return true if the matchNodeId is a predecessor of distance or less away from startvnode.
+     */
+    public boolean isPredecessor(VirtualNode startvnode, int matchNodeId, int distance) {
+        if(ring.isEmpty()) return false;
+
+        VirtualNode vnode = startvnode;
+        for(int i=0; i<distance; i++) {
+            vnode = getPrevVNode(vnode.getKey());
+            if (vnode == null) {
+                break;
+            }
+            if (vnode.getPNodeId() == matchNodeId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Find out if the given physical node holds a virtual node that is a successor within distance
+     * away from another virtual node.
+     * @param startvnode the virtual node the begin searching at.
+     * @param matchNodeId the physical node id to match.
+     * @param distance the max distance to check till.
+     * @return true if the matchNodeId is a predecessor of distance or less away from startvnode.
+     */
+    public boolean isSuccessor(VirtualNode startvnode, int matchNodeId, int distance) {
+        if(ring.isEmpty()) return false;
+
+        VirtualNode vnode = startvnode;
+        for(int i=0; i<distance; i++) {
+            vnode = getNextVNode(vnode.getKey());
+            if (vnode == null) {
+                break;
+            }
+            if (vnode.getPNodeId() == matchNodeId) {
+                return true;
+            }
+        }
+        return false;
+        
+    }
+    
+    /**
      * Gets the previous virtual node on the ring given a virtual node key
      * @param key: the key of a virtual node
      * @return the predecessor virtual node
@@ -101,43 +206,16 @@ public class HashEntity {
     }
     
     /**
-     * Gets a set of physical nodes that will be affected if new node joins.
-     * @param pNode: the pNode key string of the node that is joining.
-     * @return a set of pNode key strings representing the nodes affected.
-     */
-    public Set<ByteString> getAffectedNodesOnJoin(ByteString pNode) {
-        Set<ByteString> affectedNodes = new HashSet<ByteString>();
-        
-    	if(ring.isEmpty()) {
-    	    return affectedNodes;
-    	}
-    	
-    	byte[] pNodeBytes = pNode.toByteArray();
-    	for(int i = 0; i < numVNodes; i++) {
-    		byte[] vNodeKey = VirtualNode.getKey(pNodeBytes, i);
-    		VirtualNode prevVNode = getPrevVNode(vNodeKey);
-    		VirtualNode nextVNode = getNextVNode(vNodeKey);
-    		
-    		if (prevVNode != null) {
-    		    if (nextVNode != null) {
-    		        affectedNodes.add(nextVNode.getPNode());
-    		    }
-    		    else {
-    		        System.err.println("[WARNING]: HashEntity: Bug nextVNode should not be null.");
-    		    }
-    		}
-    	}
-    	
-    	return affectedNodes;
-    }
-    
-    /**
      * Given a key, returns the raw hash value
      * @param key
      * @return hashed value of key
      */
     public long getHashValue(ByteString key) {
     	return hash(key.toByteArray());
+    }
+    
+    public int getPhysicalNodeId(ByteString pNode) {
+        return (int) (hash(pNode.toByteArray()) & (int) 0x7FFFFFFF);
     }
 
     /**
@@ -146,15 +224,17 @@ public class HashEntity {
      * @return the unique physical node id
      */
     public int addNode(ByteString pNode) {
-        int pNodeId = uniquePNodeId;
+        int pNodeId = getPhysicalNodeId(pNode);
+        VirtualNode[] vNodes = new VirtualNode[numVNodes];
         for(int i=0; i<numVNodes; i++) {
             VirtualNode vNode = new VirtualNode(pNode, pNodeId, i);
             long hash = hash(vNode.getKey());
 
             ring.put(hash, vNode);
+            vNodes[i] = vNode;
         }
 
-        uniquePNodeId++;
+        vNodeMap.put(pNodeId, vNodes);
         return pNodeId;
     }
 
@@ -173,6 +253,10 @@ public class HashEntity {
                 }
             }
         }
+    }
+    
+    public Map<Integer, VirtualNode[]> getVNodeMap() {
+        return vNodeMap;
     }
 
     public static void setNumVNodes(int numVNodes) {

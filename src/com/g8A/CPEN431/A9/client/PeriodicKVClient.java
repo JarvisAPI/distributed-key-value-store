@@ -5,6 +5,7 @@ import com.g8A.CPEN431.A9.protocol.Protocol;
 import com.g8A.CPEN431.A9.protocol.Util;
 import com.g8A.CPEN431.A9.server.MessageCache;
 import com.g8A.CPEN431.A9.server.ReactorServer;
+import com.g8A.CPEN431.A9.server.WriteEventHandler;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
@@ -143,8 +144,8 @@ public class PeriodicKVClient implements KVClient {
         
     }
     
-    private void sendPacket(NetworkMessage msg) throws IOException {
-        mChannel.send(ByteBuffer.wrap(msg.getDataBytes()), new InetSocketAddress(msg.getAddress(), msg.getPort()));
+    private void sendPacket(NetworkMessage msg) throws IOException, InterruptedException {
+        WriteEventHandler.write(mChannel, ByteBuffer.wrap(msg.getDataBytes()), new InetSocketAddress(msg.getAddress(), msg.getPort()));
     }
     
     private class AperiodicTask extends TimerTask {

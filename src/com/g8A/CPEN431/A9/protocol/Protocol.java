@@ -22,6 +22,8 @@ public class Protocol {
     public static final int ERR_INVALID_KEY = 0x06;
     public static final int ERR_INVALID_VAL = 0x07;
     
+    public static int REPLICATION_FACTOR = 3;
+    
     private static final int INIT_OVERLOAD_WAITTIME = 100;
 
     public static final int getOverloadWaittime() {

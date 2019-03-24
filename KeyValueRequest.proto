@@ -8,4 +8,5 @@ message KVRequest {
     optional int32 version = 4;
     optional string reply_ip_address = 5;
     optional int32 reply_port = 6;
+    optional bool is_replica = 7;
 }

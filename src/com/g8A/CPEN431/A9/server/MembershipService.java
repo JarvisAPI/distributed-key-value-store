@@ -1,11 +1,15 @@
 package com.g8A.CPEN431.A9.server;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import com.g8A.CPEN431.A9.protocol.Protocol;
 import com.g8A.CPEN431.A9.protocol.Util;
 import com.g8A.CPEN431.A9.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A9.server.distribution.HashEntity;
+import com.g8A.CPEN431.A9.server.distribution.ReplicationKVHandler;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
+import com.g8A.CPEN431.A9.server.distribution.VirtualNode;
 import com.google.protobuf.ByteString;
 
 public class MembershipService {
@@ -21,18 +25,12 @@ public class MembershipService {
     	ByteString hostNameAndPort = Util.concatHostnameAndPort(joinedNode.hostname, joinedNode.port);   
 
         // add new node to hash ring so that now the requests can be routed correctly.
-        int nodeId = HashEntity.getInstance().addNode(hostNameAndPort);
-    	DirectRoute.getInstance().addNode(nodeId, joinedNode);
+        int joiningNodeId = HashEntity.getInstance().addNode(hostNameAndPort);
+    	DirectRoute.getInstance().addNode(joiningNodeId, joinedNode);
     	
-        AddressHolder localAddress = DirectRoute.getInstance().getLocalAddress();
-        ByteString localHostNameAndPort = Util.concatHostnameAndPort(localAddress.hostname, localAddress.port);
-        
-	    // obtain set of affected nodes, by the new joining node.
-        Set<ByteString> affectedNodes = HashEntity.getInstance().getAffectedNodesOnJoin(hostNameAndPort);
-        
-    	if(affectedNodes.contains(localHostNameAndPort)) {  
-    	    MigrateKVHandler.getInstance().migrate(nodeId);
-    	}
+    	System.out.println(String.format("[INFO]: Joining node: %s:%d, joiningNodeId: %d", joinedNode.hostname, joinedNode.port, joiningNodeId));
+
+    	MigrateKVHandler.getInstance().migrate(joiningNodeId);
     }
     
     /**
@@ -41,6 +39,21 @@ public class MembershipService {
      */
     public static void OnNodeLeft(AddressHolder leftNode) {
         ByteString hostNameAndPort = Util.concatHostnameAndPort(leftNode.hostname, leftNode.port);
+        int leavingNodeId = HashEntity.getInstance().getKVNodeId(hostNameAndPort);
+        
+        VirtualNode[] selfVNodes = HashEntity.getInstance().getVNodeMap().get(DirectRoute.getInstance().getSelfNodeId());
+        
+        Set<VirtualNode> affectedVNodes = new HashSet<>();
+        for (VirtualNode vnode : selfVNodes) {
+            if (HashEntity.getInstance().isSuccessor(vnode, leavingNodeId, Protocol.REPLICATION_FACTOR - 1)) {
+                affectedVNodes.add(vnode);
+            }
+        }
+        
+        if (!affectedVNodes.isEmpty()) {
+            ReplicationKVHandler.getInstance().replicateToSuccessors(affectedVNodes);
+        }
+        
         HashEntity.getInstance().removeNode(hostNameAndPort);
     }
 }

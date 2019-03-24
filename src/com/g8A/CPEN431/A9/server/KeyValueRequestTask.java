@@ -11,12 +11,14 @@ import java.nio.channels.DatagramChannel;
 import com.g8A.CPEN431.A9.client.KVClient;
 import com.g8A.CPEN431.A9.protocol.NetworkMessage;
 import com.g8A.CPEN431.A9.protocol.Protocol;
+import com.g8A.CPEN431.A9.protocol.Util;
 import com.g8A.CPEN431.A9.server.MessageCache.CacheEntry;
 import com.g8A.CPEN431.A9.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A9.server.distribution.EpidemicProtocol;
 import com.g8A.CPEN431.A9.server.distribution.HashEntity;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy;
 import com.g8A.CPEN431.A9.server.distribution.RouteStrategy.AddressHolder;
+import com.g8A.CPEN431.A9.server.distribution.VirtualNode;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
@@ -141,9 +143,14 @@ public class KeyValueRequestTask implements Runnable {
                     } else if (value.size() > Protocol.SIZE_MAX_VAL_LENGTH) {
                         errCode = Protocol.ERR_INVALID_VAL;
                     } else {
-                        int nodeId = mHashEntity.getKVNodeId(key);
-                        if(nodeId != mNodeId) {
-                            routeToNode(message, nodeId);
+                        VirtualNode vnode = mHashEntity.getKVNode(key);
+                        
+                        if (kvReqBuilder.getIsReplica()) {
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion());
+                            dataBytes = SUCCESS_BYTES;
+                            cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
+                        } else if(vnode.getPNodeId() != mNodeId) {
+                            routeToNode(message, vnode.getPNodeId());
                             // message being processed by other node, move on
                             return;
                         }
@@ -151,6 +158,18 @@ public class KeyValueRequestTask implements Runnable {
                             mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
+                            
+                            if (Protocol.REPLICATION_FACTOR > 1) {
+                                kvReqBuilder.setIsReplica(true);
+                                message.setPayload(kvReqBuilder.build().toByteArray());
+                                
+                                int[] successorNodeIds = new int[Protocol.REPLICATION_FACTOR - 1];
+                                int numVNodes = mHashEntity.getSuccessorNodes(vnode, Protocol.REPLICATION_FACTOR - 1, successorNodeIds);
+                                
+                                for (int i = 0; i < numVNodes; i++) {
+                                    routeToReplicaNode(message, successorNodeIds[i]);
+                                }
+                            }
                         }
                     }
                     break;
@@ -323,6 +342,18 @@ public class KeyValueRequestTask implements Runnable {
         packet.setAddress(message.getAddress());
         packet.setPort(message.getPort());
         send(packet);
+    }
+    
+    private void routeToReplicaNode(NetworkMessage message, int nodeId) throws Exception {
+        if (nodeId == mNodeId) {
+            return;
+        }
+        // Each replica message must be independent from another, since they are sent to different addresses.
+        NetworkMessage replicaMsg = NetworkMessage.clone(message, Util.getUniqueId(ReactorServer.KEY_VALUE_PORT));
+        
+        AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
+        replicaMsg.setAddressAndPort(routedNode.address, routedNode.port);
+        mKVClient.send(replicaMsg, null);
     }
     
     private void send(DatagramPacket packet) throws IOException {
