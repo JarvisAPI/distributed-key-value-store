@@ -247,13 +247,8 @@ public class HashEntity {
         byte[] pNodeBytes = pNode.toByteArray();
         for(int i = 0; i < numVNodes; i++) {
             long hash = hash(VirtualNode.getKey(pNodeBytes, i));
-            VirtualNode vnode = ring.get(hash);
-            if (vnode != null) {
-                if(vnode.isVirtualNodeOf(pNode)) {
-                    ring.remove(hash);
-                }
-                vNodeMap.remove(vnode.getPNodeId());
-            }
+            VirtualNode vnode = ring.remove(hash);
+            vNodeMap.remove(vnode.getPNodeId());
         }
     }
     
