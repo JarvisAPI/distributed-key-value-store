@@ -22,7 +22,6 @@ public class HashEntity {
     private final ConcurrentSkipListMap<Long, VirtualNode> ring = new ConcurrentSkipListMap<>();
     private static HashEntity mHashEntity;
     private static int numVNodes = 10;
-    private int uniquePNodeId = 0;
     
     private final Map<Integer, VirtualNode[]> vNodeMap = new ConcurrentHashMap<>();
     
@@ -206,24 +205,13 @@ public class HashEntity {
     }
     
     /**
-     * Given a key, returns the raw hash value
-     * @param key
-     * @return hashed value of key
-     */
-    public long getHashValue(ByteString key) {
-    	return hash(key.toByteArray());
-    }
-    
-    /**
      * Get the node id of a node with a given physical node string. The physical
      * node string must be the same string passed in when the node is added.
      * @param pNode the physical node string.
      * @return the physical node id or -1 if no such node exists.
      */
     public int getNodeId(ByteString pNode) {
-        long hash = hash(VirtualNode.getKey(pNode.toByteArray(), 0));
-        VirtualNode vnode = ring.get(hash);
-        return vnode == null ? -1 : vnode.getPNodeId();
+        return (int) (hash(pNode.toByteArray()) & (int) 0x7FFFFFFF);
     }
 
     /**
@@ -232,7 +220,7 @@ public class HashEntity {
      * @return the unique physical node id
      */
     public int addNode(ByteString pNode) {
-        int pNodeId = uniquePNodeId;
+        int pNodeId = getNodeId(pNode);
         //int pNodeId = getPhysicalNodeId(pNode);
         VirtualNode[] vNodes = new VirtualNode[numVNodes];
         for(int i=0; i<numVNodes; i++) {
@@ -243,7 +231,6 @@ public class HashEntity {
             vNodes[i] = vNode;
         }
 
-        uniquePNodeId++;
         vNodeMap.put(pNodeId, vNodes);
         return pNodeId;
     }
