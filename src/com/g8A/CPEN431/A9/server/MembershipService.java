@@ -39,7 +39,7 @@ public class MembershipService {
      */
     public static void OnNodeLeft(AddressHolder leftNode) {
         ByteString hostNameAndPort = Util.concatHostnameAndPort(leftNode.hostname, leftNode.port);
-        /*
+        
         int leavingNodeId = HashEntity.getInstance().getKVNodeId(hostNameAndPort);
         
         VirtualNode[] selfVNodes = HashEntity.getInstance().getVNodeMap().get(DirectRoute.getInstance().getSelfNodeId());
@@ -54,7 +54,8 @@ public class MembershipService {
         if (!affectedVNodes.isEmpty()) {
             ReplicationKVHandler.getInstance().replicateToSuccessors(affectedVNodes);
         }
-        */
+        
         HashEntity.getInstance().removeNode(hostNameAndPort);
+        DirectRoute.getInstance().removeNode(leavingNodeId);
     }
 }

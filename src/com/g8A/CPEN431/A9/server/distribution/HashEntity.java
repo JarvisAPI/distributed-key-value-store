@@ -252,6 +252,7 @@ public class HashEntity {
                 if(vnode.isVirtualNodeOf(pNode)) {
                     ring.remove(hash);
                 }
+                vNodeMap.remove(vnode.getPNodeId());
             }
         }
     }

@@ -63,7 +63,7 @@ public class DirectRoute implements RouteStrategy {
      * @param nodeId the id of the final destination node
      * @return hostname and port of node to route to, null if value is 
      */
-    public AddressHolder getRoute(int nodeId) {
+    public synchronized AddressHolder getRoute(int nodeId) {
         return nodeIdMap.get(nodeId);
     }
     
@@ -79,7 +79,11 @@ public class DirectRoute implements RouteStrategy {
      * @param nodeId the nodeId key.
      * @param node the node to map to.
      */
-    public void addNode(int nodeId, AddressHolder node) {
+    public synchronized void addNode(int nodeId, AddressHolder node) {
         nodeIdMap.put(nodeId, node);
+    }
+    
+    public synchronized void removeNode(int nodeId) {
+        nodeIdMap.remove(nodeId);
     }
 }
