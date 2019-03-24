@@ -27,9 +27,7 @@ public class WriteEventHandler implements EventHandler {
             @SuppressWarnings("unchecked")
             BlockingQueue<WriteBundle> queue = (BlockingQueue<WriteBundle>) key.attachment();
             
-            if (queue.remainingCapacity() == 0) {
-                System.err.println("[WARNING]: WriteEventHandler#write, send queue full, going to wait");
-            }
+            System.err.println("[WARNING]: WriteEventHandler#write, cannot send immediately, queuing");
             
             queue.put(new WriteBundle(buf, addr));
             
@@ -50,6 +48,7 @@ public class WriteEventHandler implements EventHandler {
         if (writeBundle != null) {
             try {
                 DatagramChannel channel = (DatagramChannel) key.channel();
+                System.err.println("[DEBUG]: WriteEventHandler#handleEvent, data sent");
                 channel.send(writeBundle.outBuffer, writeBundle.outAddr);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -58,6 +57,7 @@ public class WriteEventHandler implements EventHandler {
         
         synchronized(key.channel().blockingLock()) {
             if (queue.isEmpty()) {
+                System.err.println("[DEBUG]: WriteEventHandler#handleEvent, channel set back to read");
                 key.interestOps(SelectionKey.OP_READ);
             }
         }

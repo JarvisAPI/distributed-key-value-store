@@ -54,8 +54,17 @@ public class Reactor implements Runnable {
                 while(handleIterator.hasNext()) {
                     SelectionKey handle = handleIterator.next();
                     
+                    boolean handled = false;
                     if (handle.isReadable()) {
                         mHandlers.get(SelectionKey.OP_READ).handleEvent(handle);
+                        handled = true;
+                    }
+                    if (handle.isWritable()) {
+                        mHandlers.get(SelectionKey.OP_WRITE).handleEvent(handle);
+                        handled = true;
+                    }
+
+                    if (handled) {
                         handleIterator.remove();
                     }
                 }

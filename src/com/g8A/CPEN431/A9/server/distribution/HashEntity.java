@@ -214,10 +214,6 @@ public class HashEntity {
     	return hash(key.toByteArray());
     }
     
-    public int getPhysicalNodeId(ByteString pNode) {
-        return (int) (hash(pNode.toByteArray()) & (int) 0x7FFFFFFF);
-    }
-    
     /**
      * Get the node id of a node with a given physical node string. The physical
      * node string must be the same string passed in when the node is added.
