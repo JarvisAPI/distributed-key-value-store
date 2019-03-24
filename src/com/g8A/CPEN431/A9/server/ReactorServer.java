@@ -17,6 +17,7 @@ import com.g8A.CPEN431.A9.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A9.server.distribution.EpidemicProtocol;
 import com.g8A.CPEN431.A9.server.distribution.HashEntity;
 import com.g8A.CPEN431.A9.server.distribution.NodeTable;
+import com.g8A.CPEN431.A9.server.distribution.PeriodicKVCheckup;
 
 public final class ReactorServer {
     private ExecutorService mThreadPool;
@@ -24,7 +25,7 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT;
     private Reactor mReactor;
-    private static final String VERSION = "v1.2";
+    private static final String VERSION = "v1.3";
     
     private static int QUEUE_SIZE = 2048;
     
@@ -170,6 +171,7 @@ public final class ReactorServer {
         ReactorServer.makeInstance(port, threadPoolSize);
         
         KeyValueRequestTask.init();
+        PeriodicKVCheckup.getInstance().start();
         
         ReactorServer.getInstance().run();
     }
