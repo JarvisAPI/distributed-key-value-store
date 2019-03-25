@@ -79,7 +79,7 @@ public class ReplicationKVHandler {
                 KVClient kvClient = PeriodicKVClient.getInstance();
                 
                 Set<ByteString> keys = kvStore.getKeys();
-                System.out.println(String.format("[DEBUG]: successor left task, looping through %d keys", keys.size()));
+                System.out.println(String.format("[DEBUG]: replicate to successor task, looping through %d keys", keys.size()));
                 
                 HashEntity hashEntity = HashEntity.getInstance();
                 // scan keys, replicate keys which hash to self.
@@ -123,9 +123,8 @@ public class ReplicationKVHandler {
                     }
                 }
                 
-                debugReplicationSize *= successorNodeIds.length;
-                System.out.println(String.format("[DEBUG]: successor left task, total replication size: %d", debugReplicationSize));
-                System.out.println(String.format("[DEBUG]: successor left task, number of keys replicated: %d", debugNumKeysReplicated));
+                System.out.println(String.format("[DEBUG]: replicate to successor task, total replication size: %d", debugReplicationSize));
+                System.out.println(String.format("[DEBUG]: replicate to successor task, number of keys replicated: %d", debugNumKeysReplicated));
             } catch(Exception e) {
                 e.printStackTrace();
             }

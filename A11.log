@@ -1,0 +1,2772 @@
+CPEN 431 EVALUATION test Client
+Time: Mon Mar 25 20:49:09 UTC 2019
+Build Date: Mon Mar 25 17:19:50 UTC 2019
+Java process ID: 7518
+Assignment ID: 11
+Client Version: 1
+
+[Info] A11 client running in SUBMIT mode.
+
+[Info] Starting A11 Tests
+
+[Info] Correct submission information.
+[Info] Checking if the test client is running on AWS
+[Info] Detected instance type: c5.2xlarge
+
+[Info] Done building nodes' list.
+
+Checking that the used nodes are not duplicated
+
+Checking that the used nodes are on planet Lab
+[Test isAlive] for 127.0.0.1:43100
+Sending GETPID to all servers... 
+[Info] Server node 127.0.0.1 has process ID 7496.
+[ ... Completed in 0.003 seconds ]
+[OK]
+Sending GetMembershipCount to all servers... 
+[Info] Server 127.0.0.1:43100 replied with membership count = 1 (expected count = 1)
+[ ... Completed in 0.001 seconds ]
+[Ok] All servers returned the expected membership count (1)
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.001 seconds ]
+[OK]
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 2048 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 10000 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 2048 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 10000 Bytes ]
+TEST_PASSED
+
+[ TEST Basic REMOVE (PUT -> GET -> REM -> GET). Value Length = 32 Bytes. ]
+TEST_PASSED
+
+[ TEST Double remove (PUT -> REM -> REM). Value Length = 32 Bytes. ]
+TEST_PASSED
+
+[ TEST Invalid Command. ]
+TEST_PASSED
+
+[ TEST At-Most-Once Client Policy (PUT -> REM -> REM). Value length =  32 Bytes ]
+TEST_PASSED
+
+[ TEST At-Most-Once Client Policy Empty REMs (EMPTY -> REM -> REM) ]
+TEST_PASSED
+
+[ TEST At-Most-Once Client Policy Error Return Code (REM -> PUT -> REM) ]
+TEST_PASSED
+
+[TEST Invalid Key ]
+TEST_PASSED
+
+[TEST Invalid Value ]
+TEST_PASSED
+
+[ TEST Single Front-End Performance (1 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+Test time limit reached: 60.0s.
+Test completed after 404968 closed loops.
+[Test isAlive] for 127.0.0.1:43100
+[ ... Completed in 0.001 seconds ]
+Local Single node: Test Status: TEST_PASSED
+Clients: 1
+Total Requests (without replies): 809936
+Total Requests (including replies): 809936
+Successful Responses: 809936
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 116ms, [min] 0ms
+[avg] 0.04154525789692025 ms, [stdev] 0.7413103299077693ms
+Throughput: 13498.708354860752 requests per second
+Goodput: 13498.708354860752 requests per second
+Retry Rate (Successful requests): 1.0
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.004 seconds ]
+[OK]
+[ ... TEST Completed in 60.379 seconds ]
+
+[ TEST Single Front-End Performance (16 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 29150 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29204 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29146 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29211 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29101 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 28983 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 28676 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29043 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29239 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29131 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 29117 closed loops.
+Test completed after 28856 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 28918 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 28944 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 28975 closed loops.
+Test completed after 29083 closed loops.
+[Test isAlive] for 127.0.0.1:43100
+[ ... Completed in 0.0 seconds ]
+Local Single node: Test Status: TEST_PASSED
+Clients: 16
+Total Requests (without replies): 929548
+Total Requests (including replies): 929557
+Successful Responses: 929548
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 209ms, [min] 0ms
+[avg] 0.994867397918128 ms, [stdev] 6.6640177619516185ms
+Throughput: 15479.824809738713 requests per second
+Goodput: 15479.824809738713 requests per second
+Retry Rate (Successful requests): 1.000009682125076
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.003 seconds ]
+[OK]
+[ ... TEST Completed in 60.4 seconds ]
+
+[ TEST Single Front-End Performance (64 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7164 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7200 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7202 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7208 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7212 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7159 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7196 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7171 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7177 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7168 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7192 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7175 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7193 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7186 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7180 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7180 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7189 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7187 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7196 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7185 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7177 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7190 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7194 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7170 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7188 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7190 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7196 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7168 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7163 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7194 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7206 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7184 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7162 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7170 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7172 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7181 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7172 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7204 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7167 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 6315 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7183 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7185 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7179 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7173 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7175 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7164 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7159 closed loops.
+Test time limit reached: 60.0s.
+Test time limit reached: 60.0s.
+Test completed after 7219 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7203 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7162 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7184 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7189 closed loops.
+Test completed after 7176 closed loops.
+Test completed after 7179 closed loops.
+Test completed after 7172 closed loops.
+Test time limit reached: 60.0s.
+Test completed after 7211 closed loops.
+Test completed after 7189 closed loops.
+Test completed after 7213 closed loops.
+Test completed after 7172 closed loops.
+Test completed after 7184 closed loops.
+Test completed after 7194 closed loops.
+Test completed after 7188 closed loops.
+Test completed after 7196 closed loops.
+Test completed after 7177 closed loops.
+[Test isAlive] for 127.0.0.1:43100
+[ ... Completed in 0.001 seconds ]
+Local Single node: Test Status: TEST_PASSED
+Clients: 64
+Total Requests (without replies): 917788
+Total Requests (including replies): 917966
+Successful Responses: 917787
+Timeout Responses: 1
+Total Failed Responses: 0
+% Success: 99.9998910423758
+% Timeout: 1.0895762420079582E-4
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 1057ms, [min] 0ms
+[avg] 4.13562841923017 ms, [stdev] 15.17893981935231ms
+Throughput: 15283.475712311201 requests per second
+Goodput: 15283.45905979917 requests per second
+Retry Rate (Successful requests): 1.0001939445710775
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.002 seconds ]
+[OK]
+[ ... TEST Completed in 60.338 seconds ]
+
+[ TEST Single Client Capacity (Value Size = 500 bytes, Limit = 146800 PUTs, ~69.99969482421875 MiB) : PUT -> GET (closed loop) ]
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.001 seconds ]
+[OK]
+ERROR_OUT_OF_SPACE
+Received error code after 61924 closed loops (~29.527664184570312 MiB).
+PUTs sent = 61924(~29.527664184570312 MiB) , Limit = 146800
+[Test isAlive]
+Test Passed. Server is ok.
+TEST_PASSED
+[Info] Shutting down local server(s)!
+[Test isAlive] for 127.0.0.1:43100
+[ ... Completed in 64.569 seconds ]
+[Info] Local tests completed in 273.108 seconds
+[Info] Finished tests for the local deployment!
+
+[Info] The deployment has 20 server nodes.
+Sending GET PID to all servers (v2) ... 
+>>> Server node pl1.rcc.uottawa.ca has process ID 2996.
+>>> Server node plink.cs.uwaterloo.ca has process ID 15758.
+>>> Server node planetlab2.pop-pa.rnp.br has process ID 19110.
+>>> Server node planetlab3.rutgers.edu has process ID 26454.
+>>> Server node node1.planetlab.mathcs.emory.edu has process ID 2589.
+>>> Server node planetlab2.citadel.edu has process ID 20639.
+>>> Server node planetlab-5.eecs.cwru.edu has process ID 23154.
+>>> Server node planetlab1.pop-pa.rnp.br has process ID 4668.
+>>> Server node planetlab04.cs.washington.edu has process ID 12015.
+>>> Server node planetlab1.dtc.umn.edu has process ID 8286.
+>>> Server node planetlab02.cs.washington.edu has process ID 7640.
+[Warning] Server node planetlab01.cs.washington.edu PoP PID check did not pass and returned error code PID_NOT_RUNNING
+[Warning] Server node planetlab01.cs.washington.edu PoP PID check did not pass and returned error code PID_NOT_RUNNING
+[Warning] Server node planetlab01.cs.washington.edu PoP PID check did not pass and returned error code NO_MEMORY_LIMIT
+>>> Server node planetlab01.cs.washington.edu has process ID 4803.
+>>> Server node planetlab2.dtc.umn.edu has process ID 7437.
+>>> Server node planetlab2.pop-mg.rnp.br has process ID 12220.
+>>> Server node pl2.eng.monash.edu.au has process ID 27921.
+>>> Server node planetlab2.koganei.itrc.net has process ID 13512.
+>>> Server node planetlab2.c3sl.ufpr.br has process ID 5675.
+>>> Server node planetlab4.mini.pw.edu.pl has process ID 12571.
+>>> Server node pl2.cs.montana.edu has process ID 11414.
+>>> Server node planetlab1.cs.uoregon.edu has process ID 32231.
+[ ... Completed in 43.662 seconds ]
+[OK]
+
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab04.cs.washington.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 20 (expected count = 20)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 20 (expected count = 20)
+[ ... Completed in 0.218 seconds ]
+[Ok] All servers returned the expected membership count (20)
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.223 seconds ]
+[OK]
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 512 Bytes ]
+TEST_PASSED
+
+[ TEST Basic PUT/GET (PUT -> GET). Value Length = 1024 Bytes ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.219 seconds ]
+[OK]
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 512 Bytes ]
+TEST_PASSED
+
+
+[ TEST Basic KVS with message version (PUT Version 1 -> GET -> PUT Version 2 -> GET). Value Length = 1024 Bytes ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.213 seconds ]
+[OK]
+
+[ TEST Basic REMOVE (PUT -> GET -> REM -> GET). Value Length = 32 Bytes. ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.224 seconds ]
+[OK]
+
+[ TEST Double remove (PUT -> REM -> REM). Value Length = 32 Bytes. ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.216 seconds ]
+[OK]
+
+[ TEST Invalid Command. ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.222 seconds ]
+[OK]
+
+[ TEST At-Most-Once Client Policy (PUT -> REM -> REM). Value length =  32 Bytes ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.217 seconds ]
+[OK]
+
+[ TEST At-Most-Once Client Policy Empty REMs (EMPTY -> REM -> REM) ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.213 seconds ]
+[OK]
+
+[ TEST At-Most-Once Client Policy Error Return Code (REM -> PUT -> REM) ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.214 seconds ]
+[OK]
+
+[TEST Invalid Key ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.22 seconds ]
+[OK]
+
+[TEST Invalid Value ]
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.212 seconds ]
+[OK]
+
+[ TEST Multi Client Crash: PUT -> GET (closed loop) + REM -> WIPEOUT (closed loop) ]
+[Test isAlive]
+Test Passed. Server is ok.
+TEST_PASSED
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.212 seconds ]
+[OK]
+[ ... TEST Completed in 21.746 seconds ]
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 512 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 1024 Bytes ]
+TEST_PASSED
+[ ... TEST Completed in 2.742 seconds ]
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.221 seconds ]
+[OK]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (1 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.227 seconds ]
+TEST_PASSED
+Stage 1 Random Front-End: Test Status: TEST_PASSED
+Clients: 1
+Total Requests (without replies): 393
+Total Requests (including replies): 595
+Successful Responses: 393
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 395ms, [min] 22ms
+[avg] 152.76844783715012 ms, [stdev] 83.5643606045044ms
+Throughput: 6.5316026525287105 requests per second
+Goodput: 6.5316026525287105 requests per second
+Retry Rate (Successful requests): 1.5139949109414759
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.22 seconds ]
+[OK]
+[ ... TEST Completed in 60.619 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (128 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.217 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.04 ]
+Stage 1 Random Front-End: Test Status: TEST_PASSED
+Clients: 128
+Total Requests (without replies): 48667
+Total Requests (including replies): 75758
+Successful Responses: 48666
+Timeout Responses: 1
+Total Failed Responses: 0
+% Success: 99.99794521955329
+% Timeout: 0.002054780446709269
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 796ms, [min] 21ms
+[avg] 157.88566966670777 ms, [stdev] 88.57113692683161ms
+Throughput: 806.6264461166174 requests per second
+Goodput: 806.6098717141247 requests per second
+Retry Rate (Successful requests): 1.5566605708180081
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.223 seconds ]
+[OK]
+[ ... TEST Completed in 60.816 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (512 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.72 ]
+Stage 1 Random Front-End: Test Status: TEST_PASSED
+Clients: 512
+Total Requests (without replies): 190923
+Total Requests (including replies): 299862
+Successful Responses: 190923
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 1619ms, [min] 21ms
+[avg] 161.0654766581292 ms, [stdev] 90.87878717145168ms
+Throughput: 3141.6277232936222 requests per second
+Goodput: 3141.6277232936222 requests per second
+Retry Rate (Successful requests): 1.570591285492057
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.229 seconds ]
+[OK]
+[ ... TEST Completed in 61.289 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (1024 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.97 ]
+Stage 1 Random Front-End: Test Status: TEST_PASSED
+Clients: 1024
+Total Requests (without replies): 297552
+Total Requests (including replies): 490419
+Successful Responses: 296828
+Timeout Responses: 675
+Total Failed Responses: 49
+% Success: 99.75668118513738
+% Timeout: 0.22685110501693823
+% Failed: 0.016467709845674035
+Response Time (Successful requests):
+[max] 6453ms, [min] 21ms
+[avg] 192.19758243831444 ms, [stdev] 245.88936761241578ms
+Throughput: 4688.294704334536 requests per second
+Goodput: 4676.887201222683 requests per second
+Retry Rate (Successful requests): 1.6481791417970642
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.223 seconds ]
+[OK]
+[ ... TEST Completed in 64.164 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Concurrent Store/Load v2; Stage 0; (Clients = 32, Limit = 40000 PUTs) ]
+Issuing PUTS ... 
+[DONE in 203.984s]
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; Total Value Size (MiB): 19.14835834503174 MiB.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; SUCCESS Response Count: 40000.0.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Confirming keys were stored correctly.
+Issuing GETs ... 
+[DONE in 202.81s]
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; Total Value Size (MiB): 19.14835834503174 MiB.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; SUCCESS Response Count: 40000.0.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] GETs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 20 nodes are alive
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[ ... Completed in 0.218 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 407.013 seconds ]
+
+[Info] Preparing for Stage 1 of the Suspend Test
+[Info] To suspend 9 node(s) in Stage 1.
+[Info] Will suspend planetlab2.koganei.itrc.net:64611
+[Info] Will suspend pl2.cs.montana.edu:64611
+[Info] Will suspend planetlab2.pop-mg.rnp.br:64611
+[Info] Will keep alive planetlab3.rutgers.edu:64611
+[Info] Will keep alive planetlab04.cs.washington.edu:64611
+[Info] Will keep alive pl2.eng.monash.edu.au:64611
+[Info] Will keep alive node1.planetlab.mathcs.emory.edu:64611
+[Info] Will keep alive planetlab1.dtc.umn.edu:64611
+[Info] Will keep alive planetlab2.c3sl.ufpr.br:64611
+[Info] Will keep alive planetlab1.pop-pa.rnp.br:64611
+[Info] Will keep alive planetlab2.dtc.umn.edu:64611
+[Info] Will keep alive planetlab2.citadel.edu:64611
+[Info] Will keep alive planetlab-5.eecs.cwru.edu:64611
+[Info] Will keep alive plink.cs.uwaterloo.ca:64611
+[Info] Will keep alive planetlab1.cs.uoregon.edu:64611
+[Info] Will keep alive planetlab4.mini.pw.edu.pl:64611
+[Info] Will keep alive planetlab2.pop-pa.rnp.br:64611
+[Info] Will keep alive pl1.rcc.uottawa.ca:64611
+[Info] Will keep alive planetlab01.cs.washington.edu:64611
+[Info] Will keep alive planetlab02.cs.washington.edu:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 3 servers.
+Server pl2.cs.montana.edu:64611 suspended
+Server planetlab2.koganei.itrc.net:64611 suspended
+Server planetlab2.pop-mg.rnp.br:64611 suspended
+[ ... Completed in 6.761 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 1 Scenario: Alive Nodes: 17. Dead Nodes: 3
+[Info] Will suspend planetlab3.rutgers.edu:64611
+[Info] Will suspend planetlab04.cs.washington.edu:64611
+[Info] Will suspend pl2.eng.monash.edu.au:64611
+[Info] Will keep alive node1.planetlab.mathcs.emory.edu:64611
+[Info] Will keep alive planetlab1.dtc.umn.edu:64611
+[Info] Will keep alive planetlab2.c3sl.ufpr.br:64611
+[Info] Will keep alive planetlab1.pop-pa.rnp.br:64611
+[Info] Will keep alive planetlab2.dtc.umn.edu:64611
+[Info] Will keep alive planetlab2.citadel.edu:64611
+[Info] Will keep alive planetlab-5.eecs.cwru.edu:64611
+[Info] Will keep alive plink.cs.uwaterloo.ca:64611
+[Info] Will keep alive planetlab1.cs.uoregon.edu:64611
+[Info] Will keep alive planetlab4.mini.pw.edu.pl:64611
+[Info] Will keep alive planetlab2.pop-pa.rnp.br:64611
+[Info] Will keep alive pl1.rcc.uottawa.ca:64611
+[Info] Will keep alive planetlab01.cs.washington.edu:64611
+[Info] Will keep alive planetlab02.cs.washington.edu:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 3 servers.
+Server planetlab3.rutgers.edu:64611 suspended
+Server pl2.eng.monash.edu.au:64611 suspended
+Server planetlab04.cs.washington.edu:64611 suspended
+[ ... Completed in 4.939 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 1 Scenario: Alive Nodes: 14. Dead Nodes: 6
+[Info] Will suspend node1.planetlab.mathcs.emory.edu:64611
+[Info] Will suspend planetlab1.dtc.umn.edu:64611
+[Info] Will suspend planetlab2.c3sl.ufpr.br:64611
+[Info] Will keep alive planetlab1.pop-pa.rnp.br:64611
+[Info] Will keep alive planetlab2.dtc.umn.edu:64611
+[Info] Will keep alive planetlab2.citadel.edu:64611
+[Info] Will keep alive planetlab-5.eecs.cwru.edu:64611
+[Info] Will keep alive plink.cs.uwaterloo.ca:64611
+[Info] Will keep alive planetlab1.cs.uoregon.edu:64611
+[Info] Will keep alive planetlab4.mini.pw.edu.pl:64611
+[Info] Will keep alive planetlab2.pop-pa.rnp.br:64611
+[Info] Will keep alive pl1.rcc.uottawa.ca:64611
+[Info] Will keep alive planetlab01.cs.washington.edu:64611
+[Info] Will keep alive planetlab02.cs.washington.edu:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 3 servers.
+Server planetlab1.dtc.umn.edu:64611 suspended
+Server node1.planetlab.mathcs.emory.edu:64611 suspended
+Server planetlab2.c3sl.ufpr.br:64611 suspended
+[ ... Completed in 5.754 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 1 Scenario: Alive Nodes: 11. Dead Nodes: 9
+
+
+[ TEST Suspend Verify v2; Stage 1; Key Recovery; ]
+Checking that 9 nodes are suspended
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 64.569 seconds ]
+Checking that 11 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[ ... Completed in 0.189 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 11 (expected count = 11)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 11 (expected count = 11)
+[ ... Completed in 0.197 seconds ]
+[Ok] All servers returned the expected membership count (11)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 187.495s]
+[Info] Suspend Verify v2; Stage 1; Key Recovery; Of 40000 stored keys: 39993 SUCCESS, 1 TIMEOUT, 6 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; Expected Key Loss: 45.0%. Actual Key Loss: 0.0175%
+[Info] Suspend Verify v2; Stage 1; Key Recovery; Total Value Size (MiB): 19.14534091949463 MiB.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; SUCCESS Response Count: 39993.0.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % SUCCESS: 99.9825%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % FAILED (Not SUCCESS): 0.0175%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % TIMEOUT: 0.0025%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % KEY-NOT-FOUND: 0.015%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % ERROR-UID: 0.0%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Suspend Verify v2; Stage 1; Key Recovery; % ERROR-OTHER: 0.0%.
+[Info] Minimum GET SUCCESS % Ok: 99.9825% Success.(55.0% SUCCESS expected, 27.5% minimum required).
+TEST_PASSED
+[ ... TEST Completed in 252.451 seconds ]
+
+[Info] Preparing for Stage 2a of the Suspend/Resume Test
+[Info] Stage 2a Scenario: Alive Nodes: 11. Dead Nodes: 9
+
+[ TEST Concurrent Store/Load v2; Stage 2a; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing PUTS ... 
+[DONE in 94.414s]
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; Total Value Size (MiB): 9.589584350585938 MiB.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Confirming keys were stored correctly.
+Issuing GETs ... 
+[DONE in 94.588s]
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; Total Value Size (MiB): 9.589584350585938 MiB.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] GETs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 11 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.189 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 189.192 seconds ]
+
+[Info] Preparing for Stage 2b of the Suspend/Resume Test
+[Info] To resume 3 node(s) in Stage 2a.
+[Info] Will resume planetlab1.dtc.umn.edu:64611
+[Info] Will resume planetlab2.c3sl.ufpr.br:64611
+[Info] Will resume planetlab2.koganei.itrc.net:64611
+[Info] Will keep suspended planetlab04.cs.washington.edu:64611
+[Info] Will keep suspended planetlab2.pop-mg.rnp.br:64611
+[Info] Will keep suspended pl2.cs.montana.edu:64611
+[Info] Will keep suspended node1.planetlab.mathcs.emory.edu:64611
+[Info] Will keep suspended planetlab3.rutgers.edu:64611
+[Info] Will keep suspended pl2.eng.monash.edu.au:64611
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 3 servers.
+Server planetlab2.koganei.itrc.net:64611 resumed
+Server planetlab2.c3sl.ufpr.br:64611 resumed
+Server planetlab1.dtc.umn.edu:64611 resumed
+[ ... Completed in 6.385 seconds ]
+Waiting 60 seconds after resuming nodes
+[Info] Stage 2b Scenario: Alive Nodes: 14. Dead Nodes: 6
+
+
+[ TEST Suspend Verify v2; Stage 2b; Key Recovery; ]
+Checking that 6 nodes are suspended
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[ ... Completed in 64.577 seconds ]
+Checking that 14 nodes are alive
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.673 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 14 (expected count = 14)
+[ ... Completed in 0.221 seconds ]
+[Ok] All servers returned the expected membership count (14)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 200.494s]
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; Of 40000 stored keys: 39994 SUCCESS, 0 TIMEOUT, 6 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; Expected Key Loss: 30.0%. Actual Key Loss: 0.015%
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; Total Value Size (MiB): 19.14609432220459 MiB.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; SUCCESS Response Count: 39994.0.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % SUCCESS: 99.985%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % FAILED (Not SUCCESS): 0.015%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % TIMEOUT: 0.0%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % KEY-NOT-FOUND: 0.015%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-UID: 0.0%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-OTHER: 0.0%.
+[Info] Minimum GET SUCCESS % Ok: 99.985% Success.(70.0% SUCCESS expected, 35.0% minimum required).
+TEST_PASSED
+[ ... TEST Completed in 265.966 seconds ]
+
+[Info] Preparing for Stage 2c of the Suspend/Resume Test
+[Info] Stage 2c Scenario: Alive Nodes: 14. Dead Nodes: 6
+
+
+[ TEST Suspend Verify v2; Stage 2c; Key Recovery; ]
+Checking that 6 nodes are suspended
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[ ... Completed in 64.57 seconds ]
+Checking that 14 nodes are alive
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.393 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 14 (expected count = 14)
+[ ... Completed in 0.222 seconds ]
+[Ok] All servers returned the expected membership count (14)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 100.846s]
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; Total Value Size (MiB): 9.589584350585938 MiB.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; SUCCESS Response Count: 20000.0.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % SUCCESS: 100.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % FAILED (Not SUCCESS): 0.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % TIMEOUT: 0.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % KEY-NOT-FOUND: 0.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-UID: 0.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-OTHER: 0.0%.
+[Info] Minimum GET SUCCESS % Ok: 100.0% Success.(100.0% SUCCESS expected, 50.0% minimum required).
+TEST_PASSED
+[ ... TEST Completed in 166.031 seconds ]
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.212 seconds ]
+[OK]
+[ ... TEST Completed in 0.213 seconds ]
+Pausing for 10 seconds to wait for the cache to be cleared!
+
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 14 (expected count = 14)
+[ ... Completed in 0.219 seconds ]
+[Ok] All servers returned the expected membership count (14)
+[ ... TEST Completed in 0.219 seconds ]
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 8 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 32 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 512 Bytes ]
+TEST_PASSED
+
+[ TEST Random Front-End Basic (PUT -> GET -> REM -> REM -> GET). Value Length = 1024 Bytes ]
+TEST_PASSED
+[ ... TEST Completed in 3.515 seconds ]
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.222 seconds ]
+[OK]
+
+[ TEST Random Front-End Performance (1 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 0.218 seconds ]
+TEST_PASSED
+Stage 2 Random Front-End: Test Status: TEST_PASSED
+Clients: 1
+Total Requests (without replies): 384
+Total Requests (including replies): 586
+Successful Responses: 384
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 469ms, [min] 22ms
+[avg] 156.56770833333334 ms, [stdev] 81.37666792298802ms
+Throughput: 6.380751399943504 requests per second
+Goodput: 6.380751399943504 requests per second
+Retry Rate (Successful requests): 1.5260416666666667
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.21 seconds ]
+[OK]
+[ ... TEST Completed in 60.611 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (128 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 0.216 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.01 ]
+Stage 2 Random Front-End: Test Status: TEST_PASSED
+Clients: 128
+Total Requests (without replies): 42707
+Total Requests (including replies): 73080
+Successful Responses: 42707
+Timeout Responses: 0
+Total Failed Responses: 0
+% Success: 100.0
+% Timeout: 0.0
+% Failed: 0.0
+Response Time (Successful requests):
+[max] 941ms, [min] 21ms
+[avg] 180.06982461891494 ms, [stdev] 129.65356591110216ms
+Throughput: 707.9251413131765 requests per second
+Goodput: 707.9251413131765 requests per second
+Retry Rate (Successful requests): 1.7111948860842485
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.209 seconds ]
+[OK]
+[ ... TEST Completed in 60.768 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (512 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[ ... Completed in 0.21 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.14 ]
+Stage 2 Random Front-End: Test Status: TEST_PASSED
+Clients: 512
+Total Requests (without replies): 152989
+Total Requests (including replies): 273351
+Successful Responses: 152972
+Timeout Responses: 13
+Total Failed Responses: 4
+% Success: 99.9888880899934
+% Timeout: 0.008497342946224892
+% Failed: 0.00261456706037689
+Response Time (Successful requests):
+[max] 6390ms, [min] 21ms
+[avg] 200.72043903459456 ms, [stdev] 165.99230279862533ms
+Throughput: 2415.2852767516024 requests per second
+Goodput: 2415.016892425247 requests per second
+Retry Rate (Successful requests): 1.786736301302708
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.214 seconds ]
+[OK]
+[ ... TEST Completed in 63.827 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[ TEST Random Front-End Performance (1024 clients, 60.0 seconds): PUT -> GET (closed loop) ]
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.219 seconds ]
+TEST_PASSED
+[ CPU load (loadavg, last one minute) 0.26 ]
+Stage 2 Random Front-End: Test Status: TEST_PASSED
+Clients: 1024
+Total Requests (without replies): 207164
+Total Requests (including replies): 392517
+Successful Responses: 205532
+Timeout Responses: 1400
+Total Failed Responses: 232
+% Success: 99.21221833909367
+% Timeout: 0.6757930914637679
+% Failed: 0.11198856944256724
+Response Time (Successful requests):
+[max] 6456ms, [min] 21ms
+[avg] 254.5585456279314 ms, [stdev] 395.3107858570561ms
+Throughput: 3221.6347350087085 requests per second
+Goodput: 3196.2552873849218 requests per second
+Retry Rate (Successful requests): 1.8947162634434553
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.226 seconds ]
+[OK]
+[ ... TEST Completed in 64.833 seconds ]
+[Info] Pausing for 10 seconds to wait for the cache to be cleared!
+
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[ ... Completed in 64.579 seconds ]
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 6 servers.
+Server pl2.eng.monash.edu.au:64611 resumed
+Server pl2.cs.montana.edu:64611 resumed
+Server planetlab3.rutgers.edu:64611 resumed
+Server node1.planetlab.mathcs.emory.edu:64611 resumed
+Server planetlab04.cs.washington.edu:64611 resumed
+Server planetlab2.pop-mg.rnp.br:64611 resumed
+[ ... Completed in 12.191 seconds ]
+Waiting 60 seconds after resuming nodes
+Sending WIPE-OUT to all servers...
+[ ... Completed in 0.214 seconds ]
+[OK]
+
+[ TEST Concurrent Store/Load v2; Stage 3; (Clients = 32, Limit = 40000 PUTs) ]
+Issuing PUTS ... 
+[DONE in 201.567s]
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; Total Value Size (MiB): 19.097365379333496 MiB.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; SUCCESS Response Count: 40000.0.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 20 nodes are alive
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.215 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 201.783 seconds ]
+
+[Info] Preparing for the sequential consistency Test (Stage 3)
+[Info] To suspend 8 total node(s) in sequential consistency test.
+
+[ TEST Concurrent Store/Load v2; Stage 3a; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 101.917s]
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; Total Value Size (MiB): 9.542715072631836 MiB.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 20 nodes are alive
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 102.13 seconds ]
+[Info] Will suspend planetlab1.cs.uoregon.edu:64611
+[Info] Will suspend planetlab2.c3sl.ufpr.br:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 2 servers.
+Server planetlab1.cs.uoregon.edu:64611 suspended
+Server planetlab2.c3sl.ufpr.br:64611 suspended
+[ ... Completed in 4.406 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 3 Scenario: Alive Nodes: 18. Dead Nodes: 2
+[ ... TEST Completed in 176.536 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3a; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 2 nodes are suspended
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 64.569 seconds ]
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.205 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab04.cs.washington.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab4.mini.pw.edu.pl:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[ ... Completed in 0.205 seconds ]
+[Ok] All servers returned the expected membership count (18)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 200.564s]
+[Info] Sequential Consistency; Stage 3a; GET Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3a; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Sequential Consistency; Stage 3a; GET Phase; Total Value Size (MiB): 19.094432830810547 MiB.
+[Info] Sequential Consistency; Stage 3a; GET Phase; SUCCESS Response Count: 40000.0.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % SUCCESS: 100.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3a; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3b; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 99.702s]
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; Total Value Size (MiB): 9.571465492248535 MiB.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.206 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 99.908 seconds ]
+[Info] Will suspend planetlab2.dtc.umn.edu:64611
+[Info] Will suspend planetlab4.mini.pw.edu.pl:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 2 servers.
+Server planetlab2.dtc.umn.edu:64611 suspended
+Server planetlab4.mini.pw.edu.pl:64611 suspended
+[ ... Completed in 3.53 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 3 Scenario: Alive Nodes: 16. Dead Nodes: 4
+[ ... TEST Completed in 173.438 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3b; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 4 nodes are suspended
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 64.594 seconds ]
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.923 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab04.cs.washington.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[ ... Completed in 0.2 seconds ]
+[Ok] All servers returned the expected membership count (16)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 191.35s]
+[Info] Sequential Consistency; Stage 3b; GET Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3b; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Sequential Consistency; Stage 3b; GET Phase; Total Value Size (MiB): 19.15371799468994 MiB.
+[Info] Sequential Consistency; Stage 3b; GET Phase; SUCCESS Response Count: 40000.0.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % SUCCESS: 100.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3b; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.209 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3c; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 96.989s]
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; Total Value Size (MiB): 9.554920196533203 MiB.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.203 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 97.192 seconds ]
+[Info] Will suspend planetlab04.cs.washington.edu:64611
+[Info] Will suspend planetlab1.dtc.umn.edu:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 2 servers.
+Server planetlab04.cs.washington.edu:64611 suspended
+Server planetlab1.dtc.umn.edu:64611 suspended
+[ ... Completed in 2.15 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 3 Scenario: Alive Nodes: 14. Dead Nodes: 6
+[ ... TEST Completed in 169.342 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3c; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 6 nodes are suspended
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[ ... Completed in 64.577 seconds ]
+Checking that 14 nodes are alive
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.204 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[ ... Completed in 0.216 seconds ]
+[Ok] All servers returned the expected membership count (14)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 209.404s]
+[Info] Sequential Consistency; Stage 3c; GET Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3c; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Sequential Consistency; Stage 3c; GET Phase; Total Value Size (MiB): 19.1684513092041 MiB.
+[Info] Sequential Consistency; Stage 3c; GET Phase; SUCCESS Response Count: 40000.0.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % SUCCESS: 100.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3c; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 14 nodes are alive
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.203 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3d; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 107.156s]
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; Total Value Size (MiB): 9.579017639160156 MiB.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 14 nodes are alive
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.211 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 107.367 seconds ]
+[Info] Will suspend pl2.eng.monash.edu.au:64611
+[Info] Will suspend node1.planetlab.mathcs.emory.edu:64611
+Waiting 10 seconds before suspending nodes
+[Info] Suspending 2 servers.
+Server pl2.eng.monash.edu.au:64611 suspended
+Server node1.planetlab.mathcs.emory.edu:64611 suspended
+[ ... Completed in 3.823 seconds ]
+Waiting 60 seconds after suspending nodes
+[Info] Stage 3 Scenario: Alive Nodes: 12. Dead Nodes: 8
+[ ... TEST Completed in 181.19 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3d; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 8 nodes are suspended
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[ ... Completed in 64.663 seconds ]
+Checking that 12 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.205 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 12 (expected count = 12)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 12 (expected count = 12)
+[ ... Completed in 0.207 seconds ]
+[Ok] All servers returned the expected membership count (12)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 185.412s]
+[Info] Sequential Consistency; Stage 3d; GET Phase; Of 40000 stored keys: 40000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3d; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Sequential Consistency; Stage 3d; GET Phase; Total Value Size (MiB): 19.15103054046631 MiB.
+[Info] Sequential Consistency; Stage 3d; GET Phase; SUCCESS Response Count: 40000.0.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % SUCCESS: 100.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3d; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 12 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.211 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3e; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 95.624s]
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; Total Value Size (MiB): 9.428092002868652 MiB.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 12 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[ ... Completed in 0.211 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 95.835 seconds ]
+[Info] Will resume planetlab2.dtc.umn.edu:64611
+[Info] Will resume planetlab1.cs.uoregon.edu:64611
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 2 servers.
+Server planetlab2.dtc.umn.edu:64611 resumed
+Server planetlab1.cs.uoregon.edu:64611 resumed
+[ ... Completed in 1.867 seconds ]
+Waiting 60 seconds after resuming nodes
+[Info] Stage 3e Scenario: Alive Nodes: 14. Dead Nodes: 6
+[ ... TEST Completed in 167.703 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3e; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 6 nodes are suspended
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[ ... Completed in 64.572 seconds ]
+Checking that 14 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.212 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 14 (expected count = 14)
+[ ... Completed in 0.214 seconds ]
+[Ok] All servers returned the expected membership count (14)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 177.29s]
+[Info] Sequential Consistency; Stage 3e; GET Phase; Of 40000 stored keys: 38174 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 1826 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3e; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 4.565%
+[Info] Sequential Consistency; Stage 3e; GET Phase; Total Value Size (MiB): 18.129725456237793 MiB.
+[Info] Sequential Consistency; Stage 3e; GET Phase; SUCCESS Response Count: 38174.0.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % SUCCESS: 95.435%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % FAILED (Not SUCCESS): 4.565%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % ERROR-INVALID-GET (value or version): 4.565%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3e; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 14 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.203 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3f; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 88.957s]
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; Total Value Size (MiB): 9.614246368408203 MiB.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 14 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[ ... Completed in 0.206 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 89.163 seconds ]
+[Info] Will resume pl2.eng.monash.edu.au:64611
+[Info] Will resume planetlab2.c3sl.ufpr.br:64611
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 2 servers.
+Server pl2.eng.monash.edu.au:64611 resumed
+Server planetlab2.c3sl.ufpr.br:64611 resumed
+[ ... Completed in 7.6 seconds ]
+Waiting 60 seconds after resuming nodes
+[Info] Stage 3f Scenario: Alive Nodes: 16. Dead Nodes: 4
+[ ... TEST Completed in 166.763 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3f; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 4 nodes are suspended
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 64.57 seconds ]
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 0.21 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 16 (expected count = 16)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 16 (expected count = 16)
+[ ... Completed in 0.214 seconds ]
+[Ok] All servers returned the expected membership count (16)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 212.408s]
+[Info] Sequential Consistency; Stage 3f; GET Phase; Of 40000 stored keys: 32568 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 7432 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3f; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 18.58%
+[Info] Sequential Consistency; Stage 3f; GET Phase; Total Value Size (MiB): 15.550724029541016 MiB.
+[Info] Sequential Consistency; Stage 3f; GET Phase; SUCCESS Response Count: 32568.0.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % SUCCESS: 81.42%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % FAILED (Not SUCCESS): 18.58%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % ERROR-INVALID-GET (value or version): 18.58%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3f; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 0.278 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3g; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 108.333s]
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; Total Value Size (MiB): 9.524086952209473 MiB.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 16 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[ ... Completed in 0.212 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 108.545 seconds ]
+[Info] Will resume planetlab1.dtc.umn.edu:64611
+[Info] Will resume node1.planetlab.mathcs.emory.edu:64611
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 2 servers.
+Server planetlab1.dtc.umn.edu:64611 resumed
+Server node1.planetlab.mathcs.emory.edu:64611 resumed
+[ ... Completed in 2.848 seconds ]
+Waiting 60 seconds after resuming nodes
+[Info] Stage 3g Scenario: Alive Nodes: 18. Dead Nodes: 2
+[ ... TEST Completed in 181.393 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3g; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 2 nodes are suspended
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 64.571 seconds ]
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[ ... Completed in 0.392 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 18 (expected count = 18)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 18 (expected count = 18)
+[ ... Completed in 0.215 seconds ]
+[Ok] All servers returned the expected membership count (18)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 207.619s]
+[Info] Sequential Consistency; Stage 3g; GET Phase; Of 40000 stored keys: 32731 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 7269 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3g; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 18.1725%
+[Info] Sequential Consistency; Stage 3g; GET Phase; Total Value Size (MiB): 15.60264778137207 MiB.
+[Info] Sequential Consistency; Stage 3g; GET Phase; SUCCESS Response Count: 32731.0.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % SUCCESS: 81.8275%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % FAILED (Not SUCCESS): 18.1725%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % ERROR-INVALID-GET (value or version): 18.1725%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3g; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ TEST Concurrent Store/Load v2; Stage 3h; (Clients = 32, Limit = 20000 PUTs) ]
+Issuing RELOADS ... 
+[DONE in 105.538s]
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; Of 20000 stored keys: 20000 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 0 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; Expected Key Loss: 0.0%. Actual Key Loss: 0.0%
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; Total Value Size (MiB): 9.588691711425781 MiB.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; SUCCESS Response Count: 20000.0.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % SUCCESS: 100.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % FAILED (Not SUCCESS): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % TIMEOUT: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-UID: 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-INVALID-GET (value or version): 0.0%.
+[Info] Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-OTHER: 0.0%.
+[Info] PUTs % SUCCESS Ok: 100.0% Success.(90.0% minimum required).
+Checking that 18 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[ ... Completed in 0.213 seconds ]
+TEST_PASSED
+[ ... TEST Completed in 105.751 seconds ]
+[Info] Will resume planetlab04.cs.washington.edu:64611
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 1 servers.
+Server planetlab04.cs.washington.edu:64611 resumed
+[ ... Completed in 1.388 seconds ]
+Waiting 60 seconds after resuming nodes
+[Info] Stage 3h Scenario: Alive Nodes: 19. Dead Nodes: 1
+[ ... TEST Completed in 177.14 seconds ]
+
+
+[ TEST Sequential Consistency; Stage 3h; (Clients = 32, Limit = 40000 GETS) ]
+Checking that 1 nodes are suspended
+[Test isAlive] for planetlab4.mini.pw.edu.pl:64611
+[ ... Completed in 64.57 seconds ]
+Checking that 19 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[ ... Completed in 0.217 seconds ]
+Sending GetMembershipCount to all servers... 
+[Info] Server planetlab02.cs.washington.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab01.cs.washington.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab04.cs.washington.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab1.cs.uoregon.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.dtc.umn.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab1.dtc.umn.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab-5.eecs.cwru.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server pl2.cs.montana.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server node1.planetlab.mathcs.emory.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab3.rutgers.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server plink.cs.uwaterloo.ca:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.citadel.edu:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server pl1.rcc.uottawa.ca:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.koganei.itrc.net:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server pl2.eng.monash.edu.au:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab1.pop-pa.rnp.br:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.pop-pa.rnp.br:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.pop-mg.rnp.br:64611 replied with membership count = 19 (expected count = 19)
+[Info] Server planetlab2.c3sl.ufpr.br:64611 replied with membership count = 19 (expected count = 19)
+[ ... Completed in 0.219 seconds ]
+[Ok] All servers returned the expected membership count (19)
+Attempting retrieval of keys... 
+Issuing GETs ... 
+[DONE in 190.704s]
+[Info] Sequential Consistency; Stage 3h; GET Phase; Of 40000 stored keys: 31349 SUCCESS, 0 TIMEOUT, 0 KEY-NOT-FOUND, 0 ERROR-UID, 8651 ERROR-INVALID-GET (value or version), 0 ERROR-OTHER.
+[Info] Sequential Consistency; Stage 3h; GET Phase; Expected Key Loss: 0.0%. Actual Key Loss: 21.6275%
+[Info] Sequential Consistency; Stage 3h; GET Phase; Total Value Size (MiB): 14.995735168457031 MiB.
+[Info] Sequential Consistency; Stage 3h; GET Phase; SUCCESS Response Count: 31349.0.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % SUCCESS: 78.3725%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % FAILED (Not SUCCESS): 21.6275%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % TIMEOUT: 0.0%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % KEY-NOT-FOUND: 0.0%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % ERROR-UID: 0.0%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % ERROR-INVALID-GET (value or version): 21.6275%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; % ERROR-OTHER: 0.0%.
+[Info] Sequential Consistency; Stage 3h; GET Phase; NOT-STORED keys Count: 0.0.
+Checking that 19 nodes are alive
+[Test isAlive] for planetlab1.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab2.citadel.edu:64611
+[Test isAlive] for plink.cs.uwaterloo.ca:64611
+[Test isAlive] for planetlab2.pop-pa.rnp.br:64611
+[Test isAlive] for planetlab-5.eecs.cwru.edu:64611
+[Test isAlive] for pl2.cs.montana.edu:64611
+[Test isAlive] for planetlab2.pop-mg.rnp.br:64611
+[Test isAlive] for planetlab2.koganei.itrc.net:64611
+[Test isAlive] for planetlab3.rutgers.edu:64611
+[Test isAlive] for pl1.rcc.uottawa.ca:64611
+[Test isAlive] for planetlab02.cs.washington.edu:64611
+[Test isAlive] for planetlab01.cs.washington.edu:64611
+[Test isAlive] for planetlab2.dtc.umn.edu:64611
+[Test isAlive] for planetlab1.cs.uoregon.edu:64611
+[Test isAlive] for pl2.eng.monash.edu.au:64611
+[Test isAlive] for planetlab2.c3sl.ufpr.br:64611
+[Test isAlive] for planetlab1.dtc.umn.edu:64611
+[Test isAlive] for node1.planetlab.mathcs.emory.edu:64611
+[Test isAlive] for planetlab04.cs.washington.edu:64611
+[ ... Completed in 0.216 seconds ]
+TEST_PASSED
+Results Summary:
+Client AWS Instance Type : c5.2xlarge
+Client Local Hostname : ip-172-31-38-1
+Client Local IP : ip-172-31-38-1/172.31.38.1
+Concurrent Store/Load v2; Stage 0; : 2.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 0; GET Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 0; GET Phase; SUCCESS Response Count : 40000.0
+Concurrent Store/Load v2; Stage 0; GET Phase; Total Value Size (MiB) : 19.14835834503174
+Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; SUCCESS Response Count : 40000.0
+Concurrent Store/Load v2; Stage 0; PUT Phase; Total Value Size (MiB) : 19.14835834503174
+Concurrent Store/Load v2; Stage 2a; : 2.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 2a; GET Phase; Total Value Size (MiB) : 9.589584350585938
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 2a; PUT Phase; Total Value Size (MiB) : 9.589584350585938
+Concurrent Store/Load v2; Stage 3; : 2.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; SUCCESS Response Count : 40000.0
+Concurrent Store/Load v2; Stage 3; PUT Phase; Total Value Size (MiB) : 19.097365379333496
+Concurrent Store/Load v2; Stage 3a; : 2.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3a; PUT Phase; Total Value Size (MiB) : 9.542715072631836
+Concurrent Store/Load v2; Stage 3b; : 2.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3b; PUT Phase; Total Value Size (MiB) : 9.571465492248535
+Concurrent Store/Load v2; Stage 3c; : 2.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3c; PUT Phase; Total Value Size (MiB) : 9.554920196533203
+Concurrent Store/Load v2; Stage 3d; : 2.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3d; PUT Phase; Total Value Size (MiB) : 9.579017639160156
+Concurrent Store/Load v2; Stage 3e; : 2.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3e; PUT Phase; Total Value Size (MiB) : 9.428092002868652
+Concurrent Store/Load v2; Stage 3f; : 2.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3f; PUT Phase; Total Value Size (MiB) : 9.614246368408203
+Concurrent Store/Load v2; Stage 3g; : 2.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3g; PUT Phase; Total Value Size (MiB) : 9.524086952209473
+Concurrent Store/Load v2; Stage 3h; : 2.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-OTHER : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % ERROR-UID : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % FAILED (Not SUCCESS) : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % KEY-NOT-FOUND : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % SUCCESS : 100.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; % TIMEOUT : 0.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; SUCCESS Response Count : 20000.0
+Concurrent Store/Load v2; Stage 3h; PUT Phase; Total Value Size (MiB) : 9.588691711425781
+Local At-Most-Once Policy : 2.0
+Local At-Most-Once Policy Empty REMs : 2.0
+Local At-Most-Once Policy Error Return Code : 2.0
+Local Basic PUT GET  : 2.0
+Local Client Capacity Test : 2.0
+Local Double PUT with version : 2.0
+Local Double Remove : 2.0
+Local Invalid Command : 2.0
+Local Invalid Key Test : 2.0
+Local Invalid Value Test : 2.0
+Local Remove Operation : 2.0
+Local Shutdown Test : 2.0
+Local Single node: 1 Client(s) % Failed : 0.0
+Local Single node: 1 Client(s) % Success : 100.0
+Local Single node: 1 Client(s) % Timeout : 0.0
+Local Single node: 1 Client(s) Average Response Time (ms) : 1.0
+Local Single node: 1 Client(s) Goodput (Requests per Second) : 13499.0
+Local Single node: 1 Client(s) Maximum Response Time (ms) : 116.0
+Local Single node: 1 Client(s) STDEV Response Time (ms) : 1.0
+Local Single node: 1 Client(s) Successful Responses : 809936
+Local Single node: 1 Client(s) Throughput (Requests per Second) : 13499.0
+Local Single node: 1 Client(s) Timeout Responses : 0
+Local Single node: 1 Client(s) Total Failed Responses : 0
+Local Single node: 1 Client(s) Total Requests (including retries) : 809936
+Local Single node: 1 Client(s) Total Requests (without retries) : 809936
+Local Single node: 16 Client(s) % Failed : 0.0
+Local Single node: 16 Client(s) % Success : 100.0
+Local Single node: 16 Client(s) % Timeout : 0.0
+Local Single node: 16 Client(s) Average Response Time (ms) : 1.0
+Local Single node: 16 Client(s) Goodput (Requests per Second) : 15480.0
+Local Single node: 16 Client(s) Maximum Response Time (ms) : 209.0
+Local Single node: 16 Client(s) STDEV Response Time (ms) : 7.0
+Local Single node: 16 Client(s) Successful Responses : 929548
+Local Single node: 16 Client(s) Throughput (Requests per Second) : 15480.0
+Local Single node: 16 Client(s) Timeout Responses : 0
+Local Single node: 16 Client(s) Total Failed Responses : 0
+Local Single node: 16 Client(s) Total Requests (including retries) : 929557
+Local Single node: 16 Client(s) Total Requests (without retries) : 929548
+Local Single node: 64 Client(s) % Failed : 0.0
+Local Single node: 64 Client(s) % Success : 99.9998910423758
+Local Single node: 64 Client(s) % Timeout : 1.0895762420079582E-4
+Local Single node: 64 Client(s) Average Response Time (ms) : 5.0
+Local Single node: 64 Client(s) Goodput (Requests per Second) : 15284.0
+Local Single node: 64 Client(s) Maximum Response Time (ms) : 1057.0
+Local Single node: 64 Client(s) STDEV Response Time (ms) : 16.0
+Local Single node: 64 Client(s) Successful Responses : 917787
+Local Single node: 64 Client(s) Throughput (Requests per Second) : 15284.0
+Local Single node: 64 Client(s) Timeout Responses : 1
+Local Single node: 64 Client(s) Total Failed Responses : 0
+Local Single node: 64 Client(s) Total Requests (including retries) : 917966
+Local Single node: 64 Client(s) Total Requests (without retries) : 917788
+Sequential Consistency; Stage 3a; : 2.0
+Sequential Consistency; Stage 3a; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Sequential Consistency; Stage 3a; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3a; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3a; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Sequential Consistency; Stage 3a; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3a; GET Phase; % SUCCESS : 100.0
+Sequential Consistency; Stage 3a; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3a; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3a; GET Phase; SUCCESS Response Count : 40000.0
+Sequential Consistency; Stage 3a; GET Phase; Total Value Size (MiB) : 19.094432830810547
+Sequential Consistency; Stage 3b; : 2.0
+Sequential Consistency; Stage 3b; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Sequential Consistency; Stage 3b; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3b; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3b; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Sequential Consistency; Stage 3b; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3b; GET Phase; % SUCCESS : 100.0
+Sequential Consistency; Stage 3b; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3b; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3b; GET Phase; SUCCESS Response Count : 40000.0
+Sequential Consistency; Stage 3b; GET Phase; Total Value Size (MiB) : 19.15371799468994
+Sequential Consistency; Stage 3c; : 2.0
+Sequential Consistency; Stage 3c; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Sequential Consistency; Stage 3c; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3c; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3c; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Sequential Consistency; Stage 3c; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3c; GET Phase; % SUCCESS : 100.0
+Sequential Consistency; Stage 3c; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3c; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3c; GET Phase; SUCCESS Response Count : 40000.0
+Sequential Consistency; Stage 3c; GET Phase; Total Value Size (MiB) : 19.1684513092041
+Sequential Consistency; Stage 3d; : 2.0
+Sequential Consistency; Stage 3d; GET Phase; % ERROR-INVALID-GET (value or version) : 0.0
+Sequential Consistency; Stage 3d; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3d; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3d; GET Phase; % FAILED (Not SUCCESS) : 0.0
+Sequential Consistency; Stage 3d; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3d; GET Phase; % SUCCESS : 100.0
+Sequential Consistency; Stage 3d; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3d; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3d; GET Phase; SUCCESS Response Count : 40000.0
+Sequential Consistency; Stage 3d; GET Phase; Total Value Size (MiB) : 19.15103054046631
+Sequential Consistency; Stage 3e; : 2.0
+Sequential Consistency; Stage 3e; GET Phase; % ERROR-INVALID-GET (value or version) : 4.565
+Sequential Consistency; Stage 3e; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3e; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3e; GET Phase; % FAILED (Not SUCCESS) : 4.565
+Sequential Consistency; Stage 3e; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3e; GET Phase; % SUCCESS : 95.435
+Sequential Consistency; Stage 3e; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3e; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3e; GET Phase; SUCCESS Response Count : 38174.0
+Sequential Consistency; Stage 3e; GET Phase; Total Value Size (MiB) : 18.129725456237793
+Sequential Consistency; Stage 3f; : 2.0
+Sequential Consistency; Stage 3f; GET Phase; % ERROR-INVALID-GET (value or version) : 18.58
+Sequential Consistency; Stage 3f; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3f; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3f; GET Phase; % FAILED (Not SUCCESS) : 18.58
+Sequential Consistency; Stage 3f; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3f; GET Phase; % SUCCESS : 81.42
+Sequential Consistency; Stage 3f; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3f; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3f; GET Phase; SUCCESS Response Count : 32568.0
+Sequential Consistency; Stage 3f; GET Phase; Total Value Size (MiB) : 15.550724029541016
+Sequential Consistency; Stage 3g; : 2.0
+Sequential Consistency; Stage 3g; GET Phase; % ERROR-INVALID-GET (value or version) : 18.1725
+Sequential Consistency; Stage 3g; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3g; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3g; GET Phase; % FAILED (Not SUCCESS) : 18.1725
+Sequential Consistency; Stage 3g; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3g; GET Phase; % SUCCESS : 81.8275
+Sequential Consistency; Stage 3g; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3g; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3g; GET Phase; SUCCESS Response Count : 32731.0
+Sequential Consistency; Stage 3g; GET Phase; Total Value Size (MiB) : 15.60264778137207
+Sequential Consistency; Stage 3h; : 2.0
+Sequential Consistency; Stage 3h; GET Phase; % ERROR-INVALID-GET (value or version) : 21.6275
+Sequential Consistency; Stage 3h; GET Phase; % ERROR-OTHER : 0.0
+Sequential Consistency; Stage 3h; GET Phase; % ERROR-UID : 0.0
+Sequential Consistency; Stage 3h; GET Phase; % FAILED (Not SUCCESS) : 21.6275
+Sequential Consistency; Stage 3h; GET Phase; % KEY-NOT-FOUND : 0.0
+Sequential Consistency; Stage 3h; GET Phase; % SUCCESS : 78.3725
+Sequential Consistency; Stage 3h; GET Phase; % TIMEOUT : 0.0
+Sequential Consistency; Stage 3h; GET Phase; NOT-STORED keys Count : 0.0
+Sequential Consistency; Stage 3h; GET Phase; SUCCESS Response Count : 31349.0
+Sequential Consistency; Stage 3h; GET Phase; Total Value Size (MiB) : 14.995735168457031
+Sequential consistency test Suspend Node Count : 8
+Server Count : 20
+Server List : pl1.rcc.uottawa.ca_64611_plink.cs.uwaterloo.ca_64611_planetlab2.pop-pa.rnp.br_64611_planetlab3.rutgers.edu_64611_node1.planetlab.mathcs.emory.edu_64611_planetlab2.citadel.edu_64611_planetlab-5.eecs.cwru.edu_64611_planetlab1.pop-pa.rnp.br_64611_planetlab04.cs.washington.edu_64611_planetlab1.dtc.umn.edu_64611_planetlab02.cs.washington.edu_64611_planetlab01.cs.washington.edu_64611_planetlab2.dtc.umn.edu_64611_planetlab2.pop-mg.rnp.br_64611_pl2.eng.monash.edu.au_64611_planetlab2.koganei.itrc.net_64611_planetlab2.c3sl.ufpr.br_64611_planetlab4.mini.pw.edu.pl_64611_pl2.cs.montana.edu_64611_planetlab1.cs.uoregon.edu_64611_
+Single Client Capacity (MiB) for value size of 500 : 30.0
+Single Front Node (At-Most-Once) Policy : 2.0
+Single Front Node At-Most-Once Policy Empty REMs : 2.0
+Single Front Node At-Most-Once Policy Error Return Code : 2.0
+Single Front Node Basic PUT GET  : 2.0
+Single Front Node Double PUT with version : 2.0
+Single Front Node Double Remove : 2.0
+Single Front Node Invalid Command : 2.0
+Single Front Node Invalid Key Test : 2.0
+Single Front Node Invalid Value Test : 2.0
+Single Front Node Multi-Client Crash : 2.0
+Single Front Node Remove Operation : 2.0
+Stage 1 Random Front-End Basic : 2.0
+Stage 1 Random Front-End: 1 Client(s) % Failed : 0.0
+Stage 1 Random Front-End: 1 Client(s) % Success : 100.0
+Stage 1 Random Front-End: 1 Client(s) % Timeout : 0.0
+Stage 1 Random Front-End: 1 Client(s) Average Response Time (ms) : 153.0
+Stage 1 Random Front-End: 1 Client(s) Goodput (Requests per Second) : 7.0
+Stage 1 Random Front-End: 1 Client(s) Maximum Response Time (ms) : 395.0
+Stage 1 Random Front-End: 1 Client(s) STDEV Response Time (ms) : 84.0
+Stage 1 Random Front-End: 1 Client(s) Successful Responses : 393
+Stage 1 Random Front-End: 1 Client(s) Throughput (Requests per Second) : 7.0
+Stage 1 Random Front-End: 1 Client(s) Timeout Responses : 0
+Stage 1 Random Front-End: 1 Client(s) Total Failed Responses : 0
+Stage 1 Random Front-End: 1 Client(s) Total Requests (including replies) : 595
+Stage 1 Random Front-End: 1 Client(s) Total Requests (without replies) : 393
+Stage 1 Random Front-End: 1024 Client(s) % Failed : 0.016467709845674035
+Stage 1 Random Front-End: 1024 Client(s) % Success : 99.75668118513738
+Stage 1 Random Front-End: 1024 Client(s) % Timeout : 0.22685110501693823
+Stage 1 Random Front-End: 1024 Client(s) Average Response Time (ms) : 193.0
+Stage 1 Random Front-End: 1024 Client(s) CPU load (loadavg - last one minute) : 0.97
+Stage 1 Random Front-End: 1024 Client(s) Goodput (Requests per Second) : 4677.0
+Stage 1 Random Front-End: 1024 Client(s) Maximum Response Time (ms) : 6453.0
+Stage 1 Random Front-End: 1024 Client(s) STDEV Response Time (ms) : 246.0
+Stage 1 Random Front-End: 1024 Client(s) Successful Responses : 296828
+Stage 1 Random Front-End: 1024 Client(s) Throughput (Requests per Second) : 4689.0
+Stage 1 Random Front-End: 1024 Client(s) Timeout Responses : 675
+Stage 1 Random Front-End: 1024 Client(s) Total Failed Responses : 49
+Stage 1 Random Front-End: 1024 Client(s) Total Requests (including replies) : 490419
+Stage 1 Random Front-End: 1024 Client(s) Total Requests (without replies) : 297552
+Stage 1 Random Front-End: 128 Client(s) % Failed : 0.0
+Stage 1 Random Front-End: 128 Client(s) % Success : 99.99794521955329
+Stage 1 Random Front-End: 128 Client(s) % Timeout : 0.002054780446709269
+Stage 1 Random Front-End: 128 Client(s) Average Response Time (ms) : 158.0
+Stage 1 Random Front-End: 128 Client(s) CPU load (loadavg - last one minute) : 0.04
+Stage 1 Random Front-End: 128 Client(s) Goodput (Requests per Second) : 807.0
+Stage 1 Random Front-End: 128 Client(s) Maximum Response Time (ms) : 796.0
+Stage 1 Random Front-End: 128 Client(s) STDEV Response Time (ms) : 89.0
+Stage 1 Random Front-End: 128 Client(s) Successful Responses : 48666
+Stage 1 Random Front-End: 128 Client(s) Throughput (Requests per Second) : 807.0
+Stage 1 Random Front-End: 128 Client(s) Timeout Responses : 1
+Stage 1 Random Front-End: 128 Client(s) Total Failed Responses : 0
+Stage 1 Random Front-End: 128 Client(s) Total Requests (including replies) : 75758
+Stage 1 Random Front-End: 128 Client(s) Total Requests (without replies) : 48667
+Stage 1 Random Front-End: 512 Client(s) % Failed : 0.0
+Stage 1 Random Front-End: 512 Client(s) % Success : 100.0
+Stage 1 Random Front-End: 512 Client(s) % Timeout : 0.0
+Stage 1 Random Front-End: 512 Client(s) Average Response Time (ms) : 162.0
+Stage 1 Random Front-End: 512 Client(s) CPU load (loadavg - last one minute) : 0.72
+Stage 1 Random Front-End: 512 Client(s) Goodput (Requests per Second) : 3142.0
+Stage 1 Random Front-End: 512 Client(s) Maximum Response Time (ms) : 1619.0
+Stage 1 Random Front-End: 512 Client(s) STDEV Response Time (ms) : 91.0
+Stage 1 Random Front-End: 512 Client(s) Successful Responses : 190923
+Stage 1 Random Front-End: 512 Client(s) Throughput (Requests per Second) : 3142.0
+Stage 1 Random Front-End: 512 Client(s) Timeout Responses : 0
+Stage 1 Random Front-End: 512 Client(s) Total Failed Responses : 0
+Stage 1 Random Front-End: 512 Client(s) Total Requests (including replies) : 299862
+Stage 1 Random Front-End: 512 Client(s) Total Requests (without replies) : 190923
+Stage 1 Suspend Node Count : 9
+Stage 2 Distributed Shutdown Honoured : 2.0
+Stage 2 Random Front-End Basic : 2.0
+Stage 2 Random Front-End: 1 Client(s) % Failed : 0.0
+Stage 2 Random Front-End: 1 Client(s) % Success : 100.0
+Stage 2 Random Front-End: 1 Client(s) % Timeout : 0.0
+Stage 2 Random Front-End: 1 Client(s) Average Response Time (ms) : 157.0
+Stage 2 Random Front-End: 1 Client(s) Goodput (Requests per Second) : 7.0
+Stage 2 Random Front-End: 1 Client(s) Maximum Response Time (ms) : 469.0
+Stage 2 Random Front-End: 1 Client(s) STDEV Response Time (ms) : 82.0
+Stage 2 Random Front-End: 1 Client(s) Successful Responses : 384
+Stage 2 Random Front-End: 1 Client(s) Throughput (Requests per Second) : 7.0
+Stage 2 Random Front-End: 1 Client(s) Timeout Responses : 0
+Stage 2 Random Front-End: 1 Client(s) Total Failed Responses : 0
+Stage 2 Random Front-End: 1 Client(s) Total Requests (including replies) : 586
+Stage 2 Random Front-End: 1 Client(s) Total Requests (without replies) : 384
+Stage 2 Random Front-End: 1024 Client(s) % Failed : 0.11198856944256724
+Stage 2 Random Front-End: 1024 Client(s) % Success : 99.21221833909367
+Stage 2 Random Front-End: 1024 Client(s) % Timeout : 0.6757930914637679
+Stage 2 Random Front-End: 1024 Client(s) Average Response Time (ms) : 255.0
+Stage 2 Random Front-End: 1024 Client(s) CPU load (loadavg - last one minute) : 0.26
+Stage 2 Random Front-End: 1024 Client(s) Goodput (Requests per Second) : 3197.0
+Stage 2 Random Front-End: 1024 Client(s) Maximum Response Time (ms) : 6456.0
+Stage 2 Random Front-End: 1024 Client(s) STDEV Response Time (ms) : 396.0
+Stage 2 Random Front-End: 1024 Client(s) Successful Responses : 205532
+Stage 2 Random Front-End: 1024 Client(s) Throughput (Requests per Second) : 3222.0
+Stage 2 Random Front-End: 1024 Client(s) Timeout Responses : 1400
+Stage 2 Random Front-End: 1024 Client(s) Total Failed Responses : 232
+Stage 2 Random Front-End: 1024 Client(s) Total Requests (including replies) : 392517
+Stage 2 Random Front-End: 1024 Client(s) Total Requests (without replies) : 207164
+Stage 2 Random Front-End: 128 Client(s) % Failed : 0.0
+Stage 2 Random Front-End: 128 Client(s) % Success : 100.0
+Stage 2 Random Front-End: 128 Client(s) % Timeout : 0.0
+Stage 2 Random Front-End: 128 Client(s) Average Response Time (ms) : 181.0
+Stage 2 Random Front-End: 128 Client(s) CPU load (loadavg - last one minute) : 0.01
+Stage 2 Random Front-End: 128 Client(s) Goodput (Requests per Second) : 708.0
+Stage 2 Random Front-End: 128 Client(s) Maximum Response Time (ms) : 941.0
+Stage 2 Random Front-End: 128 Client(s) STDEV Response Time (ms) : 130.0
+Stage 2 Random Front-End: 128 Client(s) Successful Responses : 42707
+Stage 2 Random Front-End: 128 Client(s) Throughput (Requests per Second) : 708.0
+Stage 2 Random Front-End: 128 Client(s) Timeout Responses : 0
+Stage 2 Random Front-End: 128 Client(s) Total Failed Responses : 0
+Stage 2 Random Front-End: 128 Client(s) Total Requests (including replies) : 73080
+Stage 2 Random Front-End: 128 Client(s) Total Requests (without replies) : 42707
+Stage 2 Random Front-End: 512 Client(s) % Failed : 0.00261456706037689
+Stage 2 Random Front-End: 512 Client(s) % Success : 99.9888880899934
+Stage 2 Random Front-End: 512 Client(s) % Timeout : 0.008497342946224892
+Stage 2 Random Front-End: 512 Client(s) Average Response Time (ms) : 201.0
+Stage 2 Random Front-End: 512 Client(s) CPU load (loadavg - last one minute) : 0.14
+Stage 2 Random Front-End: 512 Client(s) Goodput (Requests per Second) : 2416.0
+Stage 2 Random Front-End: 512 Client(s) Maximum Response Time (ms) : 6390.0
+Stage 2 Random Front-End: 512 Client(s) STDEV Response Time (ms) : 166.0
+Stage 2 Random Front-End: 512 Client(s) Successful Responses : 152972
+Stage 2 Random Front-End: 512 Client(s) Throughput (Requests per Second) : 2416.0
+Stage 2 Random Front-End: 512 Client(s) Timeout Responses : 13
+Stage 2 Random Front-End: 512 Client(s) Total Failed Responses : 4
+Stage 2 Random Front-End: 512 Client(s) Total Requests (including replies) : 273351
+Stage 2 Random Front-End: 512 Client(s) Total Requests (without replies) : 152989
+Stage 2 Resumed Node Count : 3
+Suspend Verify v2; Stage 1; Key Recovery; : 2.0
+Suspend Verify v2; Stage 1; Key Recovery; % ERROR-INVALID-GET (value or version) : 0.0
+Suspend Verify v2; Stage 1; Key Recovery; % ERROR-OTHER : 0.0
+Suspend Verify v2; Stage 1; Key Recovery; % ERROR-UID : 0.0
+Suspend Verify v2; Stage 1; Key Recovery; % FAILED (Not SUCCESS) : 0.0175
+Suspend Verify v2; Stage 1; Key Recovery; % KEY-NOT-FOUND : 0.015
+Suspend Verify v2; Stage 1; Key Recovery; % SUCCESS : 99.9825
+Suspend Verify v2; Stage 1; Key Recovery; % TIMEOUT : 0.0025
+Suspend Verify v2; Stage 1; Key Recovery; SUCCESS Response Count : 39993.0
+Suspend Verify v2; Stage 1; Key Recovery; Total Value Size (MiB) : 19.14534091949463
+Suspend Verify v2; Stage 2b; Key Recovery; : 2.0
+Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-INVALID-GET (value or version) : 0.0
+Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-OTHER : 0.0
+Suspend Verify v2; Stage 2b; Key Recovery; % ERROR-UID : 0.0
+Suspend Verify v2; Stage 2b; Key Recovery; % FAILED (Not SUCCESS) : 0.015
+Suspend Verify v2; Stage 2b; Key Recovery; % KEY-NOT-FOUND : 0.015
+Suspend Verify v2; Stage 2b; Key Recovery; % SUCCESS : 99.985
+Suspend Verify v2; Stage 2b; Key Recovery; % TIMEOUT : 0.0
+Suspend Verify v2; Stage 2b; Key Recovery; SUCCESS Response Count : 39994.0
+Suspend Verify v2; Stage 2b; Key Recovery; Total Value Size (MiB) : 19.14609432220459
+Suspend Verify v2; Stage 2c; Key Recovery; : 2.0
+Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-INVALID-GET (value or version) : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-OTHER : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; % ERROR-UID : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; % FAILED (Not SUCCESS) : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; % KEY-NOT-FOUND : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; % SUCCESS : 100.0
+Suspend Verify v2; Stage 2c; Key Recovery; % TIMEOUT : 0.0
+Suspend Verify v2; Stage 2c; Key Recovery; SUCCESS Response Count : 20000.0
+Suspend Verify v2; Stage 2c; Key Recovery; Total Value Size (MiB) : 9.589584350585938
+Test Start Time : Mon Mar 25 20:49:10 UTC 2019
+Result Verification Code : 79788FF74D47EB0EA588FF9F0C17C688
+[Info] Number of collected result fields: 432
+[Info] Submission Successful!
+[Info] Results server is up. Secret is valid.
+[Info] Results successfully submitted.
+[Info] Completed A11 Tests.
+
+[TA-Note] Resuming any remaining dead nodes (so you do not have to redeploy your service)!
+Waiting 10 seconds before resuming nodes
+[Info] Resuming 1 servers.
+Server planetlab4.mini.pw.edu.pl:64611 resumed
+[ ... Completed in 2.69 seconds ]
+
+Testing completed in 6380.331s
