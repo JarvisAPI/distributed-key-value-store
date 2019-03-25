@@ -43,7 +43,7 @@ public class MembershipService {
         }
         
         if (!affectedVNodes.isEmpty()) {
-            ReplicationKVHandler.getInstance().replicateToJoiningSuccessors(affectedVNodes);
+            ReplicationKVHandler.getInstance().replicateToSuccessors(affectedVNodes);
         }
     }
     
@@ -62,7 +62,8 @@ public class MembershipService {
         
         Set<VirtualNode> affectedVNodes = new HashSet<>();
         for (VirtualNode vnode : selfVNodes) {
-            if (HashEntity.getInstance().isSuccessor(vnode, leavingNodeId, Protocol.REPLICATION_FACTOR - 1)) {
+            if (HashEntity.getInstance().isSuccessor(vnode, leavingNodeId, Protocol.REPLICATION_FACTOR - 1) ||
+                HashEntity.getInstance().isPredecessor(vnode, leavingNodeId, Protocol.REPLICATION_FACTOR - 1)) {
                 affectedVNodes.add(vnode);
             }
         }

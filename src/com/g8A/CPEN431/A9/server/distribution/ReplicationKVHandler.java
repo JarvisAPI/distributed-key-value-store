@@ -24,17 +24,13 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 public class ReplicationKVHandler {
     private int NUM_OF_PUTS = 100;
     private int RETRY_INTERVAL = 100;
-    private int BATCH_INTERVAL = 5000;
+    private int BATCH_INTERVAL = 10000;
     private Set<VirtualNode> mAffectedVNodes;
     private static ReplicationKVHandler mReplicationKVHandler;
     private boolean mBatchTimerStarted = false;
     
-    private Set<VirtualNode> mJoiningVNodes;
-    private boolean mJoiningBatchTimerStarted = false;
-    
     private ReplicationKVHandler() {
         mAffectedVNodes = new HashSet<>();
-        mJoiningVNodes = new HashSet<>();
     }
     
     public static synchronized ReplicationKVHandler getInstance() {
@@ -52,25 +48,6 @@ public class ReplicationKVHandler {
             }
             mAffectedVNodes.addAll(replicateVNodes);
         }
-    }
-    
-    public void replicateToJoiningSuccessors(Set<VirtualNode> replicateVNodes) {
-        synchronized(mJoiningVNodes) {
-            if (!mJoiningBatchTimerStarted) {
-                mJoiningBatchTimerStarted = true;
-                Util.timer.schedule(new JoiningSuccessorTask(), BATCH_INTERVAL);
-            }
-        }
-    }
-    
-    private class JoiningSuccessorTask extends TimerTask {
-
-        @Override
-        public void run() {
-            // TODO Auto-generated method stub
-            
-        }
-        
     }
     
     private class ReplicateToSuccessorTask extends TimerTask {
