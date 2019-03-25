@@ -9,6 +9,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -169,6 +170,7 @@ public class Stage2cTest {
     
     private void run() throws Exception {
         mSocket = new DatagramSocket();
+        mSocket.setSoTimeout(2000);
         
         getPids();
         
@@ -205,6 +207,10 @@ public class Stage2cTest {
             
             send(msg);
             KVResponse kvRes = receive(msg.getIdString());
+            if (kvRes == null) {
+                continue;
+            }
+            
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
                 numPuts++;
             }
@@ -213,10 +219,10 @@ public class Stage2cTest {
             }
             ls.add(entry);
             if (i % 1000 == 0) {
-                Thread.sleep(500);
+                Thread.sleep(600);
             }
         }
-        System.out.println("Number of successful puts: " + numPuts);
+        System.out.println("[INFO]: Number of successful puts: " + numPuts);
         
         
         // Step 3.
@@ -230,6 +236,10 @@ public class Stage2cTest {
             send(msg);
             
             KVResponse kvRes = receive(msg.getIdString());
+            if (kvRes == null) {
+                continue;
+            }
+            
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
                 if (!kvRes.getValue().equals(e.value)) {
                     System.out.println("Error after " + i + " GETs");
@@ -268,6 +278,10 @@ public class Stage2cTest {
             send(msg);
             
             KVResponse kvRes = receive(msg.getIdString());
+            if (kvRes == null) {
+                continue;
+            }
+            
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
                 if (!kvRes.getValue().equals(e.value)) {
                     System.out.println("[ERROR]: GET != PUT");
@@ -282,11 +296,22 @@ public class Stage2cTest {
         System.out.println("[INFO]: Number of successful GET: " + numSuccess);
         System.out.println("[INFO]: Number of key not found: " + numKeyNotFound);
         
+        System.out.println("[INFO]: Shutting down servers");
+        servers.addAll(suspendedServers);
+        for (AddressHolder node : servers) {
+            KVRequest.Builder b = KVRequest.newBuilder();
+            b.setCommand(Protocol.SHUTDOWN);
+            NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address)InetAddress.getLoopbackAddress(), rnd.nextInt()));
+            msg.setPayload(b.build().toByteArray());
+            msg.setAddressAndPort(node.address, node.port);
+            send(msg);
+        }
+        /*
         System.out.println("[INFO]: Resuming remaining servers");
         for (AddressHolder node : suspendedServers) {
             Process proc = new ProcessBuilder("kill", "-cont", Integer.toString(pidMap.get(node))).start();
             proc.waitFor();
-        }
+        }*/
     }
     
     private void resumeNodes() throws IOException, InterruptedException { 
@@ -299,20 +324,26 @@ public class Stage2cTest {
             proc.waitFor();
             System.out.println("[INFO]: Resumed: " + node.hostname + ":" + node.port);
             suspendedServers.remove(node);
+            servers.add(node);
         }
     }
     
     private KVResponse receive(ByteString msgIdString) throws IOException {
         //System.out.println("Message Id String: " + Util.getHexString(msgIdString.toByteArray()));
         NetworkMessage msg;
-        KeyValueResponse.KVResponse kvRes;
-        do {
-            mSocket.receive(mReceivePacket);
-            msg = NetworkMessage.contructMessage(Arrays.copyOf(mReceivePacket.getData(),
-                    mReceivePacket.getLength()));
-            
-            kvRes = KVResponse.parseFrom(msg.getPayload());
-        } while(!msg.getIdString().equals(msgIdString));
+        KeyValueResponse.KVResponse kvRes = null;
+        try {
+            do {
+                mSocket.receive(mReceivePacket);
+                msg = NetworkMessage.contructMessage(Arrays.copyOf(mReceivePacket.getData(),
+                        mReceivePacket.getLength()));
+                
+                kvRes = KVResponse.parseFrom(msg.getPayload());
+            } while(!msg.getIdString().equals(msgIdString));
+        } catch(SocketTimeoutException e) {
+            kvRes = null;
+            System.out.println("[INFO]: Request timed out");
+        }
         
         return kvRes;
     }

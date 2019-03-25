@@ -24,17 +24,23 @@ public class EpidemicProtocol {
     // The minimum push interval is the fastest rate at which epidemic protocol
     // will periodically contact another node, however when the system is running
     // the rate might actually be slower due to other operations. In milliseconds.
-    public static int MIN_PUSH_INTERVAL = 4000;
+    public static int MIN_PUSH_INTERVAL = 3000;
     public static int EPIDEMIC_SRC_PORT = 50222; // Source port to receive and send
     // If the timestamp counter - timestamp of system image is greater than this
     // value then the node is assumed to have failed.
-    public static long NODE_HAS_FAILED_MARK = 8;
+    public static long NODE_HAS_FAILED_MARK = 10;
+    public static int NODE_ALIVE_ROUND_LIMIT = 3;
     private static class SystemImage {
         // timestamp recorded by current node, currently it is counter
         private long timestamp;
         private long lastMsgTimestamp; // timestamp send from originating node.
         // the number of rounds since declared failure, 0 if it has not yet failed
         private int failedRoundCounter = 0;
+        // the number of rounds since declared alive, 0 if it has not yet been declared alive.
+        // when this counter is greater than NODE_ALIVE_ROUND_LIMIT then the node will be added to
+        // the hash ring.
+        private int aliveRoundCounter = 0;
+        private int resetAliveCounter = 0;
     }
     
     // Format: [msgType: 1 byte][nodeIdx: 4 bytes][msgTimestamp: 8 bytes]
@@ -132,11 +138,16 @@ public class EpidemicProtocol {
                         if (mNodeIdx != i && mSysImages[i] != null) {
                             if (mTimestampCounter - mSysImages[i].timestamp > NODE_HAS_FAILED_MARK) {
                                 // Node deemed to have failed.
-                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK * 2) {
-                                    // Node failed long enough such that all nodes have been notified of the node's
-                                    // failure, so it is safe to completely remove it now.
-                                    System.out.println(String.format("[INFO]: Node idx: %d completely removed", i));
-                                    mSysImages[i] = null;
+                                if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK / 2) {
+                                    
+                                    if (mSysImages[i].aliveRoundCounter > 0) {
+                                        mSysImages[i].resetAliveCounter++;
+                                        if (mSysImages[i].resetAliveCounter > NODE_HAS_FAILED_MARK) {
+                                            mSysImages[i].resetAliveCounter = 0;
+                                            mSysImages[i].aliveRoundCounter = 0;
+                                        }
+                                    }
+                                    
                                     continue;
                                 }
                                 if (mSysImages[i].failedRoundCounter == NODE_HAS_FAILED_MARK / 2) {
@@ -209,18 +220,28 @@ public class EpidemicProtocol {
                                             // Node update
                                             mSysImages[nodeIdx].lastMsgTimestamp = msgTimestamp;
                                             mSysImages[nodeIdx].timestamp = mEpidemicProtocol.mTimestampCounter;
+                                            
                                             if (mSysImages[nodeIdx].failedRoundCounter > 0) {
                                                 // An assumed failed node should rejoin
                                                 if (mSysImages[nodeIdx].failedRoundCounter > NODE_HAS_FAILED_MARK / 2) {
-                                                    System.out.println(String.format("[INFO]: Node idx: %d rejoining, adding to hash ring", nodeIdx));
-                                                    MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
-                                                    NodeTable.getInstance().addAliveNode(nodeIdx);
+                                                    mSysImages[nodeIdx].aliveRoundCounter++;
+                                                    
+                                                    if (mSysImages[nodeIdx].aliveRoundCounter > NODE_ALIVE_ROUND_LIMIT) {
+                                                        mSysImageSize++;
+                                                        mSysImages[nodeIdx].failedRoundCounter = 0;
+                                                        mSysImages[nodeIdx].aliveRoundCounter = 0;
+                                                        mSysImages[nodeIdx].resetAliveCounter = 0;
+                                                        
+                                                        System.out.println(String.format("[INFO]: Node idx: %d rejoining, adding to hash ring", nodeIdx));
+                                                        MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
+                                                        NodeTable.getInstance().addAliveNode(nodeIdx);
+                                                    }
                                                 }
                                                 else {
+                                                    mSysImageSize++;
+                                                    mSysImages[nodeIdx].failedRoundCounter = 0;
                                                     System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                                 }
-                                                mSysImageSize++;
-                                                mSysImages[nodeIdx].failedRoundCounter = 0;
                                             }
                                         }
                                     }

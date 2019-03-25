@@ -44,7 +44,6 @@ public class MembershipService {
         
         System.out.println(String.format("[INFO]: Leaving node: %s:%d, leavingNodeId: %d", leftNode.hostname, leftNode.port, leavingNodeId));
         
-        /*
         VirtualNode[] selfVNodes = HashEntity.getInstance().getVNodeMap().get(DirectRoute.getInstance().getSelfNodeId());
         
         Set<VirtualNode> affectedVNodes = new HashSet<>();
@@ -57,7 +56,7 @@ public class MembershipService {
         if (!affectedVNodes.isEmpty()) {
             ReplicationKVHandler.getInstance().replicateToSuccessors(affectedVNodes);
         }
-        */
+        
         HashEntity.getInstance().removeNode(hostNameAndPort);
         DirectRoute.getInstance().removeNode(leavingNodeId);
     }
