@@ -39,12 +39,10 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueResponse.KVResponse;
 public class Stage2cTest {
     private DatagramSocket mSocket;
     private DatagramPacket mReceivePacket;
-    private int mServerPort;
-    private InetAddress mServerAddr;
     private int randomKeyLength = 8;
     private Random rnd = new Random(0);
-    private int numNodesToSuspend = 5;
-    private int numNodesToResume = 3;
+    private int numNodesToSuspend = 10;
+    private int numNodesToResume = 5;
     
     public class Entry {
         ByteString key;
@@ -64,7 +62,7 @@ public class Stage2cTest {
     
     
     private NetworkMessage generateTestPut(int valueSize, ByteString key, Entry entry) {
-        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), mServerPort));
+        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), rnd.nextInt()));
         
         KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
                 .newBuilder()
@@ -73,7 +71,7 @@ public class Stage2cTest {
 
         byte[] value = new byte[valueSize];
         for (int i = 0; i < valueSize; i++) {
-            value[i] = (byte) 0xff;
+            value[i] = (byte) rnd.nextInt(256);
         }
         ByteString bvalue = ByteString.copyFrom(value);
         kvBuilder.setValue(bvalue);
@@ -89,13 +87,12 @@ public class Stage2cTest {
                 .build()
                 .toByteArray();
 
-        msg.setAddressAndPort(mServerAddr, mServerPort);
         msg.setPayload(payload);
         return msg;
     }
     
     private NetworkMessage generateTestGet(ByteString key) {
-        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), mServerPort));
+        NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address) InetAddress.getLoopbackAddress(), 50111));
         
         KeyValueRequest.KVRequest.Builder kvBuilder = KeyValueRequest.KVRequest
                 .newBuilder()
@@ -106,7 +103,6 @@ public class Stage2cTest {
                 .build()
                 .toByteArray();
         
-        msg.setAddressAndPort(mServerAddr, mServerPort);
         msg.setPayload(payload);
         return msg;
     }
@@ -125,12 +121,12 @@ public class Stage2cTest {
         for (AddressHolder server : servers) {
             KeyValueRequest.KVRequest.Builder kvReq = KVRequest.newBuilder();
             kvReq.setCommand(Protocol.GET_PID);
-            NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address)InetAddress.getLoopbackAddress(), 50111));
+            NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address)InetAddress.getLoopbackAddress(), rnd.nextInt()));
             msg.setPayload(kvReq.build().toByteArray());
             msg.setAddressAndPort(server.address, server.port);
             
             send(msg);
-            KVResponse kvRes = receive();
+            KVResponse kvRes = receive(msg.getIdString());
             
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
                 pidMap.put(server, kvRes.getPid());
@@ -180,11 +176,12 @@ public class Stage2cTest {
         for (AddressHolder node : servers) {
             KVRequest.Builder b = KVRequest.newBuilder();
             b.setCommand(Protocol.WIPEOUT);
-            NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address)InetAddress.getLoopbackAddress(), 50111));
+            NetworkMessage msg = new NetworkMessage(Util.getUniqueId((Inet4Address)InetAddress.getLoopbackAddress(), rnd.nextInt()));
             msg.setPayload(b.build().toByteArray());
             msg.setAddressAndPort(node.address, node.port);
+            
             send(msg);
-            receive();
+            receive(msg.getIdString());
         }
         
         // Step 1.
@@ -195,6 +192,7 @@ public class Stage2cTest {
         
         // Step 2.
         servers.removeAll(suspendedServers);
+        int numPuts = 0;
         System.out.println("[INFO]: Putting keys");
         List<Entry> ls = new ArrayList<>();
         int numKeysToAdd = 20000;
@@ -206,12 +204,23 @@ public class Stage2cTest {
             msg.setAddressAndPort(node.address, node.port);
             
             send(msg);
-            mSocket.receive(mReceivePacket);
-            
+            KVResponse kvRes = receive(msg.getIdString());
+            if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
+                numPuts++;
+            }
+            else {
+                System.out.println("PUT ErrCode: " + kvRes.getErrCode());
+            }
             ls.add(entry);
+            if (i % 1000 == 0) {
+                Thread.sleep(500);
+            }
         }
+        System.out.println("Number of successful puts: " + numPuts);
+        
         
         // Step 3.
+        int i = 0;
         System.out.println("[INFO]: Getting keys after PUT");
         for (Entry e : ls) {
             NetworkMessage msg = generateTestGet(e.key);
@@ -220,9 +229,23 @@ public class Stage2cTest {
             
             send(msg);
             
-            KVResponse kvRes = receive();
+            KVResponse kvRes = receive(msg.getIdString());
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
+                if (!kvRes.getValue().equals(e.value)) {
+                    System.out.println("Error after " + i + " GETs");
+                    System.out.println(Util.getHexString(kvRes.getValue().toByteArray()));
+                    System.out.println(Util.getHexString(e.value.toByteArray()));
+                    System.out.println("[ERROR]: GET != PUT");
+                    System.exit(1);
+                }
                 mKeyMap.put(e.key, e);
+            }
+            else {
+                System.out.println("Get ErrCode: " + kvRes.getErrCode());
+            }
+            i++;
+            if (i % 1000 == 0) {
+                Thread.sleep(600);
             }
         }
         System.out.println("[INFO]: Num successful GETS: " + mKeyMap.size());
@@ -244,10 +267,10 @@ public class Stage2cTest {
             
             send(msg);
             
-            KVResponse kvRes = receive();
+            KVResponse kvRes = receive(msg.getIdString());
             if (kvRes.getErrCode() == Protocol.ERR_SUCCESS) {
                 if (!kvRes.getValue().equals(e.value)) {
-                    System.err.println("[ERROR]: GET != PUT");
+                    System.out.println("[ERROR]: GET != PUT");
                     System.exit(1);
                 }
                 numSuccess++;
@@ -272,28 +295,31 @@ public class Stage2cTest {
         
         for (int i = 0; i < numNodesToResume; i++) {
             AddressHolder node = resumeList.get(i);
-            String[] args = new String[] {"/bin/bash", "-c", "kill", "-cont", Integer.toString(pidMap.get(node))};
-            Process proc = new ProcessBuilder(args).start();
+            Process proc = new ProcessBuilder("kill", "-cont", Integer.toString(pidMap.get(node))).start();
             proc.waitFor();
             System.out.println("[INFO]: Resumed: " + node.hostname + ":" + node.port);
             suspendedServers.remove(node);
         }
     }
     
-    private KVResponse receive() throws IOException {
-        mSocket.receive(mReceivePacket);
-        NetworkMessage msg = NetworkMessage.contructMessage(Arrays.copyOf(mReceivePacket.getData(),
-                mReceivePacket.getLength()));
+    private KVResponse receive(ByteString msgIdString) throws IOException {
+        //System.out.println("Message Id String: " + Util.getHexString(msgIdString.toByteArray()));
+        NetworkMessage msg;
+        KeyValueResponse.KVResponse kvRes;
+        do {
+            mSocket.receive(mReceivePacket);
+            msg = NetworkMessage.contructMessage(Arrays.copyOf(mReceivePacket.getData(),
+                    mReceivePacket.getLength()));
+            
+            kvRes = KVResponse.parseFrom(msg.getPayload());
+        } while(!msg.getIdString().equals(msgIdString));
         
-        KeyValueResponse.KVResponse kvRes = KVResponse.parseFrom(msg.getPayload());
         return kvRes;
     }
     
     private void send(NetworkMessage msg) throws IOException {
-        DatagramPacket packet = new DatagramPacket(new byte[0], 0);
-        packet.setData(msg.getDataBytes());
-        packet.setAddress(msg.getAddress());
-        packet.setPort(msg.getPort());
+        byte[] buf = msg.getDataBytes();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, msg.getAddress(), msg.getPort());
         
         mSocket.send(packet);
     }
