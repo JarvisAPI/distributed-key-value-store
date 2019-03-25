@@ -1,3 +1,5 @@
 /target/
 .*
 src/ca
+err_*
+out_*

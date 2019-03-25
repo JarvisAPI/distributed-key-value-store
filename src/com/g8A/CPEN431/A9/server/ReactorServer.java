@@ -23,7 +23,7 @@ public final class ReactorServer {
     private ExecutorService mThreadPool;
     private KVClient mKVClient;
     private static ReactorServer mReactorServer;
-    public static int KEY_VALUE_PORT;
+    public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
     private static final String VERSION = "v2.1";
     
