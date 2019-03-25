@@ -148,8 +148,6 @@ public final class ReactorServer {
         
         System.out.println("Starting reactor server");
         System.out.println(String.format("***version %s***", VERSION));
-        System.out.println("KV store size: " + KeyValueStore.MAX_SIZE_BYTES / (1024 * 1024) + "MB");
-        System.out.println("Max message cache size: " + MessageCache.SIZE_MAX_CACHE / (1024 * 1024) + "MB");
         System.out.println("Number of virtual nodes: " + numVNodes);
         System.out.println("Thread pool size: " + threadPoolSize);
         System.out.println("Port: " + port);

@@ -144,7 +144,6 @@ public class KeyValueRequestTask implements Runnable {
                         errCode = Protocol.ERR_INVALID_VAL;
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
-                        
                         if (kvReqBuilder.getIsReplica()) {
                             mKeyValStore.put(key, value, kvReqBuilder.getVersion());
                             dataBytes = SUCCESS_BYTES;
