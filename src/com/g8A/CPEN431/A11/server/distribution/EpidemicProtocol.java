@@ -154,18 +154,16 @@ public class EpidemicProtocol {
                                     // Node has failed long enough to be deemed completely gone, so we remove it
                                     // now, but not before since it could be deemed failed due to network slowdown,
                                     // this will cut down potential migration costs.
-                                    mSysImageSize--;
                                     AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                                     NodeTable.getInstance().removeAliveNode(i);
                                     System.out.println(String.format("[INFO]: Node idx: %d removed from hash ring", i));
                                     MembershipService.OnNodeLeft(failedNode);
                                 }
-                                /*
                                 if (mSysImages[i].failedRoundCounter == 0) {
                                     // Node just failed.
                                     System.out.println(String.format("[INFO]: Node idx: %d just failed", i));
                                     mSysImageSize--;
-                                }*/
+                                }
                                 mSysImages[i].failedRoundCounter++;
                             }
                         }
@@ -239,6 +237,7 @@ public class EpidemicProtocol {
                                                     }
                                                 }
                                                 else {
+                                                    mSysImageSize++;
                                                     mSysImages[nodeIdx].failedRoundCounter = 0;
                                                     System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                                 }
