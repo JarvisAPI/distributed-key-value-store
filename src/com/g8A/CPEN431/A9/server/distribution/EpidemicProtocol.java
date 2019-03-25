@@ -29,7 +29,7 @@ public class EpidemicProtocol {
     // If the timestamp counter - timestamp of system image is greater than this
     // value then the node is assumed to have failed.
     public static long NODE_HAS_FAILED_MARK = 16;
-    public static int NODE_ALIVE_ROUND_LIMIT = 3;
+    public static int NODE_ALIVE_ROUND_LIMIT = 1;
     private static class SystemImage {
         // timestamp recorded by current node, currently it is counter
         private long timestamp;
