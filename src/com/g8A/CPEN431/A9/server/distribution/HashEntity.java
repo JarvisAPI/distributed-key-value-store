@@ -241,16 +241,22 @@ public class HashEntity {
      */
     public synchronized void removeNode(ByteString pNode) {
         byte[] pNodeBytes = pNode.toByteArray();
+        int nodeId = -1;
+        int numRemoved = 0;
         for(int i = 0; i < numVNodes; i++) {
             long hash = hash(VirtualNode.getKey(pNodeBytes, i));
             VirtualNode vnode = ring.remove(hash);
             if (vnode != null) {
-                System.out.println(String.format("[DEBUG]: HashEntity#removeNode, removed vnode with id: %d", vnode.getPNodeId()));
-                vNodeMap.remove(vnode.getPNodeId());
+                nodeId = vnode.getPNodeId();
+                numRemoved++;
             }
-            else {
-                System.err.println("[WARNING]: HashEntity#removeNode, cannot find node to remove");
-            }
+        }
+        if (nodeId != -1) {
+            System.out.println(String.format("[DEBUG]: HashEntity#removeNode, removed %d vnodes with nodeId: %d", numRemoved, nodeId));
+            vNodeMap.remove(nodeId);
+        }
+        else {
+            System.err.println("[WARNING]: HashEntity#removeNode, cannot find node to remove");
         }
     }
     
