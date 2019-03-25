@@ -51,7 +51,7 @@ public class HashEntity {
      * @param key the key used in the key/value store.
      * @return the unique physical node id.
      */
-    public synchronized int getKVNodeId(ByteString key) {
+    public int getKVNodeId(ByteString key) {
         if(ring.isEmpty()) return -1;
 
         long hash = hash(key.toByteArray());
@@ -70,7 +70,7 @@ public class HashEntity {
      * @param key the key used in the key/value store.
      * @return the virtual node that should store key.
      */
-    public synchronized VirtualNode getKVNode(ByteString key) {
+    public VirtualNode getKVNode(ByteString key) {
         if(ring.isEmpty()) return null;
 
         long hash = hash(key.toByteArray());
@@ -93,7 +93,7 @@ public class HashEntity {
      * in length.
      * @return the number of successor nodes placed in the buffer.
      */
-    public synchronized int getSuccessorNodes(VirtualNode startvnode, int numSuccessors, int[] buf) {
+    public int getSuccessorNodes(VirtualNode startvnode, int numSuccessors, int[] buf) {
         if(ring.isEmpty()) {
             return 0;
         }
@@ -126,7 +126,7 @@ public class HashEntity {
      * @param distance the max distance to check till.
      * @return true if the matchNodeId is a predecessor of distance or less away from startvnode.
      */
-    public synchronized boolean isPredecessor(VirtualNode startvnode, int matchNodeId, int distance) {
+    public boolean isPredecessor(VirtualNode startvnode, int matchNodeId, int distance) {
         if(ring.isEmpty()) return false;
 
         VirtualNode vnode = startvnode;
@@ -150,7 +150,7 @@ public class HashEntity {
      * @param distance the max distance to check till.
      * @return true if the matchNodeId is a predecessor of distance or less away from startvnode.
      */
-    public synchronized boolean isSuccessor(VirtualNode startvnode, int matchNodeId, int distance) {
+    public boolean isSuccessor(VirtualNode startvnode, int matchNodeId, int distance) {
         if(ring.isEmpty()) return false;
 
         VirtualNode vnode = startvnode;
@@ -172,7 +172,7 @@ public class HashEntity {
      * @param key: the key of a virtual node
      * @return the predecessor virtual node
      */
-    private synchronized VirtualNode getPrevVNode(byte[] vNodeKey) {
+    private VirtualNode getPrevVNode(byte[] vNodeKey) {
     	if(ring.isEmpty()) {
     	    return null;
     	}
@@ -191,7 +191,7 @@ public class HashEntity {
      * @param key: the key of a virtual node
      * @return the successor virtual node
      */
-    private synchronized VirtualNode getNextVNode(byte[] vNodeKey) {
+    private VirtualNode getNextVNode(byte[] vNodeKey) {
     	if(ring.isEmpty()) {
     	    return null;
     	}
@@ -219,7 +219,7 @@ public class HashEntity {
      * @param pNode the ByteString representing hostname+port of the node
      * @return the unique physical node id
      */
-    public synchronized int addNode(ByteString pNode) {
+    public int addNode(ByteString pNode) {
         int pNodeId = getNodeId(pNode);
         //int pNodeId = getPhysicalNodeId(pNode);
         VirtualNode[] vNodes = new VirtualNode[numVNodes];
@@ -239,7 +239,7 @@ public class HashEntity {
      * Removes the node and its replicas of virtual nodes from the ring
      * @param pNode the node key string representing the physical node that should be removed
      */
-    public synchronized void removeNode(ByteString pNode) {
+    public void removeNode(ByteString pNode) {
         byte[] pNodeBytes = pNode.toByteArray();
         int nodeId = -1;
         int numRemoved = 0;

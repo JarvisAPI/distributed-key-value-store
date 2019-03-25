@@ -25,7 +25,7 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.4.2";
+    private static final String VERSION = "v2.4.3";
     
     private static int QUEUE_SIZE = 2048;
     
@@ -59,10 +59,10 @@ public final class ReactorServer {
         mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
         mReactor.registerChannel(SelectionKey.OP_READ, epidemicChannel);
         
-        kvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
+        //kvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
         
         mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool));
-        mReactor.registerEventHandler(SelectionKey.OP_WRITE, new WriteEventHandler());
+        //mReactor.registerEventHandler(SelectionKey.OP_WRITE, new WriteEventHandler());
     }
     
     public ExecutorService getThreadPool() {

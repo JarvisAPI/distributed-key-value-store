@@ -22,12 +22,13 @@ public class WriteEventHandler implements EventHandler {
     
     public static void write(DatagramChannel channel, ByteBuffer buf, SocketAddress addr) throws IOException, InterruptedException {
         if (channel.send(buf, addr) == 0) {
+            System.err.println("[WARNING]: WriteEventHandler#write, cannot send immediately");
+            /*
             Selector sel = Reactor.getInstance().getDemultiplexer();
             SelectionKey key = channel.keyFor(sel);
             @SuppressWarnings("unchecked")
             BlockingQueue<WriteBundle> queue = (BlockingQueue<WriteBundle>) key.attachment();
             
-            System.err.println("[WARNING]: WriteEventHandler#write, cannot send immediately, queuing");
             
             queue.put(new WriteBundle(buf, addr));
             
@@ -35,7 +36,7 @@ public class WriteEventHandler implements EventHandler {
                 key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             }
             
-            key.selector().wakeup();
+            key.selector().wakeup();*/
         }
     }
 

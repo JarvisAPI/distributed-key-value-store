@@ -238,6 +238,7 @@ public class KeyValueRequestTask implements Runnable {
                     break;
                 case Protocol.WIPEOUT:
                     if (mMigrateKVHandler.isMigrating()){
+                        System.err.println("[ERROR]: Overload during wipeout");
                         sendOverloadMessage(message, kvResBuilder, packet);
                         // message overload because of migration, move on
                         return;
