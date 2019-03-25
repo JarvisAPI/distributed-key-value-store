@@ -31,6 +31,20 @@ public class MembershipService {
     	System.out.println(String.format("[INFO]: Joining node: %s:%d, joiningNodeId: %d", joinedNode.hostname, joinedNode.port, joiningNodeId));
 
     	MigrateKVHandler.getInstance().migrate(joiningNodeId);
+    	
+    	int selfNodeId = DirectRoute.getInstance().getSelfNodeId();
+        VirtualNode[] selfVNodes = HashEntity.getInstance().getVNodeMap().get(selfNodeId);
+
+        Set<VirtualNode> affectedVNodes = new HashSet<>();
+        for (VirtualNode vnode : selfVNodes) {
+            if (HashEntity.getInstance().isSuccessor(vnode, joiningNodeId, Protocol.REPLICATION_FACTOR - 1)) {
+                affectedVNodes.add(vnode);
+            }
+        }
+        
+        if (!affectedVNodes.isEmpty()) {
+            ReplicationKVHandler.getInstance().replicateToJoiningSuccessors(affectedVNodes);
+        }
     }
     
     /**
