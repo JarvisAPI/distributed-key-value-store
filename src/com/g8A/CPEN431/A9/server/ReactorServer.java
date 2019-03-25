@@ -25,7 +25,7 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.3";
+    private static final String VERSION = "v2.4";
     
     private static int QUEUE_SIZE = 2048;
     

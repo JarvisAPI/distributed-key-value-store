@@ -22,7 +22,7 @@ import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
 public class MigrateKVHandler {
 	private int NUM_OF_PUTS = 100;
 	private int RETRY_INTERVAL = 100;
-	private int BATCH_INTERVAL = 5000; // Amount of time to wait to batch migrate.
+	private int BATCH_INTERVAL = 10000; // Amount of time to wait to batch migrate.
 	private Set<Integer> mJoiningNodeIdx;
 	private volatile boolean mTimerStarted;
 	private static MigrateKVHandler mHandler;

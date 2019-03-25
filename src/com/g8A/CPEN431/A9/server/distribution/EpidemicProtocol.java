@@ -24,11 +24,11 @@ public class EpidemicProtocol {
     // The minimum push interval is the fastest rate at which epidemic protocol
     // will periodically contact another node, however when the system is running
     // the rate might actually be slower due to other operations. In milliseconds.
-    public static int MIN_PUSH_INTERVAL = 3000;
+    public static int MIN_PUSH_INTERVAL = 2000;
     public static int EPIDEMIC_SRC_PORT = 50222; // Source port to receive and send
     // If the timestamp counter - timestamp of system image is greater than this
     // value then the node is assumed to have failed.
-    public static long NODE_HAS_FAILED_MARK = 10;
+    public static long NODE_HAS_FAILED_MARK = 16;
     public static int NODE_ALIVE_ROUND_LIMIT = 3;
     private static class SystemImage {
         // timestamp recorded by current node, currently it is counter
@@ -140,30 +140,32 @@ public class EpidemicProtocol {
                                 // Node deemed to have failed.
                                 if (mSysImages[i].failedRoundCounter > NODE_HAS_FAILED_MARK / 2) {
                                     
-                                    if (mSysImages[i].aliveRoundCounter > 0) {
+                                    if (mSysImages[i].aliveRoundCounter > 0)  {
                                         mSysImages[i].resetAliveCounter++;
                                         if (mSysImages[i].resetAliveCounter > NODE_HAS_FAILED_MARK) {
                                             mSysImages[i].resetAliveCounter = 0;
                                             mSysImages[i].aliveRoundCounter = 0;
+                                            
                                         }
                                     }
-                                    
                                     continue;
                                 }
                                 if (mSysImages[i].failedRoundCounter == NODE_HAS_FAILED_MARK / 2) {
                                     // Node has failed long enough to be deemed completely gone, so we remove it
                                     // now, but not before since it could be deemed failed due to network slowdown,
                                     // this will cut down potential migration costs.
+                                    mSysImageSize--;
                                     AddressHolder failedNode = NodeTable.getInstance().getIPaddrs()[i];
                                     NodeTable.getInstance().removeAliveNode(i);
                                     System.out.println(String.format("[INFO]: Node idx: %d removed from hash ring", i));
                                     MembershipService.OnNodeLeft(failedNode);
                                 }
+                                /*
                                 if (mSysImages[i].failedRoundCounter == 0) {
                                     // Node just failed.
                                     System.out.println(String.format("[INFO]: Node idx: %d just failed", i));
                                     mSysImageSize--;
-                                }
+                                }*/
                                 mSysImages[i].failedRoundCounter++;
                             }
                         }
@@ -230,7 +232,6 @@ public class EpidemicProtocol {
                                                         mSysImageSize++;
                                                         mSysImages[nodeIdx].failedRoundCounter = 0;
                                                         mSysImages[nodeIdx].aliveRoundCounter = 0;
-                                                        mSysImages[nodeIdx].resetAliveCounter = 0;
                                                         
                                                         System.out.println(String.format("[INFO]: Node idx: %d rejoining, adding to hash ring", nodeIdx));
                                                         MembershipService.OnNodeJoin(NodeTable.getInstance().getIPaddrs()[nodeIdx]);
@@ -238,7 +239,6 @@ public class EpidemicProtocol {
                                                     }
                                                 }
                                                 else {
-                                                    mSysImageSize++;
                                                     mSysImages[nodeIdx].failedRoundCounter = 0;
                                                     System.out.println(String.format("[INFO]: Node idx: %d rejoining", nodeIdx));
                                                 }
