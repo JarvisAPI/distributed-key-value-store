@@ -23,9 +23,10 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.4.7";
+    private static final String VERSION = "v2.4.8";
     
     private PeriodicKVClient mPrimaryKVClient;
+    private PeriodicKVClient mSecondaryKVClient;
     
     private static int QUEUE_SIZE = 2048;
     
@@ -38,14 +39,21 @@ public final class ReactorServer {
         channel.socket().bind(new InetSocketAddress(KEY_VALUE_PORT));
         channel.configureBlocking(false);
         
-        DatagramChannel kvClientChannel = DatagramChannel.open();
-        kvClientChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
-        kvClientChannel.bind(null);
-        kvClientChannel.configureBlocking(false);
+        DatagramChannel primaryKvClientChannel = DatagramChannel.open();
+        primaryKvClientChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
+        primaryKvClientChannel.bind(null);
+        primaryKvClientChannel.configureBlocking(false);
         
-        mPrimaryKVClient = new PeriodicKVClient(kvClientChannel);
+        mPrimaryKVClient = new PeriodicKVClient(primaryKvClientChannel);
         
-        MigrateKVHandler.makeInstance(mPrimaryKVClient);
+        DatagramChannel secondaryKvClientChannel = DatagramChannel.open();
+        secondaryKvClientChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
+        secondaryKvClientChannel.bind(null);
+        secondaryKvClientChannel.configureBlocking(false);
+        
+        mSecondaryKVClient = new PeriodicKVClient(secondaryKvClientChannel);
+        
+        MigrateKVHandler.makeInstance(mSecondaryKVClient);
         
         DatagramChannel epidemicChannel = DatagramChannel.open();
         epidemicChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
@@ -57,13 +65,15 @@ public final class ReactorServer {
         
         mReactor = Reactor.makeInstance();
         mReactor.registerChannel(SelectionKey.OP_READ, channel);
-        mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
+        mReactor.registerChannel(SelectionKey.OP_READ, primaryKvClientChannel);
+        mReactor.registerChannel(SelectionKey.OP_READ, secondaryKvClientChannel);
         mReactor.registerChannel(SelectionKey.OP_READ, epidemicChannel);
         
         channel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
-        kvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
+        primaryKvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
+        secondaryKvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
         
-        mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool));
+        mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool, mPrimaryKVClient, mSecondaryKVClient));
         mReactor.registerEventHandler(SelectionKey.OP_WRITE, new WriteEventHandler());
     }
     
@@ -73,6 +83,10 @@ public final class ReactorServer {
     
     public PeriodicKVClient getPrimaryKVClient() {
         return mPrimaryKVClient;
+    }
+    
+    public PeriodicKVClient getSecondaryKVClient() {
+        return mSecondaryKVClient;
     }
 
     private void run() {

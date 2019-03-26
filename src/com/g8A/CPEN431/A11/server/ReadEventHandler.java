@@ -7,15 +7,21 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.ExecutorService;
 
+import com.g8A.CPEN431.A11.client.PeriodicKVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.server.distribution.EpidemicProtocol;
 
 public class ReadEventHandler implements EventHandler {
     private ByteBuffer mInputBuffer = ByteBuffer.wrap(NetworkMessage.getMaxDataBuffer());
     private ExecutorService mThreadPool;
+    private PeriodicKVClient mPrimaryKVClient;
+    private PeriodicKVClient mSecondaryKVClient;
     
-    public ReadEventHandler(ExecutorService threadPool) {
+    public ReadEventHandler(ExecutorService threadPool,
+                            PeriodicKVClient primaryKVClient, PeriodicKVClient secondaryKVClient) {
         mThreadPool = threadPool;
+        mPrimaryKVClient = primaryKVClient;
+        mSecondaryKVClient = secondaryKVClient;
     }
     
     @Override
@@ -37,9 +43,13 @@ public class ReadEventHandler implements EventHandler {
                 mThreadPool
                     .execute(new EpidemicProtocol.EpidemicReceiveTask(buffer));
             }
+            else if (mPrimaryKVClient.getChannel() == channel) {
+                mThreadPool
+                    .execute(mPrimaryKVClient.createReceiveTask(buffer));
+            }
             else {
                 mThreadPool
-                    .execute(ReactorServer.getInstance().getPrimaryKVClient().createReceiveTask(buffer));
+                    .execute(mSecondaryKVClient.createReceiveTask(buffer));
             }
         } catch (Exception e) {
             e.printStackTrace();

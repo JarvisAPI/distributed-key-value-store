@@ -78,6 +78,10 @@ public class PeriodicKVClient implements KVClient {
         mRequestMap = new ConcurrentHashMap<>();
     }
     
+    public DatagramChannel getChannel() {
+        return mChannel;
+    }
+    
     @Override
     public void send(NetworkMessage msg, AddressHolder fromAddress) {
         ReactorServer.getInstance().getThreadPool()

@@ -36,6 +36,7 @@ public class KeyValueRequestTask implements Runnable {
     private static MigrateKVHandler mMigrateKVHandler;
     private static int mNodeId;
     private static KVClient mKVClient;
+    private static KVClient mSecondaryKVClient;
     private DatagramChannel mChannel;
     private KeyValueRequest.KVRequest.Builder kvReqBuilder;
     private InetSocketAddress mAddr;
@@ -57,6 +58,7 @@ public class KeyValueRequestTask implements Runnable {
         mRouteStrat = DirectRoute.getInstance();
         mNodeId = DirectRoute.getInstance().getSelfNodeId();
         mKVClient = ReactorServer.getInstance().getPrimaryKVClient();
+        mSecondaryKVClient = ReactorServer.getInstance().getSecondaryKVClient();
         mMigrateKVHandler = MigrateKVHandler.getInstance();
     }
 
@@ -342,7 +344,7 @@ public class KeyValueRequestTask implements Runnable {
         
         AddressHolder routedNode = mRouteStrat.getRoute(nodeId);
         replicaMsg.setAddressAndPort(routedNode.address, routedNode.port);
-        mKVClient.send(replicaMsg, null);
+        mSecondaryKVClient.send(replicaMsg, null);
     }
     
     private void send(byte[] dataBytes, InetAddress addr, int port) throws IOException, InterruptedException {
