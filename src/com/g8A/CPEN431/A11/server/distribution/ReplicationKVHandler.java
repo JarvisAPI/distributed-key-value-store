@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.TimerTask;
 
 import com.g8A.CPEN431.A11.client.KVClient;
-import com.g8A.CPEN431.A11.client.PeriodicKVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.protocol.Protocol;
 import com.g8A.CPEN431.A11.protocol.Util;
@@ -76,7 +75,7 @@ public class ReplicationKVHandler {
                 
                 RouteStrategy routeStrat = DirectRoute.getInstance();
                 KeyValueStore kvStore = KeyValueStore.getInstance();
-                KVClient kvClient = PeriodicKVClient.getInstance();
+                KVClient kvClient = ReactorServer.getInstance().getPrimaryKVClient();
                 
                 Set<ByteString> keys = kvStore.getKeys();
                 System.out.println(String.format("[DEBUG]: replicate to successor task, looping through %d keys", keys.size()));

@@ -7,7 +7,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.ExecutorService;
 
-import com.g8A.CPEN431.A11.client.PeriodicKVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.server.distribution.EpidemicProtocol;
 
@@ -40,7 +39,7 @@ public class ReadEventHandler implements EventHandler {
             }
             else {
                 mThreadPool
-                    .execute(new PeriodicKVClient.ReceiveTask(buffer));
+                    .execute(ReactorServer.getInstance().getPrimaryKVClient().createReceiveTask(buffer));
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -43,6 +43,7 @@ public class PeriodicKVClient implements KVClient {
         private final AddressHolder fromAddress;
         private int timer; // Time in milliseconds.
         private int retryCounter;
+        private int requestId = -1;
         
         private RequestBundle(NetworkMessage msg, AddressHolder fromAddress) {
             this.msg = msg;
@@ -50,45 +51,48 @@ public class PeriodicKVClient implements KVClient {
             this.timer = INITIAL_TIMEOUT;
             this.retryCounter = 0;
         }
+        
+        private RequestBundle(NetworkMessage msg, AddressHolder fromAddress, int requestId) {
+            this.msg = msg;
+            this.fromAddress = fromAddress;
+            this.timer = INITIAL_TIMEOUT;
+            this.retryCounter = 0;
+            this.requestId = requestId;
+        }
     }
+    
     private Map<ByteString, RequestBundle> mRequestMap;
     private MessageCache mMessageCache;
     private DatagramChannel mChannel;
 
     private long mElapsedTime;
-    private static PeriodicKVClient mPeriodicKVClient;
     private volatile boolean mTimerTaskEnded = true;
+    private OnResponseReceivedListener mResponseListener;
     
     /**
      * 
      * @throws SocketException if cannot create socket for client.
      */
-    private PeriodicKVClient(DatagramChannel channel) {
+    public PeriodicKVClient(DatagramChannel channel) {
         mChannel = channel;
         mMessageCache = MessageCache.getInstance();
         mRequestMap = new ConcurrentHashMap<>();
     }
     
-
     @Override
     public void send(NetworkMessage msg, AddressHolder fromAddress) {
         ReactorServer.getInstance().getThreadPool()
-            .execute(new PeriodicKVClient.SendTask(new RequestBundle(msg, fromAddress)));
+            .execute(new SendTask(new RequestBundle(msg, fromAddress)));
     }
     
-    public static PeriodicKVClient makeInstance(DatagramChannel channel) {
-        if (mPeriodicKVClient == null) {
-            mPeriodicKVClient = new PeriodicKVClient(channel);
-        }
-        return mPeriodicKVClient;
-    }
-    
-    public static PeriodicKVClient getInstance() {
-        return mPeriodicKVClient;
+    @Override
+    public void send(NetworkMessage msg, AddressHolder fromAddress, int requestId) {
+        ReactorServer.getInstance().getThreadPool()
+            .execute(new SendTask(new RequestBundle(msg, fromAddress, requestId)));
     }
     
     private void checkPeriodicTask() {
-        synchronized(mPeriodicKVClient) {
+        synchronized(PeriodicKVClient.this) {
             if (mTimerTaskEnded) {
                 mTimerTaskEnded = false;
                 Util.timer.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL);
@@ -97,7 +101,15 @@ public class PeriodicKVClient implements KVClient {
         }
     }
     
-    public static class SendTask implements Runnable {
+    public void setResponseListener(OnResponseReceivedListener listener) {
+        mResponseListener = listener;
+    }
+    
+    public ReceiveTask createReceiveTask(byte[] dataBytes) {
+        return new ReceiveTask(dataBytes);
+    }
+    
+    public class SendTask implements Runnable {
         private RequestBundle mRequestBundle;
         
         public SendTask(Object attachment) {
@@ -107,9 +119,9 @@ public class PeriodicKVClient implements KVClient {
         @Override
         public void run() {
             try {
-                mPeriodicKVClient.mRequestMap.put(mRequestBundle.msg.getIdString(), mRequestBundle);
-                mPeriodicKVClient.checkPeriodicTask();
-                mPeriodicKVClient.sendPacket(mRequestBundle.msg);
+                mRequestMap.put(mRequestBundle.msg.getIdString(), mRequestBundle);
+                checkPeriodicTask();
+                sendPacket(mRequestBundle.msg);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -117,7 +129,7 @@ public class PeriodicKVClient implements KVClient {
         
     }
     
-    public static class ReceiveTask implements Runnable {
+    public class ReceiveTask implements Runnable {
         private byte[] mDataBytes;
         
         public ReceiveTask(byte[] dataBytes) {
@@ -130,12 +142,19 @@ public class PeriodicKVClient implements KVClient {
             try {
                 replyMessage = NetworkMessage.contructMessage(mDataBytes);
     
-                RequestBundle requestBundle = mPeriodicKVClient.mRequestMap.remove(replyMessage.getIdString());
+                RequestBundle requestBundle = mRequestMap.remove(replyMessage.getIdString());
                 // If requestBundle == null then that means we sent multiple requests due to timeout
                 // but we already processed and sent the reply
-                if (requestBundle != null && requestBundle.fromAddress != null) {
-                    mPeriodicKVClient.mMessageCache.put(replyMessage.getIdString(),
-                                      ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
+                if (requestBundle != null) {
+                    if (requestBundle.fromAddress != null) {
+                        mMessageCache.put(replyMessage.getIdString(),
+                                          ByteString.copyFrom(replyMessage.getDataBytes()), 0, 0);
+                    }
+                    if (mResponseListener != null) {
+                        if (requestBundle.requestId >= 0) {
+                            mResponseListener.onResponseReceived(requestBundle.requestId, replyMessage);
+                        }
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -189,7 +208,7 @@ public class PeriodicKVClient implements KVClient {
                     }
                 }
                 
-                synchronized(mPeriodicKVClient) {
+                synchronized(PeriodicKVClient.this) {
                     if (!mRequestMap.isEmpty()) {
                         Util.timer.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL);
                         mElapsedTime = System.nanoTime();

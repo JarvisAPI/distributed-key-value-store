@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.TimerTask;
 
 import com.g8A.CPEN431.A11.client.KVClient;
-import com.g8A.CPEN431.A11.client.PeriodicKVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.protocol.Protocol;
 import com.g8A.CPEN431.A11.protocol.Util;
@@ -18,8 +17,9 @@ import com.g8A.CPEN431.A11.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
 
 import ca.NetSysLab.ProtocolBuffers.KeyValueRequest;
+import ca.NetSysLab.ProtocolBuffers.KeyValueRequest.KVRequest;
 
-public class MigrateKVHandler {
+public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
 	private int NUM_OF_PUTS = 100;
 	private int RETRY_INTERVAL = 100;
 	private int BATCH_INTERVAL = 10000; // Amount of time to wait to batch migrate.
@@ -32,8 +32,9 @@ public class MigrateKVHandler {
 
     private MigrateKVHandler() {
         mJoiningNodeIdx = new HashSet<>();
-        mKVClient = PeriodicKVClient.getInstance();
+        mKVClient = ReactorServer.getInstance().getPrimaryKVClient();
         mRouteStrat = DirectRoute.getInstance();
+        mKVClient.setResponseListener(this);
     }
     
     /**
@@ -41,12 +42,22 @@ public class MigrateKVHandler {
      * @param nodeId the node id from hashing
      */
     public void migrate(int nodeId) {
+        NetworkMessage isAliveMessage = new NetworkMessage(Util.getUniqueId());
+        AddressHolder addr = mRouteStrat.getRoute(nodeId);
+        isAliveMessage.setPayload(KVRequest.newBuilder().setCommand(Protocol.IS_ALIVE).build().toByteArray());
+        isAliveMessage.setAddressAndPort(addr.address, addr.port);
+        
+        mKVClient.send(isAliveMessage, null, nodeId);
+    }
+    
+    @Override
+    public void onResponseReceived(int requestId, NetworkMessage msg) {
         synchronized(mHandler) {
             if (!mTimerStarted) {
                 mTimerStarted = true;
                 Util.timer.schedule(new MigrateKVTask(), BATCH_INTERVAL);
             }
-            mJoiningNodeIdx.add(nodeId);
+            mJoiningNodeIdx.add(requestId);
         }
     }
     

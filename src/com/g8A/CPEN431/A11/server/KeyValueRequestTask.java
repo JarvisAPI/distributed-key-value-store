@@ -57,7 +57,7 @@ public class KeyValueRequestTask implements Runnable {
         mHashEntity = HashEntity.getInstance();
         mRouteStrat = DirectRoute.getInstance();
         mNodeId = DirectRoute.getInstance().getSelfNodeId();
-        mKVClient = ReactorServer.getInstance().getKVClient();
+        mKVClient = ReactorServer.getInstance().getPrimaryKVClient();
         mMigrateKVHandler = MigrateKVHandler.getInstance();
     }
 
@@ -335,7 +335,7 @@ public class KeyValueRequestTask implements Runnable {
         mKVClient.send(message, fromAddress);
     }
     
-    private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException {
+    private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException, InterruptedException {
         message.setPayload(kvResBuilder
                 .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                 .setOverloadWaitTime(Protocol.getOverloadWaittime())
@@ -360,8 +360,8 @@ public class KeyValueRequestTask implements Runnable {
         mKVClient.send(replicaMsg, null);
     }
     
-    private void send(DatagramPacket packet) throws IOException {
+    private void send(DatagramPacket packet) throws IOException, InterruptedException {
         ByteBuffer buf = ByteBuffer.wrap(packet.getData());
-        mChannel.send(buf, new InetSocketAddress(packet.getAddress(), packet.getPort()));
+        WriteEventHandler.write(mChannel, buf, new InetSocketAddress(packet.getAddress(), packet.getPort()));
     }
 }

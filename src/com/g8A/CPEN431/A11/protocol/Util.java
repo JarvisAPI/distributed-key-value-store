@@ -4,12 +4,17 @@ import java.net.Inet4Address;
 import java.util.Random;
 import java.util.Timer;
 
+import com.g8A.CPEN431.A11.server.ReactorServer;
 import com.g8A.CPEN431.A11.server.distribution.DirectRoute;
 import com.google.protobuf.ByteString;
 
 public class Util {
     public static final Random rand = new Random();
     public static final Timer timer = new Timer(true);
+    
+    public static byte[] getUniqueId() {
+        return getUniqueId((Inet4Address) DirectRoute.getInstance().getLocalAddress().address, ReactorServer.KEY_VALUE_PORT);
+    }
     
     public static byte[] getUniqueId(int port) {
         return getUniqueId((Inet4Address) DirectRoute.getInstance().getLocalAddress().address, port);

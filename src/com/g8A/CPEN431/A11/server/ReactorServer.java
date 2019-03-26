@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.net.StandardSocketOptions;
 
-import com.g8A.CPEN431.A11.client.KVClient;
 import com.g8A.CPEN431.A11.client.PeriodicKVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.protocol.Protocol;
@@ -21,11 +20,12 @@ import com.g8A.CPEN431.A11.server.distribution.PeriodicKVCheckup;
 
 public final class ReactorServer {
     private ExecutorService mThreadPool;
-    private KVClient mKVClient;
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.4.3";
+    private static final String VERSION = "v2.4.4";
+    
+    private PeriodicKVClient mPrimaryKVClient;
     
     private static int QUEUE_SIZE = 2048;
     
@@ -43,7 +43,8 @@ public final class ReactorServer {
         kvClientChannel.bind(null);
         kvClientChannel.configureBlocking(false);
         
-        mKVClient = PeriodicKVClient.makeInstance(kvClientChannel);
+        mPrimaryKVClient = new PeriodicKVClient(kvClientChannel);
+        
         MigrateKVHandler.makeInstance();
         
         DatagramChannel epidemicChannel = DatagramChannel.open();
@@ -59,18 +60,19 @@ public final class ReactorServer {
         mReactor.registerChannel(SelectionKey.OP_READ, kvClientChannel);
         mReactor.registerChannel(SelectionKey.OP_READ, epidemicChannel);
         
-        //kvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
+        channel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
+        kvClientChannel.keyFor(mReactor.getDemultiplexer()).attach(new LinkedBlockingQueue<WriteBundle>(QUEUE_SIZE));
         
         mReactor.registerEventHandler(SelectionKey.OP_READ, new ReadEventHandler(mThreadPool));
-        //mReactor.registerEventHandler(SelectionKey.OP_WRITE, new WriteEventHandler());
+        mReactor.registerEventHandler(SelectionKey.OP_WRITE, new WriteEventHandler());
     }
     
     public ExecutorService getThreadPool() {
         return mThreadPool;
     }
     
-    public KVClient getKVClient() {
-        return mKVClient;
+    public PeriodicKVClient getPrimaryKVClient() {
+        return mPrimaryKVClient;
     }
 
     private void run() {
