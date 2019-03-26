@@ -10,9 +10,9 @@ public class KeyValueStore {
     public static final class ValuePair {
         public static final int SIZE_META_INFO = 8;
         
-        public ByteString value;
-        public int version;
-        public int sequenceStamp;
+        public final ByteString value;
+        public final int version;
+        public final int sequenceStamp;
         
         public ValuePair(ByteString value, int version, int sequenceStamp) {
             this.value = value;
@@ -71,9 +71,7 @@ public class KeyValueStore {
             
             mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
             
-            entry.value = value;
-            entry.version = version;
-            entry.sequenceStamp = stamp;
+            entry = new ValuePair(entry.value, entry.version, stamp);
         }
         else {
             entry = new ValuePair(value, version, stamp);
