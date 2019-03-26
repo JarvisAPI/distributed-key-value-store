@@ -3,7 +3,7 @@ package com.g8A.CPEN431.A11.server;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.g8A.CPEN431.A11.client.KVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
@@ -55,7 +55,7 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
         synchronized(mHandler) {
             if (!mTimerStarted) {
                 mTimerStarted = true;
-                Util.timer.schedule(new MigrateKVTask(), BATCH_INTERVAL);
+                Util.scheduler.schedule(new MigrateKVTask(), BATCH_INTERVAL, TimeUnit.MILLISECONDS);
             }
             mJoiningNodeIdx.add(requestId);
         }
@@ -85,7 +85,7 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
         return mHandler;
     }
 
-    public class MigrateKVTask extends TimerTask {
+    public class MigrateKVTask implements Runnable {
         @Override
         public void run() {
             Set<Integer> nodeIdSet = new HashSet<>();

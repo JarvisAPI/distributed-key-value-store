@@ -3,7 +3,6 @@ package com.g8A.CPEN431.A11.server;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +53,7 @@ public class MessageCache {
     
     private MessageCache() {
         mCache = new ConcurrentHashMap<>();
-        Util.timer.scheduleAtFixedRate(new CacheCleaner(), 0, TIMEOUT / 2);
+        Util.scheduler.scheduleAtFixedRate(new CacheCleaner(), 0, TIMEOUT / 2, TimeUnit.MILLISECONDS);
     }
     
     /**
@@ -124,7 +123,7 @@ public class MessageCache {
         mSize += update;
     }
     
-    private class CacheCleaner extends TimerTask {
+    private class CacheCleaner implements Runnable {
         
         @Override
         public void run() {

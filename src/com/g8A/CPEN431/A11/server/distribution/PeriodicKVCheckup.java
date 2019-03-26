@@ -11,7 +11,7 @@ import com.google.protobuf.ByteString;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Periodically check the keys in the KeyValue store, if a key K is mapped to a predecessor node that is
@@ -40,10 +40,10 @@ public class PeriodicKVCheckup {
     }
 
     public void start() {
-        Util.timer.schedule(new PeriodicKVCheckupTask(), CHECKUP_INTERVAL);
+        Util.scheduler.schedule(new PeriodicKVCheckupTask(), CHECKUP_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
-    public class PeriodicKVCheckupTask extends TimerTask {
+    public class PeriodicKVCheckupTask implements Runnable {
         @Override
         public void run() {
             try {

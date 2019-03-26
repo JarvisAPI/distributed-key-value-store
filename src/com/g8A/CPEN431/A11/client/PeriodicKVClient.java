@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.TimerTask;
 
 /**
  * This class aims to provide (more) reliable transmission using
@@ -95,7 +94,7 @@ public class PeriodicKVClient implements KVClient {
         synchronized(PeriodicKVClient.this) {
             if (mTimerTaskEnded) {
                 mTimerTaskEnded = false;
-                Util.timer.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL);
+                Util.scheduler.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL, TimeUnit.MILLISECONDS);
                 mElapsedTime = System.nanoTime();
             }
         }
@@ -167,7 +166,7 @@ public class PeriodicKVClient implements KVClient {
         WriteEventHandler.write(mChannel, ByteBuffer.wrap(msg.getDataBytes()), new InetSocketAddress(msg.getAddress(), msg.getPort()));
     }
     
-    private class AperiodicTask extends TimerTask {
+    private class AperiodicTask implements Runnable {
 
         @Override
         public void run() {
@@ -210,7 +209,7 @@ public class PeriodicKVClient implements KVClient {
                 
                 synchronized(PeriodicKVClient.this) {
                     if (!mRequestMap.isEmpty()) {
-                        Util.timer.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL);
+                        Util.scheduler.schedule(new AperiodicTask(), PERIODIC_TASK_INTERVAL, TimeUnit.MILLISECONDS);
                         mElapsedTime = System.nanoTime();
                     }
                     else {

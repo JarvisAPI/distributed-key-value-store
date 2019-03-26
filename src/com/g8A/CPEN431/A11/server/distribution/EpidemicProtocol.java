@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.protocol.Util;
@@ -98,10 +98,10 @@ public class EpidemicProtocol {
     }
     
     public void start() {
-        Util.timer.scheduleAtFixedRate(new EpidemicSendTask(), MIN_PUSH_INTERVAL, MIN_PUSH_INTERVAL);
+        Util.scheduler.scheduleAtFixedRate(new EpidemicSendTask(), MIN_PUSH_INTERVAL, MIN_PUSH_INTERVAL, TimeUnit.MILLISECONDS);
     }
     
-    private class EpidemicSendTask extends TimerTask {
+    private class EpidemicSendTask implements Runnable {
 
         @Override
         public void run() {
