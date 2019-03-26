@@ -8,14 +8,16 @@ import com.google.protobuf.ByteString;
 
 public class KeyValueStore {
     public static final class ValuePair {
-        public static final int SIZE_META_INFO = 4;
+        public static final int SIZE_META_INFO = 8;
         
-        public final ByteString value;
-        public final int version;
+        public ByteString value;
+        public int version;
+        public int sequenceStamp;
         
-        public ValuePair(ByteString value, int version) {
+        public ValuePair(ByteString value, int version, int sequenceStamp) {
             this.value = value;
             this.version = version;
+            this.sequenceStamp = sequenceStamp;
         }
     }
     
@@ -43,18 +45,43 @@ public class KeyValueStore {
      * @param key
      * @param value
      * @param version
+     * @param sequenceStamp the sequence stamp must be greater than the current sequence stamp for
+     * the key if the value for the key were to be updated. However if the sequenceStamp is less than 0
+     * then the entry is always overwritten and the new sequenceStamp will be the old sequenceStamp + 1.
+     * 
+     * @return the current entry mapped to by key.
+     * 
      * @throws OutOfMemoryError if there is no more space to put values into
      *  the key value store.
      */
-    public synchronized void put(ByteString key, ByteString value, int version) {
+    public synchronized ValuePair put(ByteString key, ByteString value, int version, int sequenceStamp) {
         if (mSize + key.size() + value.size() + ValuePair.SIZE_META_INFO > MAX_SIZE_BYTES) {
             throw new OutOfMemoryError();
         }
-        ValuePair prevPair = mKeyValMap.put(key, new ValuePair(value, version));
-        if (prevPair != null) {
-            mSize -= (key.size() + prevPair.value.size() + ValuePair.SIZE_META_INFO);
+        
+        ValuePair entry = mKeyValMap.get(key);
+        int stamp = 0;
+        if (entry != null) {
+            if (sequenceStamp < 0) {
+                stamp = entry.sequenceStamp + 1;
+            }
+            else if (entry.sequenceStamp >= sequenceStamp) {
+                return entry;
+            }
+            
+            mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
+            
+            entry.value = value;
+            entry.version = version;
+            entry.sequenceStamp = stamp;
+        }
+        else {
+            entry = new ValuePair(value, version, stamp);
+            mKeyValMap.put(key, entry);
         }
         mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
+        
+        return entry;
     }
     
     /**

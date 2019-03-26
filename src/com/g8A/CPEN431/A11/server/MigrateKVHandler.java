@@ -135,6 +135,7 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
             					.setKey(key)        					
                                 .setValue(vPair.value)
                                 .setVersion(vPair.version)
+                                .setSequenceStamp(vPair.sequenceStamp)
                                 .build()
                                 .toByteArray();
        

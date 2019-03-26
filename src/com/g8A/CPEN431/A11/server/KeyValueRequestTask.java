@@ -11,6 +11,7 @@ import com.g8A.CPEN431.A11.client.KVClient;
 import com.g8A.CPEN431.A11.protocol.NetworkMessage;
 import com.g8A.CPEN431.A11.protocol.Protocol;
 import com.g8A.CPEN431.A11.protocol.Util;
+import com.g8A.CPEN431.A11.server.KeyValueStore.ValuePair;
 import com.g8A.CPEN431.A11.server.MessageCache.CacheEntry;
 import com.g8A.CPEN431.A11.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A11.server.distribution.EpidemicProtocol;
@@ -141,7 +142,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
                         if (kvReqBuilder.getIsReplica()) {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion());
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else if(vnode.getPNodeId() != mNodeId) {
@@ -149,12 +150,22 @@ public class KeyValueRequestTask implements Runnable {
                             // message being processed by other node, move on
                             return;
                         } else {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion());
+                            int sequenceStamp = -1;
+                            if (kvReqBuilder.hasSequenceStamp()) {
+                                sequenceStamp = kvReqBuilder.getSequenceStamp();
+                            }
+                            
+                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp);
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             
                             if (Protocol.REPLICATION_FACTOR > 1) {
-                                kvReqBuilder.setIsReplica(true);
+                                kvReqBuilder
+                                    .setIsReplica(true)
+                                    .setSequenceStamp(curEntry.sequenceStamp)
+                                    .setValue(curEntry.value)
+                                    .setVersion(curEntry.version);
+                                
                                 message.setPayload(kvReqBuilder.build().toByteArray());
                                 
                                 int[] successorNodeIds = new int[Protocol.REPLICATION_FACTOR - 1];
@@ -319,6 +330,7 @@ public class KeyValueRequestTask implements Runnable {
         
         if (routedNode == null) {
             System.out.println(String.format("[DEBUG]: Unable to route to nodeId %d", nodeId));
+            return;
         }
         
         message.setAddressAndPort(routedNode.address, routedNode.port);

@@ -101,7 +101,8 @@ public class ReplicationKVHandler {
                         kvReqBuilder
                             .setKey(key)
                             .setValue(value.value)
-                            .setVersion(value.version);
+                            .setVersion(value.version)
+                            .setSequenceStamp(value.sequenceStamp);
                         
                         byte[] payload = kvReqBuilder.build().toByteArray();
                         
