@@ -75,7 +75,7 @@ public class ReplicationKVHandler {
                 
                 RouteStrategy routeStrat = DirectRoute.getInstance();
                 KeyValueStore kvStore = KeyValueStore.getInstance();
-                KVClient kvClient = ReactorServer.getInstance().getPrimaryKVClient();
+                KVClient kvClient = ReactorServer.getInstance().getSecondaryKVClient();
                 
                 Set<ByteString> keys = kvStore.getKeys();
                 System.out.println(String.format("[DEBUG]: replicate to successor task, looping through %d keys", keys.size()));
