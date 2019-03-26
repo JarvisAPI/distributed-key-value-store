@@ -30,9 +30,9 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
 	private RouteStrategy mRouteStrat;
 	
 
-    private MigrateKVHandler() {
+    private MigrateKVHandler(KVClient kvClient) {
         mJoiningNodeIdx = new HashSet<>();
-        mKVClient = ReactorServer.getInstance().getPrimaryKVClient();
+        mKVClient = kvClient;
         mRouteStrat = DirectRoute.getInstance();
         mKVClient.setResponseListener(this);
     }
@@ -74,9 +74,9 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
         return !mJoiningNodeIdx.isEmpty();
     }
     
-    public static MigrateKVHandler makeInstance() {
+    public static MigrateKVHandler makeInstance(KVClient kvClient) {
         if (mHandler == null) {
-            mHandler = new MigrateKVHandler();
+            mHandler = new MigrateKVHandler(kvClient);
         }
         return mHandler;
     }

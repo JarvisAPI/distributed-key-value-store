@@ -23,7 +23,7 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.4.4";
+    private static final String VERSION = "v2.4.5";
     
     private PeriodicKVClient mPrimaryKVClient;
     
@@ -45,7 +45,7 @@ public final class ReactorServer {
         
         mPrimaryKVClient = new PeriodicKVClient(kvClientChannel);
         
-        MigrateKVHandler.makeInstance();
+        MigrateKVHandler.makeInstance(mPrimaryKVClient);
         
         DatagramChannel epidemicChannel = DatagramChannel.open();
         epidemicChannel.setOption(StandardSocketOptions.SO_SNDBUF, NetworkMessage.MAX_PAYLOAD_SIZE * 2);
