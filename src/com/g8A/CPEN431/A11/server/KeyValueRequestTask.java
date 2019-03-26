@@ -2,7 +2,6 @@ package com.g8A.CPEN431.A11.server;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -77,8 +76,6 @@ public class KeyValueRequestTask implements Runnable {
             ByteString value;
             int cacheMetaInfo;
             int metaInfo;
-            
-            DatagramPacket packet = new DatagramPacket(new byte[0], 0, null, 0);
     
             errCode = Protocol.ERR_SUCCESS;           
             cacheMetaInfo = 0;
@@ -112,10 +109,7 @@ public class KeyValueRequestTask implements Runnable {
                     default:
                         dataBytes = cachedMessageVal.toByteArray();
                     }
-                    packet.setData(dataBytes);
-                    packet.setAddress(message.getAddress());
-                    packet.setPort(message.getPort());
-                    send(packet);
+                    send(dataBytes, message.getAddress(), message.getPort());
                     return;
                 } 
                 else {
@@ -126,7 +120,7 @@ public class KeyValueRequestTask implements Runnable {
                             return;
                         }
                     } catch (OutOfMemoryError e) {
-                        sendOverloadMessage(message, kvResBuilder, packet);
+                        sendOverloadMessage(message, kvResBuilder);
                         return;
                     }
                 }
@@ -181,7 +175,7 @@ public class KeyValueRequestTask implements Runnable {
                         int nodeId = mHashEntity.getKVNodeId(key);
                         if(nodeId != mNodeId) {
                             if (mMigrateKVHandler.isMigrating(nodeId)) {
-                                sendOverloadMessage(message, kvResBuilder, packet);
+                                sendOverloadMessage(message, kvResBuilder);
                                 return;
                             }
                             routeToNode(message, nodeId);
@@ -214,7 +208,7 @@ public class KeyValueRequestTask implements Runnable {
                         int nodeId = mHashEntity.getKVNodeId(key);
                         if(nodeId != mNodeId) {
                             if (mMigrateKVHandler.isMigrating(nodeId)) {
-                                sendOverloadMessage(message, kvResBuilder, packet);
+                                sendOverloadMessage(message, kvResBuilder);
                                 return;
                             }
                             routeToNode(message, nodeId);
@@ -238,7 +232,7 @@ public class KeyValueRequestTask implements Runnable {
                 case Protocol.WIPEOUT:
                     if (mMigrateKVHandler.isMigrating()){
                         System.err.println("[ERROR]: Overload during wipeout");
-                        sendOverloadMessage(message, kvResBuilder, packet);
+                        sendOverloadMessage(message, kvResBuilder);
                         // message overload because of migration, move on
                         return;
                     } 
@@ -290,10 +284,6 @@ public class KeyValueRequestTask implements Runnable {
             message.setPayload(dataBytes);
             dataBytes = message.getDataBytes();
             
-            packet.setData(dataBytes);
-            packet.setAddress(message.getAddress());
-            packet.setPort(message.getPort());
-            
             metaInfo = cacheMetaInfo & 0x0000ffff;
             switch(metaInfo) {
             case CACHE_META_SUCCESS_GET:
@@ -306,12 +296,10 @@ public class KeyValueRequestTask implements Runnable {
                 mMessageCache.put(message.getIdString(), ByteString.copyFrom(dataBytes), cacheMetaInfo, 0);
             }
             
-            send(packet);
+            send(dataBytes, message.getAddress(), message.getPort());
             
             if (kvReqBuilder.hasReplyIpAddress() && kvReqBuilder.hasReplyPort()) {
-                packet.setAddress(InetAddress.getByName(kvReqBuilder.getReplyIpAddress()));
-                packet.setPort(kvReqBuilder.getReplyPort());
-                send(packet);
+                send(dataBytes, InetAddress.getByName(kvReqBuilder.getReplyIpAddress()), kvReqBuilder.getReplyPort());
             }
 
         } catch (Exception e) {
@@ -335,17 +323,14 @@ public class KeyValueRequestTask implements Runnable {
         mKVClient.send(message, fromAddress);
     }
     
-    private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder, DatagramPacket packet) throws IOException, InterruptedException {
+    private void sendOverloadMessage(NetworkMessage message, KVResponse.Builder kvResBuilder) throws IOException, InterruptedException {
         message.setPayload(kvResBuilder
                 .setErrCode(Protocol.ERR_SYSTEM_OVERLOAD)
                 .setOverloadWaitTime(Protocol.getOverloadWaittime())
                 .build()
                 .toByteArray());
         byte[] dataBytes = message.getDataBytes();
-        packet.setData(dataBytes);
-        packet.setAddress(message.getAddress());
-        packet.setPort(message.getPort());
-        send(packet);
+        send(dataBytes, message.getAddress(), message.getPort());
     }
     
     private void routeToReplicaNode(NetworkMessage message, int nodeId) throws Exception {
@@ -360,8 +345,8 @@ public class KeyValueRequestTask implements Runnable {
         mKVClient.send(replicaMsg, null);
     }
     
-    private void send(DatagramPacket packet) throws IOException, InterruptedException {
-        ByteBuffer buf = ByteBuffer.wrap(packet.getData());
-        WriteEventHandler.write(mChannel, buf, new InetSocketAddress(packet.getAddress(), packet.getPort()));
+    private void send(byte[] dataBytes, InetAddress addr, int port) throws IOException, InterruptedException {
+        ByteBuffer buf = ByteBuffer.wrap(dataBytes);
+        WriteEventHandler.write(mChannel, buf, new InetSocketAddress(addr, port));
     }
 }
