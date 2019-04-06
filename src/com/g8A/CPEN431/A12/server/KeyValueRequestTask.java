@@ -144,7 +144,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
                         if (kvReqBuilder.getIsReplica()) {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp(), kvReqBuilder.getVectorClockList());
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp(), kvReqBuilder.getVectorClockList(), kvReqBuilder.getVectorClockCount());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else if(vnode.getPNodeId() != mNodeId) {
@@ -154,6 +154,7 @@ public class KeyValueRequestTask implements Runnable {
                         } else {
                             int sequenceStamp = -1;
                             List<Integer> vectorClock = new ArrayList<Integer>();
+                            int vectorClockListLength = kvReqBuilder.getVectorClockCount();
                             
                             if (kvReqBuilder.hasSequenceStamp()) {
                                 sequenceStamp = kvReqBuilder.getSequenceStamp();
@@ -162,7 +163,7 @@ public class KeyValueRequestTask implements Runnable {
                             	vectorClock = kvReqBuilder.getVectorClockList();
                             }
                             
-                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp, vectorClock);
+                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp, vectorClock, vectorClockListLength);
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             
