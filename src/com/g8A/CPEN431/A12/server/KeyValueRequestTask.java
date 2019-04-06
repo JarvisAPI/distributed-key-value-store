@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.g8A.CPEN431.A12.client.KVClient;
 import com.g8A.CPEN431.A12.protocol.NetworkMessage;
@@ -142,7 +144,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
                         if (kvReqBuilder.getIsReplica()) {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp());
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp(), kvReqBuilder.getVectorClockList());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else if(vnode.getPNodeId() != mNodeId) {
@@ -151,11 +153,16 @@ public class KeyValueRequestTask implements Runnable {
                             return;
                         } else {
                             int sequenceStamp = -1;
+                            List<Integer> vectorClock = new ArrayList<Integer>();
+                            
                             if (kvReqBuilder.hasSequenceStamp()) {
                                 sequenceStamp = kvReqBuilder.getSequenceStamp();
                             }
+                            if (kvReqBuilder.getVectorClockCount() > 0) {
+                            	vectorClock = kvReqBuilder.getVectorClockList();
+                            }
                             
-                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp);
+                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp, vectorClock);
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             

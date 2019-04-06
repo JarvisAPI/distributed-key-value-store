@@ -1,5 +1,6 @@
 package com.g8A.CPEN431.A12.server;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,11 +55,12 @@ public class KeyValueStore {
      * @throws OutOfMemoryError if there is no more space to put values into
      *  the key value store.
      */
-    public synchronized ValuePair put(ByteString key, ByteString value, int version, int sequenceStamp) {
+    public synchronized ValuePair put(ByteString key, ByteString value, int version, int sequenceStamp, List<Integer> vectorclock) {
         if (mSize + key.size() + value.size() + ValuePair.SIZE_META_INFO > MAX_SIZE_BYTES) {
             throw new OutOfMemoryError();
         }
         
+        // vector clock update logic
         ValuePair entry = mKeyValMap.get(key);
         int stamp = 0;
         if (entry != null) {
