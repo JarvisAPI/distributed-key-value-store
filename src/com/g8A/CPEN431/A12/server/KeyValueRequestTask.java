@@ -170,9 +170,22 @@ public class KeyValueRequestTask implements Runnable {
                             if (Protocol.REPLICATION_FACTOR > 1) {
                                 kvReqBuilder
                                     .setIsReplica(true)
-                                    .addAllVectorClock(curVClock)
                                     .setValue(curEntry.value)
                                     .setVersion(curEntry.version);
+                                // updating vector clock
+                                List<Integer> vClock = new ArrayList<Integer>();
+
+                                if(kvReqBuilder.getVectorClockCount() == 0) {
+                                	for(int i = 0; i < curEntry.vectorClock.length; i++) {
+                                    	vClock.add(curEntry.vectorClock[i]);
+                                    	
+                                    }
+                                	kvReqBuilder.addAllVectorClock(vClock);
+                                }else {
+                                	for(int i = 0; i < curEntry.vectorClock.length; i++) {
+                                    	kvReqBuilder.setVectorClock(i, curEntry.vectorClock[i]);
+                                    }
+                                }
                                 
                                 message.setPayload(kvReqBuilder.build().toByteArray());
                                 

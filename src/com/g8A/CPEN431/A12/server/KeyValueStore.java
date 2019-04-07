@@ -61,6 +61,12 @@ public class KeyValueStore {
             throw new OutOfMemoryError();
         }
         
+        System.out.print("received put: with vc length of " + vectorClockLength + ": ");
+        for(Integer i : vectorClock) {
+        	System.out.print(i + " ");
+        }
+        System.out.print("\n");
+        
         // vector clock update logic
     	ValuePair entry = mKeyValMap.get(key);
         int numOfNodes = NodeTable.getInstance().getNumberOfNodes();
@@ -95,6 +101,12 @@ public class KeyValueStore {
             mKeyValMap.put(key, entry);
         }
         mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
+        
+        System.out.print("updated vc length of " + vectorClockLength + ": ");
+        for(int i = 0; i < entry.vectorClock.length; i++) {
+        	System.out.print(entry.vectorClock[i] + " ");
+        }
+        System.out.print("\n");
         
         return entry;
     }

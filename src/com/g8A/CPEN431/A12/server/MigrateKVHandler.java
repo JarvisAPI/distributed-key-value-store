@@ -132,19 +132,36 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
                         
             			vPair = kvStore.get(key);
             			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
-            			List<Integer> vClock = new ArrayList<Integer>();
-            			for(int i : vPair.vectorClock) {
-            				vClock.add(i);
-            			}
             			
             			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
             					.setKey(key)        					
                                 .setValue(vPair.value)
                                 .setVersion(vPair.version)
-                                .addAllVectorClock(vClock)
                                 .build()
                                 .toByteArray();
-       
+            			
+            			// set the vector clock
+            			System.out.print("migration vclock from kvstore: ");
+            			List<Integer> vClock = new ArrayList<Integer>();
+                        for(int i = 0; i < vPair.vectorClock.length; i++) {
+                        	vClock.add(vPair.vectorClock[i]);
+                        	System.out.print(vPair.vectorClock[i] + " ");
+                        }
+                        System.out.print("\n");
+                        
+                        System.out.print("migration vclock from kvreq: ");
+                        for(Integer i: kvReqBuilder.getVectorClockList()) {
+                        	System.out.print(i + " ");
+                        }
+                        System.out.print("\n");
+//                        if(kvReqBuilder.getVectorClockCount() > 0) {
+//                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
+//                        		kvReqBuilder.setVectorClock(i, vPair.vectorClock[i]);
+//                        	}
+//                        }else {
+//                        	kvReqBuilder.addAllVectorClock(vClock);
+//                        }
+//       
 	                    message = new NetworkMessage(Util.getUniqueId(toAddress.port));
 	                    message.setPayload(dataBuf);
 	                    message.setAddressAndPort(toAddress.address, toAddress.port);

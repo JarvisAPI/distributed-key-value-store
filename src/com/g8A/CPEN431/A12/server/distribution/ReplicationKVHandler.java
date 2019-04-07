@@ -100,15 +100,26 @@ public class ReplicationKVHandler {
                         }
                         
                         ValuePair value = kvStore.get(key);
-                        List<Integer> vClock = new ArrayList<Integer>();
-                        for(int i : value.vectorClock) {
-                        	vClock.add(i);
-                        }
                         kvReqBuilder
-                            .setKey(key)
-                            .setValue(value.value)
-                            .setVersion(value.version)
-                            .addAllVectorClock(vClock);
+                        .setKey(key)
+                        .setValue(value.value)
+                        .setVersion(value.version);
+                        
+                        // set the vector clock
+//                        List<Integer> vClock = new ArrayList<Integer>();
+//                        for(int i = 0; i < value.vectorClock.length; i++) {
+//                        	vClock.add(value.vectorClock[i]);
+//                        }
+//                        if(kvReqBuilder.getVectorClockCount() > 0) {
+//                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
+//                        		kvReqBuilder.setVectorClock(i, value.vectorClock[i]);
+//                        	}
+//                        }else {
+//                        	kvReqBuilder.addAllVectorClock(vClock);
+//                        }
+                        
+                        
+                        
                         
                         byte[] payload = kvReqBuilder.build().toByteArray();
                         
