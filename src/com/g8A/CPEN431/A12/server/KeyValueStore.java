@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.g8A.CPEN431.A12.protocol.Util;
 import com.g8A.CPEN431.A12.server.distribution.NodeTable;
 import com.google.protobuf.ByteString;
 
@@ -61,7 +62,7 @@ public class KeyValueStore {
             throw new OutOfMemoryError();
         }
         
-        System.out.print("received put: with vc length of " + vectorClockLength + ": ");
+        System.out.print("received put: key=" + Util.intFromBytes(key.toByteArray(), 0) + " val=" + Util.intFromBytes(value.toByteArray(), 0) + " with vc length of " + vectorClockLength + ": ");
         for(Integer i : vectorClock) {
         	System.out.print(i + " ");
         }
@@ -82,14 +83,18 @@ public class KeyValueStore {
             if (vectorClockLength == 0) {
                 entry.vectorClock[selfNodeId] += 1;
                 entry = new ValuePair(value, version, entry.vectorClock);
+                System.out.println("from client! Perform Put");
                 mKeyValMap.put(key, entry);
             }
             // Case2: Request received from another node
             else if(compareVClockRes == -1) {
+            	System.out.println("smaller vclcok, Ignore Put");
 	        	return entry;
 	        }else if(compareVClockRes == 0) {
+	        	System.out.println("equal vclcok! Ignore Put");
 	        	return entry; // drop the request for now
 	        }else if(compareVClockRes == 1) {
+	        	System.out.println("larger vclcok! Perform Put");
 	        	entry = new ValuePair(value, version, incomingVClock);
                 mKeyValMap.put(key, entry);
 	        }

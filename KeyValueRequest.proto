@@ -9,6 +9,5 @@ message KVRequest {
     optional string reply_ip_address = 5;
     optional int32 reply_port = 6;
     optional bool is_replica = 7;
-    optional int32 sequence_stamp = 8;
-    repeated uint32 vector_clock = 9;
+    repeated uint32 vector_clock = 8;
 }
