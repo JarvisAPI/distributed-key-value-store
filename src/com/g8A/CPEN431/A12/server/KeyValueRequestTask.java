@@ -144,7 +144,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
                         if (kvReqBuilder.getIsReplica()) {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getSequenceStamp(), kvReqBuilder.getVectorClockList(), kvReqBuilder.getVectorClockCount());
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getVectorClockList(), kvReqBuilder.getVectorClockCount());
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else if(vnode.getPNodeId() != mNodeId) {
@@ -152,25 +152,25 @@ public class KeyValueRequestTask implements Runnable {
                             // message being processed by other node, move on
                             return;
                         } else {
-                            int sequenceStamp = -1;
                             List<Integer> vectorClock = new ArrayList<Integer>();
                             int vectorClockListLength = kvReqBuilder.getVectorClockCount();
                             
-                            if (kvReqBuilder.hasSequenceStamp()) {
-                                sequenceStamp = kvReqBuilder.getSequenceStamp();
-                            }
                             if (kvReqBuilder.getVectorClockCount() > 0) {
                             	vectorClock = kvReqBuilder.getVectorClockList();
                             }
                             
-                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), sequenceStamp, vectorClock, vectorClockListLength);
+                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), vectorClock, vectorClockListLength);
+                            List<Integer> curVClock = new ArrayList<Integer>();
+                            for(int i : curEntry.vectorClock) {
+                            	curVClock.add(i);
+                            }
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             
                             if (Protocol.REPLICATION_FACTOR > 1) {
                                 kvReqBuilder
                                     .setIsReplica(true)
-                                    .setSequenceStamp(curEntry.sequenceStamp)
+                                    .addAllVectorClock(curVClock)
                                     .setValue(curEntry.value)
                                     .setVersion(curEntry.version);
                                 

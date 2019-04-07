@@ -1,7 +1,9 @@
 package com.g8A.CPEN431.A12.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -130,12 +132,16 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
                         
             			vPair = kvStore.get(key);
             			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
+            			List<Integer> vClock = new ArrayList<Integer>();
+            			for(int i : vPair.vectorClock) {
+            				vClock.add(i);
+            			}
             			
             			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
             					.setKey(key)        					
                                 .setValue(vPair.value)
                                 .setVersion(vPair.version)
-                                .setSequenceStamp(vPair.sequenceStamp)
+                                .addAllVectorClock(vClock)
                                 .build()
                                 .toByteArray();
        

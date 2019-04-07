@@ -1,6 +1,8 @@
 package com.g8A.CPEN431.A12.server.distribution;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -98,11 +100,15 @@ public class ReplicationKVHandler {
                         }
                         
                         ValuePair value = kvStore.get(key);
+                        List<Integer> vClock = new ArrayList<Integer>();
+                        for(int i : value.vectorClock) {
+                        	vClock.add(i);
+                        }
                         kvReqBuilder
                             .setKey(key)
                             .setValue(value.value)
                             .setVersion(value.version)
-                            .setSequenceStamp(value.sequenceStamp);
+                            .addAllVectorClock(vClock);
                         
                         byte[] payload = kvReqBuilder.build().toByteArray();
                         

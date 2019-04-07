@@ -14,13 +14,11 @@ public class KeyValueStore {
         
         public final ByteString value;
         public final int version;
-        public final int sequenceStamp;
         public final int[] vectorClock;
         
-        public ValuePair(ByteString value, int version, int sequenceStamp, int[] vectorClock) {
+        public ValuePair(ByteString value, int version, int[] vectorClock) {
             this.value = value;
             this.version = version;
-            this.sequenceStamp = sequenceStamp;
             this.vectorClock = vectorClock;
         }
     }
@@ -58,88 +56,47 @@ public class KeyValueStore {
      * @throws OutOfMemoryError if there is no more space to put values into
      *  the key value store.
      */
-    public synchronized ValuePair put(ByteString key, ByteString value, int version, int sequenceStamp, List<Integer> vectorClock, int vectorClockLength) {
+    public synchronized ValuePair put(ByteString key, ByteString value, int version, List<Integer> vectorClock, int vectorClockLength) {
         if (mSize + key.size() + value.size() + ValuePair.SIZE_META_INFO > MAX_SIZE_BYTES) {
             throw new OutOfMemoryError();
         }
         
         // vector clock update logic
     	ValuePair entry = mKeyValMap.get(key);
-        int stamp = 0;
         int numOfNodes = NodeTable.getInstance().getNumberOfNodes();
         int selfNodeId = NodeTable.getInstance().getSelfNodeIdx();
         int[] incomingVClock = vectorClock.stream().mapToInt(Integer::intValue).toArray();
+        int[] newVClock = new int[numOfNodes];
         
-        // Case1: request is received from the client
-        if( vectorClockLength == 0) {
-            if (entry != null) {
-            	int[] curVClock = entry.vectorClock;
-            	
-                if (sequenceStamp < 0) {
-                    stamp = entry.sequenceStamp + 1;
-                    entry.vectorClock[selfNodeId] = stamp;
-                }
-                else if (entry.sequenceStamp >= sequenceStamp) {
-                    return entry;
-                }
-                
-                mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
-                
-                entry = new ValuePair(entry.value, entry.version, stamp, entry.vectorClock);
-            }
-            else {
-            	int[] newVClock = new int[numOfNodes];
-            	newVClock[selfNodeId] = 1;
-                entry = new ValuePair(value, version, stamp, newVClock);
+        if (entry != null) {
+        	int[] curVClock = entry.vectorClock;
+        	int compareVClockRes = compareVectorClock(incomingVClock, curVClock);
+        	
+        	// Case1: request is received from the client
+            if (vectorClockLength == 0) {
+                entry.vectorClock[selfNodeId] += 1;
+                entry = new ValuePair(value, version, entry.vectorClock);
                 mKeyValMap.put(key, entry);
             }
-            mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
-            
-            return entry;
+            // Case2: Request received from another node
+            else if(compareVClockRes == -1) {
+	        	return entry;
+	        }else if(compareVClockRes == 0) {
+	        	return entry; // drop the request for now
+	        }else if(compareVClockRes == 1) {
+	        	entry = new ValuePair(value, version, incomingVClock);
+                mKeyValMap.put(key, entry);
+	        }
+            mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
         }
-        
-        // Case2: Request received from another node
         else {
-        	if (entry != null) {
-            	int[] curVClock = entry.vectorClock;
-            	int compareVClockRes = compareVectorClock(incomingVClock, curVClock);
-            	
-                if (sequenceStamp < 0) {
-                    stamp = entry.sequenceStamp + 1;
-                }
-                else if (entry.sequenceStamp >= sequenceStamp) {
-                    return entry;
-                }
-		        // Case A: vector is smaller - ignore
-                
-		        if(compareVClockRes == -1) {
-		        	return entry;
-		        }else if(compareVClockRes == 0) {
-		        	return entry; // drop the request for now
-		        }else if(compareVClockRes == 1) {
-		        	entry = new ValuePair(value, version, stamp, incomingVClock);
-	                mKeyValMap.put(key, entry);
-		        }
-		       	// Case B: Vector is neither smaller nor bigger, then try picking one arbitrarily
-                
-                mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
-                
-                entry = new ValuePair(entry.value, entry.version, stamp, incomingVClock);
-            }
-            else { // put entry into table if it doesn't exist
-            	int[] newVClock = new int[numOfNodes];
-            	newVClock[selfNodeId] = 1;
-                entry = new ValuePair(value, version, stamp, newVClock);
-                mKeyValMap.put(key, entry);
-            }
-            mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
-            
-            return entry;
-        	
-            
-           
-        	
+        	newVClock[selfNodeId] = 1;
+            entry = new ValuePair(value, version, newVClock);
+            mKeyValMap.put(key, entry);
         }
+        mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
+        
+        return entry;
     }
     
     /**
