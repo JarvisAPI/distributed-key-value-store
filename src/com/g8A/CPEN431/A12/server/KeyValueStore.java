@@ -88,10 +88,20 @@ public class KeyValueStore {
                     entry = new ValuePair(value, version, vectorClock);
                     mKeyValMap.put(key, entry);
                     break;
+                case Uncomparable:
+                    // If Uncomparable: We can pick either current or received value.
+                    // We pick one value randomly so that if this does happen it will eventually
+                    // lead to one consistent version throughout the key store, if we always
+                    // deterministically pick one then we could end up having two divergent copies
+                    // forever.
+                    if (Util.rand.nextBoolean()) {
+                        entry = new ValuePair(value, version, vectorClock);
+                        mKeyValMap.put(key, entry);
+                        break;
+                    }
                 default:
                     // If Smaller: Ignore PUT, since it is old value.
                     // If Equal: The two values should be the same so nothing needs to be done.
-                    // If Uncomparable: Ignore, we can pick either current or received value.
                     return entry;
                 }
             }
