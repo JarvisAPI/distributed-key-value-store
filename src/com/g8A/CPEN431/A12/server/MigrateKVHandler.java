@@ -154,14 +154,14 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
                         	System.out.print(i + " ");
                         }
                         System.out.print("\n");
-//                        if(kvReqBuilder.getVectorClockCount() > 0) {
-//                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
-//                        		kvReqBuilder.setVectorClock(i, vPair.vectorClock[i]);
-//                        	}
-//                        }else {
-//                        	kvReqBuilder.addAllVectorClock(vClock);
-//                        }
-//       
+                        if(kvReqBuilder.getVectorClockCount() > 0) {
+                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
+                        		kvReqBuilder.setVectorClock(i, vPair.vectorClock[i]);
+                        	}
+                        }else {
+                        	kvReqBuilder.addAllVectorClock(vClock);
+                        }
+    
 	                    message = new NetworkMessage(Util.getUniqueId(toAddress.port));
 	                    message.setPayload(dataBuf);
 	                    message.setAddressAndPort(toAddress.address, toAddress.port);

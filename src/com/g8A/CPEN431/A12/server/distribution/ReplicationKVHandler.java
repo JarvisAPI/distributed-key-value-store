@@ -106,17 +106,17 @@ public class ReplicationKVHandler {
                         .setVersion(value.version);
                         
                         // set the vector clock
-//                        List<Integer> vClock = new ArrayList<Integer>();
-//                        for(int i = 0; i < value.vectorClock.length; i++) {
-//                        	vClock.add(value.vectorClock[i]);
-//                        }
-//                        if(kvReqBuilder.getVectorClockCount() > 0) {
-//                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
-//                        		kvReqBuilder.setVectorClock(i, value.vectorClock[i]);
-//                        	}
-//                        }else {
-//                        	kvReqBuilder.addAllVectorClock(vClock);
-//                        }
+                        List<Integer> vClock = new ArrayList<Integer>();
+                        for(int i = 0; i < value.vectorClock.length; i++) {
+                        	vClock.add(value.vectorClock[i]);
+                        }
+                        if(kvReqBuilder.getVectorClockCount() > 0) {
+                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
+                        		kvReqBuilder.setVectorClock(i, value.vectorClock[i]);
+                        	}
+                        }else {
+                        	kvReqBuilder.addAllVectorClock(vClock);
+                        }
                         
                         
                         
