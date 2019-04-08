@@ -133,19 +133,21 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
             			vPair = kvStore.get(key);
             			AddressHolder toAddress = mRouteStrat.getRoute(nodeId);
             			
-            			dataBuf = kvReqBuilder.setCommand(Protocol.PUT)
-            					.setKey(key)        					
-                                .setValue(vPair.value)
-                                .setVersion(vPair.version)
-                                .build()
-                                .toByteArray();
+            			kvReqBuilder.setCommand(Protocol.PUT)
+                        .setKey(key)                            
+                        .setValue(vPair.value)
+                        .setVersion(vPair.version);
             			
-            			// set the vector clock
-            			kvReqBuilder.clearVectorClock();
+                        // set the vector clock
+                        kvReqBuilder.clearVectorClock();
                         for(int i = 0; i < vPair.vectorClock.length; i++) {
                             kvReqBuilder.addVectorClock(vPair.vectorClock[i]);
                         }
-    
+                        
+            			dataBuf = kvReqBuilder
+                                .build()
+                                .toByteArray();
+
 	                    message = new NetworkMessage(Util.getUniqueId(toAddress.port));
 	                    message.setPayload(dataBuf);
 	                    message.setAddressAndPort(toAddress.address, toAddress.port);
