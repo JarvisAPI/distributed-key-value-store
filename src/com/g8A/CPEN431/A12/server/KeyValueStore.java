@@ -6,8 +6,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.g8A.CPEN431.A12.protocol.Util;
+import com.g8A.CPEN431.A12.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A12.server.distribution.HashEntity;
 import com.g8A.CPEN431.A12.server.distribution.NodeTable;
+import com.g8A.CPEN431.A12.server.distribution.VectorClock;
+import com.g8A.CPEN431.A12.server.distribution.VectorClock.CompareResult;
 import com.google.protobuf.ByteString;
 
 public class KeyValueStore {
@@ -58,65 +61,49 @@ public class KeyValueStore {
      * @throws OutOfMemoryError if there is no more space to put values into
      *  the key value store.
      */
-    public synchronized ValuePair put(ByteString key, ByteString value, int version, List<Integer> vectorClock, int vectorClockLength) {
+    public synchronized ValuePair put(ByteString key, ByteString value, int version, int[] vectorClock) {
         if (mSize + key.size() + value.size() + ValuePair.SIZE_META_INFO > MAX_SIZE_BYTES) {
             throw new OutOfMemoryError();
         }
         
-        System.out.print("received put: key=" + Util.intFromBytes(key.toByteArray(), 0) + " val=" + Util.intFromBytes(value.toByteArray(), 0) + " with vc length of " + vectorClockLength + ": ");
-        for(Integer i : vectorClock) {
-        	System.out.print(i + " ");
-        }
-        System.out.print("\n");
-        
-        // vector clock update logic
     	ValuePair entry = mKeyValMap.get(key);
-        int[] incomingVClock = vectorClock.stream().mapToInt(Integer::intValue).toArray();
-        int kvNodeId = HashEntity.getInstance().getKVNodeId(key);
         
         // if entry is in store
         if (entry != null) {
         	int[] curVClock = entry.vectorClock;
-        	int compareVClockRes = compareVectorClock(incomingVClock, curVClock);
         	
-        	// Case1: request is received from the client
-            if (vectorClockLength == 0) {
-            	incrementVectorClock(entry, kvNodeId);
+            if (vectorClock == null) {
+                // Case1: request is received from the client
+                VectorClock.incrementVectorClock(curVClock, DirectRoute.getInstance().getSelfNodeId());
             	
                 entry = new ValuePair(value, version, entry.vectorClock);
-                System.out.println("from client! Perform Put");
                 mKeyValMap.put(key, entry);
             }
-            // Case2: Request received from another node
-            else if(compareVClockRes == -1) {
-            	System.out.println("smaller vclcok, Ignore Put");
-	        	return entry;
-	        }else if(compareVClockRes == 0) {
-	        	System.out.println("equal vclcok! Ignore Put");
-	        	return entry; // drop the request for now
-	        }else if(compareVClockRes == 1) {
-	        	System.out.println("larger vclcok! Perform Put");
-	        	entry = new ValuePair(value, version, incomingVClock);
-                mKeyValMap.put(key, entry);
-	        }
+            else {
+                CompareResult compResult = VectorClock.compareVectorClock(vectorClock, curVClock);
+                
+                // Case2: Request received from another node
+                switch(compResult) {
+                case Larger:
+                    entry = new ValuePair(value, version, vectorClock);
+                    mKeyValMap.put(key, entry);
+                    break;
+                default:
+                    // If Smaller: Ignore PUT, since it is old value.
+                    // If Equal: The two values should be the same so nothing needs to be done.
+                    // If Uncomparable: Ignore, we can pick either current or received value.
+                    return entry;
+                }
+            }
             mSize -= (key.size() + entry.value.size() + ValuePair.SIZE_META_INFO);
         }
-        // if entry is not in store
         else {
-        	int[] newVClock = new int[2];
-        	newVClock[0] = kvNodeId;
-        	newVClock[1] = 1;
-        	
+            // if entry is not in store
+        	int[] newVClock = VectorClock.create(DirectRoute.getInstance().getSelfNodeId(), 1);
             entry = new ValuePair(value, version, newVClock);
             mKeyValMap.put(key, entry);
         }
         mSize += key.size() + value.size() + ValuePair.SIZE_META_INFO;
-        
-        System.out.print("updated vc length of " + vectorClockLength + ": ");
-        for(int i = 0; i < entry.vectorClock.length; i++) {
-        	System.out.print(entry.vectorClock[i] + " ");
-        }
-        System.out.print("\n");
         
         return entry;
     }
@@ -160,66 +147,6 @@ public class KeyValueStore {
      */
     public Set<ByteString> getKeys() {
     	return mKeyValMap.keySet();
-    }
-    
-    /**
-     * 
-     * @param vClockA - clock
-     * @param vClockB - clock you with to compare to
-     * @return -1 if vClockA is smaller than vClockB, 0 if equal, 1 if larger
-     */
-    public int compareVectorClock(int[] vClockA, int[] vClockB) {
-    	int compareResult = 0;
-    	int curNodeA;
-    	int curNodeB;
-    	
-    	for(int i = 0; i < vClockA.length; i+=2) {
-    		curNodeA = vClockA[i];
-    		for(int j = 0; j < vClockB.length; j+=2) {
-    			curNodeB = vClockA[i];
-    			if(curNodeA == curNodeB) {
-    				if(vClockA[i+1] > vClockB[j+1] && compareResult == 0) {
-    					compareResult = 1;
-    				}else if(vClockA[i+1] < vClockB[j+1] && compareResult == 0) {
-    					compareResult = -1;
-    				}else {
-    					compareResult = 0;
-    				}
-    			}
-    		}
-    	}
-    		
-    	return compareResult;
-    }
-    
-    public void incrementVectorClock(ValuePair entry, int kvNodeId) {
-    	boolean isEntryInVClock = false;
-    	int hasRoomAt = 0;
-    	
-    	for(int i = 0; i < entry.vectorClock.length; i+=2) {
-    		if(entry.vectorClock[i] == kvNodeId) {
-    			isEntryInVClock = true;
-    			entry.vectorClock[i+1]++;
-    		}else if(entry.vectorClock[i] == 0) {
-    			hasRoomAt = i;
-    			break;
-    		}
-    	}
-    	if(!isEntryInVClock) {
-    		if(hasRoomAt != 0) {
-    			entry.vectorClock[hasRoomAt] = kvNodeId;
-    			entry.vectorClock[hasRoomAt+1] = 1;
-    		}else {
-    			int[] doubleVClock = new int[entry.vectorClock.length * 2];
-    			for(int i = 0; i < entry.vectorClock.length; i++) {
-    				doubleVClock[i] = entry.vectorClock[i];
-    			}
-    			doubleVClock[entry.vectorClock.length] = kvNodeId;
-    			doubleVClock[entry.vectorClock.length+1] = 1;
-    			
-    			entry.vectorClock = doubleVClock;
-    		}
-    	}
     }
     
     public static synchronized KeyValueStore getInstance() {

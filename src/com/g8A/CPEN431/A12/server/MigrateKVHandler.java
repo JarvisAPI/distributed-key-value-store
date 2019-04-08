@@ -141,25 +141,9 @@ public class MigrateKVHandler implements KVClient.OnResponseReceivedListener {
                                 .toByteArray();
             			
             			// set the vector clock
-            			System.out.print("migration vclock from kvstore: ");
-            			List<Integer> vClock = new ArrayList<Integer>();
+            			kvReqBuilder.clearVectorClock();
                         for(int i = 0; i < vPair.vectorClock.length; i++) {
-                        	vClock.add(vPair.vectorClock[i]);
-                        	System.out.print(vPair.vectorClock[i] + " ");
-                        }
-                        System.out.print("\n");
-                        
-                        System.out.print("migration vclock from kvreq: ");
-                        for(Integer i: kvReqBuilder.getVectorClockList()) {
-                        	System.out.print(i + " ");
-                        }
-                        System.out.print("\n");
-                        if(kvReqBuilder.getVectorClockCount() > 0) {
-                        	for(int i = 0; i < kvReqBuilder.getVectorClockCount(); i++) {
-                        		kvReqBuilder.setVectorClock(i, vPair.vectorClock[i]);
-                        	}
-                        }else {
-                        	kvReqBuilder.addAllVectorClock(vClock);
+                            kvReqBuilder.addVectorClock(vPair.vectorClock[i]);
                         }
     
 	                    message = new NetworkMessage(Util.getUniqueId(toAddress.port));

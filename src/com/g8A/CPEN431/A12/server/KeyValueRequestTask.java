@@ -19,6 +19,7 @@ import com.g8A.CPEN431.A12.server.distribution.DirectRoute;
 import com.g8A.CPEN431.A12.server.distribution.EpidemicProtocol;
 import com.g8A.CPEN431.A12.server.distribution.HashEntity;
 import com.g8A.CPEN431.A12.server.distribution.RouteStrategy;
+import com.g8A.CPEN431.A12.server.distribution.VectorClock;
 import com.g8A.CPEN431.A12.server.distribution.VirtualNode;
 import com.g8A.CPEN431.A12.server.distribution.RouteStrategy.AddressHolder;
 import com.google.protobuf.ByteString;
@@ -144,7 +145,7 @@ public class KeyValueRequestTask implements Runnable {
                     } else {
                         VirtualNode vnode = mHashEntity.getKVNode(key);
                         if (kvReqBuilder.getIsReplica()) {
-                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), kvReqBuilder.getVectorClockList(), kvReqBuilder.getVectorClockCount());
+                            mKeyValStore.put(key, value, kvReqBuilder.getVersion(), VectorClock.getVectorClock(kvReqBuilder));
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                         } else if(vnode.getPNodeId() != mNodeId) {
@@ -152,18 +153,7 @@ public class KeyValueRequestTask implements Runnable {
                             // message being processed by other node, move on
                             return;
                         } else {
-                            List<Integer> vectorClock = new ArrayList<Integer>();
-                            int vectorClockListLength = kvReqBuilder.getVectorClockCount();
-                            
-                            if (kvReqBuilder.getVectorClockCount() > 0) {
-                            	vectorClock = kvReqBuilder.getVectorClockList();
-                            }
-                            
-                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), vectorClock, vectorClockListLength);
-                            List<Integer> curVClock = new ArrayList<Integer>();
-                            for(int i : curEntry.vectorClock) {
-                            	curVClock.add(i);
-                            }
+                            ValuePair curEntry = mKeyValStore.put(key, value, kvReqBuilder.getVersion(), VectorClock.getVectorClock(kvReqBuilder));
                             dataBytes = SUCCESS_BYTES;
                             cacheMetaInfo = CACHE_META_SUCCESS_BYTES | MessageCache.META_MASK_CACHE_REFERENCE;
                             
@@ -172,19 +162,10 @@ public class KeyValueRequestTask implements Runnable {
                                     .setIsReplica(true)
                                     .setValue(curEntry.value)
                                     .setVersion(curEntry.version);
-                                // updating vector clock
-                                List<Integer> vClock = new ArrayList<Integer>();
 
-                                if(kvReqBuilder.getVectorClockCount() == 0) {
-                                	for(int i = 0; i < curEntry.vectorClock.length; i++) {
-                                    	vClock.add(curEntry.vectorClock[i]);
-                                    	
-                                    }
-                                	kvReqBuilder.addAllVectorClock(vClock);
-                                }else {
-                                	for(int i = 0; i < curEntry.vectorClock.length; i++) {
-                                    	kvReqBuilder.setVectorClock(i, curEntry.vectorClock[i]);
-                                    }
+                                kvReqBuilder.clearVectorClock();
+                                for(int i = 0; i < curEntry.vectorClock.length; i++) {
+                                    kvReqBuilder.addVectorClock(curEntry.vectorClock[i]);
                                 }
                                 
                                 message.setPayload(kvReqBuilder.build().toByteArray());
