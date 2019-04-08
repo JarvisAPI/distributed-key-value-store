@@ -74,9 +74,9 @@ public class KeyValueStore {
         	
             if (vectorClock == null) {
                 // Case1: request is received from the client
-                VectorClock.incrementVectorClock(curVClock, DirectRoute.getInstance().getSelfNodeId());
+                curVClock = VectorClock.incrementVectorClock(curVClock, DirectRoute.getInstance().getSelfNodeId());
             	
-                entry = new ValuePair(value, version, entry.vectorClock);
+                entry = new ValuePair(value, version, curVClock);
                 mKeyValMap.put(key, entry);
             }
             else {
