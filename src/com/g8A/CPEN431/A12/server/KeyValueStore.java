@@ -52,9 +52,7 @@ public class KeyValueStore {
      * @param key
      * @param value
      * @param version
-     * @param sequenceStamp the sequence stamp must be greater than the current sequence stamp for
-     * the key if the value for the key were to be updated. However if the sequenceStamp is less than 0
-     * then the entry is always overwritten and the new sequenceStamp will be the old sequenceStamp + 1.
+     * @param vectorClock
      * 
      * @return the current entry mapped to by key.
      * 
