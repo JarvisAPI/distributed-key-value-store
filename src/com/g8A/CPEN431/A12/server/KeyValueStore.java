@@ -107,7 +107,15 @@ public class KeyValueStore {
         }
         else {
             // if entry is not in store
-        	int[] newVClock = VectorClock.create(DirectRoute.getInstance().getSelfNodeId(), 1);
+            int[] newVClock;
+            if (vectorClock == null) {
+                // Case 1: request is from client.
+                newVClock = VectorClock.create(DirectRoute.getInstance().getSelfNodeId(), 1);
+            }
+            else {
+                // Case 2: request is from other node.
+                newVClock = vectorClock;
+            }
             entry = new ValuePair(value, version, newVClock);
             mKeyValMap.put(key, entry);
         }
