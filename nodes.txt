@@ -3,7 +3,7 @@ plink.cs.uwaterloo.ca
 planetlab2.pop-pa.rnp.br
 planetlab3.rutgers.edu
 node1.planetlab.mathcs.emory.edu
-planetlab2.citadel.edu
+planetlab3.cs.uoregon.edu
 planetlab-5.eecs.cwru.edu
 planetlab1.pop-pa.rnp.br
 planetlab04.cs.washington.edu
@@ -12,7 +12,7 @@ planetlab02.cs.washington.edu
 planetlab01.cs.washington.edu
 planetlab2.dtc.umn.edu
 planetlab2.pop-mg.rnp.br
-pl2.eng.monash.edu.au
+planetlab3.wail.wisc.edu
 planetlab2.koganei.itrc.net
 planetlab2.c3sl.ufpr.br
 planetlab4.mini.pw.edu.pl

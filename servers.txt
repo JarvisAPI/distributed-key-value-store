@@ -3,7 +3,7 @@ plink.cs.uwaterloo.ca:64611
 planetlab2.pop-pa.rnp.br:64611
 planetlab3.rutgers.edu:64611
 node1.planetlab.mathcs.emory.edu:64611
-planetlab2.citadel.edu:64611
+planetlab3.cs.uoregon.edu:64611
 planetlab-5.eecs.cwru.edu:64611
 planetlab1.pop-pa.rnp.br:64611
 planetlab04.cs.washington.edu:64611
@@ -12,7 +12,7 @@ planetlab02.cs.washington.edu:64611
 planetlab01.cs.washington.edu:64611
 planetlab2.dtc.umn.edu:64611
 planetlab2.pop-mg.rnp.br:64611
-pl2.eng.monash.edu.au:64611
+planetlab3.wail.wisc.edu:64611
 planetlab2.koganei.itrc.net:64611
 planetlab2.c3sl.ufpr.br:64611
 planetlab4.mini.pw.edu.pl:64611
