@@ -23,7 +23,7 @@ public final class ReactorServer {
     private static ReactorServer mReactorServer;
     public static int KEY_VALUE_PORT = 50111;
     private Reactor mReactor;
-    private static final String VERSION = "v2.4.11";
+    private static final String VERSION = "v2.4.12";
     
     private PeriodicKVClient mPrimaryKVClient;
     private PeriodicKVClient mSecondaryKVClient;

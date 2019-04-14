@@ -84,14 +84,12 @@ public class PeriodicKVClient implements KVClient {
     
     @Override
     public void send(NetworkMessage msg, AddressHolder fromAddress) {
-        ReactorServer.getInstance().getThreadPool()
-            .execute(new SendTask(new RequestBundle(msg, fromAddress)));
+        send(new RequestBundle(msg, fromAddress));
     }
     
     @Override
     public void send(NetworkMessage msg, AddressHolder fromAddress, int requestId) {
-        ReactorServer.getInstance().getThreadPool()
-            .execute(new SendTask(new RequestBundle(msg, fromAddress, requestId)));
+        send(new RequestBundle(msg, fromAddress, requestId));
     }
     
     private void checkPeriodicTask() {
@@ -112,24 +110,14 @@ public class PeriodicKVClient implements KVClient {
         return new ReceiveTask(dataBytes);
     }
     
-    public class SendTask implements Runnable {
-        private RequestBundle mRequestBundle;
-        
-        public SendTask(Object attachment) {
-            mRequestBundle = (RequestBundle) attachment;
+    private void send(RequestBundle requestBundle) {
+        try {
+            mRequestMap.put(requestBundle.msg.getIdString(), requestBundle);
+            checkPeriodicTask();
+            sendPacket(requestBundle.msg);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        @Override
-        public void run() {
-            try {
-                mRequestMap.put(mRequestBundle.msg.getIdString(), mRequestBundle);
-                checkPeriodicTask();
-                sendPacket(mRequestBundle.msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        
     }
     
     public class ReceiveTask implements Runnable {

@@ -15,9 +15,10 @@ if [ $# -eq 0 ]; then
 fi
 
 if [ ${file: -3} == "jar" ] ; then
-  for node in $nodes; do
-    ssh -l $user -i "$key" $node $command
-  done
+    for node in $nodes; do
+        echo "Running server on $node"
+        ssh -l $user -i "$key" $node $command
+    done
 else
   echo "File is not an executable .jar file";
 fi
