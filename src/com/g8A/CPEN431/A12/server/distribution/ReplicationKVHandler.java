@@ -83,7 +83,7 @@ public class ReplicationKVHandler {
                 System.out.println(String.format("[DEBUG]: replicate to successor task, looping through %d keys", keys.size()));
                 
                 HashEntity hashEntity = HashEntity.getInstance();
-                // scan keys, replicate keys which hash to self.
+                // scan keys, replicate keys which hash to one of the affected virtual nodes.
                 for(ByteString key : keys) {
                     VirtualNode vnode = hashEntity.getKVNode(key);
                     if (affectedVNodes.contains(vnode)) {

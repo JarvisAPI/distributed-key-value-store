@@ -14,3 +14,7 @@ planetlab1.cs.uoregon.edu:64622
 salt.planetlab.cs.umd.edu:64622
 node2.planetlab.mathcs.emory.edu:64622
 planetlab3.wail.wisc.edu:64622
+planetlab-2.calpoly-netlab.net:64622
+planetlab3.cs.uoregon.edu:64622
+planetlab1.temple.edu:64622
+planetlab2.koganei.itrc.net:64622

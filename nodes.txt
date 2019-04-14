@@ -14,3 +14,7 @@ planetlab1.cs.uoregon.edu
 salt.planetlab.cs.umd.edu
 node2.planetlab.mathcs.emory.edu
 planetlab3.wail.wisc.edu
+planetlab-2.calpoly-netlab.net
+planetlab3.cs.uoregon.edu
+planetlab1.temple.edu
+planetlab2.koganei.itrc.net
