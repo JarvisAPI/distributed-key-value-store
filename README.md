@@ -8,4 +8,4 @@ Used Run Command: java -Xmx64m -jar A12.jar --port 64611 --node-list servers.txt
 
 Used Run Command (AWS): java -Xmx64m -jar A12.jar --port 43100 --replication-factor 1 --num-vnodes 1 --thread-pool-size 1 --max-kvstore-size 30 --max-cache-size 6
 
-Brief Description: Refactored to use reactor pattern
+Brief Description: See Description.pdf for more detailed description
